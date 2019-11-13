@@ -1,0 +1,7 @@
+{
+  "name": "mentor-bot-scheduler",
+  "description": "Scheduler manager for mentor bot",
+  "eggPlugin": {
+    "name": "sched"
+  }
+}

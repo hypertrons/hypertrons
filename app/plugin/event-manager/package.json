@@ -1,0 +1,7 @@
+{
+  "name": "mentor-bot-event",
+  "description": "Event manager for mentor bot",
+  "eggPlugin": {
+    "name": "event"
+  }
+}

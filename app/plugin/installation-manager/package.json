@@ -1,0 +1,7 @@
+{
+  "name": "mentor-bot-installation",
+  "description": "Installation manager for mentor bot",
+  "eggPlugin": {
+    "name": "installation"
+  }
+}
