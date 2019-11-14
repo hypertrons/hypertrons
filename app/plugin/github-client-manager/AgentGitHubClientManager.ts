@@ -10,8 +10,11 @@ import { GitHubRepoInitEvent } from './events';
 
 export class AgentGitHubClientManager extends AgentPluginBase<null> {
 
+  private installationIdSet: Set<number>;
+
   constructor(config: null, agent: Agent) {
     super(config, agent);
+    this.installationIdSet = new Set<number>();
   }
 
   public async onReady(): Promise<void> {
@@ -27,7 +30,8 @@ export class AgentGitHubClientManager extends AgentPluginBase<null> {
   public async onClose(): Promise<void> { }
 
   private async initInstallation(config: GitHubClientConfig, installationId: number) {
-    this.logger.info(`Start to init client manager for installation ${installationId}.`);
+    this.logger.info(`Start to init client manager for installation ${config.name}.`);
+    this.installationIdSet.add(installationId);
     const id = config.appId;
     const privateKeyPath = config.privateKeyPath;
     const privateKeyFilePath = config.privateKeyPathAbsolute ?
@@ -53,11 +57,13 @@ export class AgentGitHubClientManager extends AgentPluginBase<null> {
       const repos = await octokit.apps.listRepos();
       repos.data.repositories.forEach(async r => {
         // for any repo, send repo init event to all workers
-        this.agent.event.publish('all', GitHubRepoInitEvent, {
+        this.agent.event.publish('workers', GitHubRepoInitEvent, {
           appId: config.appId,
           privateKey,
           fullName: r.full_name,
           installationId,
+          githubInstallationId: i.id,
+          installationName: config.name,
         });
       });
     }));

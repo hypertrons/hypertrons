@@ -4,6 +4,7 @@ import EventSource from 'eventsource';
 import { AppPluginBase } from '../../basic/AppPluginBase';
 import { InstallationInitEvent } from '../installation-manager/types';
 import { GitHubClientConfig } from '../github-client-manager/GitHubInstallationConfig';
+import { join } from 'path';
 
 export class GitHubWebhook extends AppPluginBase<null> {
 
@@ -38,8 +39,8 @@ export class GitHubWebhook extends AppPluginBase<null> {
       }
 
       // setup router
-      const path = `${config.webhook.path}/${e.installationId}`;
-      this.logger.info(`Load webhooks for ${e.name} on /${this.name}/${path}`);
+      const path = join(config.webhook.path, e.installationId.toString());
+      this.logger.info(`Load webhooks for ${config.name} on /${this.name}${path}`);
       this.get(path, async (ctx: Context, next: any) => {
         // pass to webhooks
         webhooks.verifyAndReceive({
@@ -58,8 +59,10 @@ export class GitHubWebhook extends AppPluginBase<null> {
 
   public async onClose(): Promise<void> { }
 
-  protected checkConfigFields(): string[] {
-    return [ 'path', 'secret' ];
+  public register(func: (installationId: number, webhooks: Webhooks) => any) {
+    for (const [ installationId, webhooks ] of this.webhooks) {
+      func(installationId, webhooks);
+    }
   }
 
 }

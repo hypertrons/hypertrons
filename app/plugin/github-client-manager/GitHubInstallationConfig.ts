@@ -1,4 +1,5 @@
 export class GitHubClientConfig {
+  name: string;
   endpoint: string;
   appId: number;
   privateKeyPath: string;

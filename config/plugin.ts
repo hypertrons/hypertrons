@@ -22,6 +22,11 @@ const plugin: EggPlugin = {
     path: join(__dirname, '../app/plugin/github-client-manager'),
   },
 
+  githubWebhook: {
+    enable: true,
+    path: join(__dirname, '../app/plugin/github-webhook-manager'),
+  },
+
   configManager: {
     enable: true,
     path: join(__dirname, '../app/plugin/config-manager'),
