@@ -1,11 +1,8 @@
-/**
- * When agent retrieve installed repos
- */
-export class ClientRetrieveInstalledReposDoneEvent {
-  repos: Array<{
-    fullName: string;
-    token: string;
-  }>;
+export class GitHubRepoInitEvent {
+  appId: number;
+  privateKey: string;
+  installationId: number;
+  fullName: string;
 }
 
 export class ClientUpdateRepoTokenEvent {

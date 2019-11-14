@@ -22,3 +22,22 @@ export const GloablEvents = {
   START: 'oss-mentor-bot-start',
   CLOSE: 'oss-mentor-bot-close',
 };
+
+export class AutoCreateMap<K, V> extends Map<K, V> {
+
+  private valueGenerator: () => V;
+
+  constructor(valueGenerator: () => V) {
+    super();
+    this.valueGenerator = valueGenerator;
+  }
+
+  public get(key: K, valueGenerator?: () => V): V {
+    let value = super.get(key);
+    if (!value) {
+      value = valueGenerator ? valueGenerator() : this.valueGenerator();
+      this.set(key, value);
+    }
+    return value;
+  }
+}
