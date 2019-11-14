@@ -48,7 +48,7 @@ export class GitHubWebhook extends AppPluginBase<Config> {
   public async onClose(): Promise<void> { }
 
   protected checkConfigFields(): string[] {
-    return ['path', 'secret'];
+    return [ 'path', 'secret' ];
   }
 }
 
