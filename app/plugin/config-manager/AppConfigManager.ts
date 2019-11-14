@@ -12,43 +12,53 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// import { Application, IConfigManager, MgrBotAppPluginBase, Types } from '@mgrbot/core';
-import { readFileSync } from 'fs';
-import { ConfigManagerInternalConfigLoadedEvent, ConfigManagerInternalReLoadConfigEvent } from './events';
-import { ConfigManagerConfigLoadedEvent } from '../event-manager/events';
-
+import { ConfigManagerInternalConfigLoadedEvent } from './events';
+import {
+  ClientReadyEvent, RepoPushEvent, RepoRemovedEvent, ConfigManagerConfigLoadedEvent,
+} from '../event-manager/events';
 import { Application } from 'egg';
 import { AppPluginBase } from '../../basic/AppPluginBase';
+import { AppConfigLoader } from './AppConfigLoader';
 
 export class AppConfigManager extends AppPluginBase<AppConfigManagerConfig> {
 
   private configMap: Map<string, any>;
+  private appConfigLoader: AppConfigLoader;
 
   constructor(config: AppConfigManagerConfig, app: Application) {
     super(config, app);
     this.configMap = new Map<string, any>();
+    this.appConfigLoader = new AppConfigLoader(this.app);
   }
 
   public async onReady() {
 
-    // reload config
-    this.app.event.subscribeAll(ConfigManagerInternalReLoadConfigEvent, async event => {
-
-      const config = await this.loadConfig(event.installationId, event.fullName);
-
-      const newEvent = {
-        installationId: event.installationId,
-        fullName: event.fullName,
-        config,
-      };
-      this.app.event.publish('workers', ConfigManagerInternalConfigLoadedEvent, newEvent);
-      this.app.event.publish('all', ConfigManagerConfigLoadedEvent, newEvent);
-
+    // load the configuration when client ready
+    this.app.event.subscribeOne(ClientReadyEvent, async event => {
+      this.loadConfig(event.installationId, event.fullName);
     });
 
-    // config loaded
+    // update the configuration when a repo was removed
+    this.app.event.subscribeOne(RepoRemovedEvent, async event => {
+      this.loadConfig(event.installationId, event.fullName);
+    });
+
+    // update configuration when receive a push event
+    this.app.event.subscribeOne(RepoPushEvent, async event => {
+      if (event.commits.some(c => {
+          // put modified first because this is the most common situation
+          return c.modified.indexOf(this.config.remote.filePath) >= 0 ||
+          c.added.indexOf(this.config.remote.filePath) >= 0 ||
+          c.removed.indexOf(this.config.remote.filePath) >= 0;
+      })) {
+        this.loadConfig(event.installationId, event.fullName);
+      }
+    });
+
+    // config loaded, update self config map
     this.app.event.subscribeAll(ConfigManagerInternalConfigLoadedEvent, async event => {
       this.configMap.set(this.genRepoConfigKey(event.installationId, event.fullName), event.config);
+      this.app.event.publish('worker', ConfigManagerConfigLoadedEvent, event);
     });
 
   }
@@ -61,42 +71,29 @@ export class AppConfigManager extends AppPluginBase<AppConfigManagerConfig> {
     return this.configMap.get(this.genRepoConfigKey(installationId, fullName));
   }
 
-  private async loadConfig(installationId: number, fullName: string): Promise<any> {
-    const baseConfig = this.app.config;
-    let privateConfig = {};
-
-    // load private config
-    if (this.config.private.file) {
-      privateConfig = readFileSync(this.genRepoConfigFilePath(installationId, fullName)).toJSON();
-    } else if (this.config.private.mysql) {
-      // TODO: load from mysql
-    }
-
-    // load remote config
-    const fileContent = await this.getFileContent(this.config.remote.filePath);
-    const remoteConfig = JSON.parse(fileContent);
-
-    return Object.assign(baseConfig, privateConfig, remoteConfig);
+  private async loadConfig(installationId: number, fullName: string): Promise<void> {
+    const config = await this.appConfigLoader.loadConfig(this.config, installationId, fullName);
+    const newEvent = {
+      installationId,
+      fullName,
+      config,
+    };
+    // notify all workers to update cache
+    this.app.event.publish('workers', ConfigManagerInternalConfigLoadedEvent, newEvent);
   }
 
-  private genRepoConfigFilePath(installationId: number, fullName: string): string {
-    return `${installationId}_${fullName}.json`;
-  }
-
+  // installationId/fullName <= (installationId, fullName)
   private genRepoConfigKey(installationId: number, fullName: string): string {
     return `${installationId}/${fullName}`;
   }
 
-  // just for test
-  private async getFileContent(filePath: string): Promise<any> {
-    console.log(filePath);
-  }
 }
 
-interface AppConfigManagerConfig {
+export interface AppConfigManagerConfig {
   remote: {
     filePath: string;
   };
+  configurable: string[];
   private: {
     file?: {
       rootPath: string;
