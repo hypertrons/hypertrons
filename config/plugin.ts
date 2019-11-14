@@ -21,6 +21,11 @@ const plugin: EggPlugin = {
     enable: true,
     path: join(__dirname, '../app/plugin/github-client-manager'),
   },
+
+  configManager: {
+    enable: true,
+    path: join(__dirname, '../app/plugin/config-manager'),
+  },
 };
 
 export default plugin;

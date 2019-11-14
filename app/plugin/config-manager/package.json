@@ -2,6 +2,6 @@
   "name": "mentor-bot-config",
   "description": "config manager for mentor bot",
   "eggPlugin": {
-    "name": "config"
+    "name": "configManager"
   }
 }

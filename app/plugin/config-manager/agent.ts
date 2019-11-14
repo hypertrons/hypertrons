@@ -4,10 +4,10 @@ import { AgentConfigManager } from './AgentConfigManager';
 
 declare module 'egg' {
   interface Agent {
-    config: AgentConfigManager;
+    configManager: AgentConfigManager;
   }
 }
 
 module.exports = (agent: Agent) => {
-  AgentPluginBase.LoadToAgent('config', AgentConfigManager, agent);
+  AgentPluginBase.LoadToAgent('configManager', AgentConfigManager, agent);
 };

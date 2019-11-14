@@ -4,10 +4,10 @@ import { AppConfigManager } from './AppConfigManager';
 
 declare module 'egg' {
   interface App {
-    config: AppConfigManager;
+    configManager: AppConfigManager;
   }
 }
 
 module.exports = (app: Application) => {
-  AppPluginBase.LoadToApp('config', AppConfigManager, app);
+  AppPluginBase.LoadToApp('configManager', AppConfigManager, app);
 };
