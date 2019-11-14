@@ -1,7 +1,7 @@
 import { AppPluginBase } from '../../basic/AppPluginBase';
 import { IClient } from './IClient';
 import { Application } from 'egg';
-import { InstallationType, InstallationInitEvent } from './types';
+import { InstallationType, InstallationClientReadyEvent } from './types';
 
 export class AppInstallationManager extends AppPluginBase<Config> {
 
@@ -13,17 +13,12 @@ export class AppInstallationManager extends AppPluginBase<Config> {
   }
 
   public async onReady(): Promise<void> {
-
-  }
-
-  public async onStart(): Promise<void> {
-    this.config.configs.forEach((c, index) => {
-      this.app.event.publish('all', InstallationInitEvent, {
-        installationId: index,
-        ...c,
-      });
+    this.app.event.subscribeOne(InstallationClientReadyEvent, async e => {
+      this.clientMap.set(e.installationId, e.installationType);
     });
   }
+
+  public async onStart(): Promise<void> { }
 
   public async onClose(): Promise<void> { }
 
@@ -51,7 +46,6 @@ export class AppInstallationManager extends AppPluginBase<Config> {
 interface Config {
   configs: Array<{
     type: InstallationType,
-    name: string,
     config: any,
   }>;
 }
