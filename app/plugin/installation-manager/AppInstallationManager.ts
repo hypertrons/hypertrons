@@ -18,22 +18,21 @@ export class AppInstallationManager extends AppPluginBase<Config> {
 
   public async onStart(): Promise<void> {
     this.config.configs.forEach((c, index) => {
-      this.app.event.publish('agent', InstallationInitEvent, {
+      this.app.event.publish('all', InstallationInitEvent, {
         installationId: index,
-        type: c.type,
-        config: c.config,
+        ...c,
       });
     });
   }
 
   public async onClose(): Promise<void> { }
 
-  public getClient(installationId: number, _: string): IClient | undefined {
+  public async getClient(installationId: number, name: string): Promise<IClient | undefined> {
     const type = this.clientMap.get(installationId);
     if (type) {
       switch (type) {
         case 'github':
-          break;
+          return this.app.githubClient.getClient(installationId, name);
         case 'gitlab':
           break;
         default:
@@ -52,6 +51,7 @@ export class AppInstallationManager extends AppPluginBase<Config> {
 interface Config {
   configs: Array<{
     type: InstallationType,
+    name: string,
     config: any,
   }>;
 }
