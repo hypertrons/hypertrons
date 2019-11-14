@@ -13,13 +13,16 @@
 // limitations under the License.
 
 export default {
-  client: {
-    remote: {
-      filePath: '.github/oss-bot.json',
-    },
-    private: {
-      file: {
-        rootPath: './repo_configs/',
+  configManager: {
+    client: {
+      remote: {
+        filePath: '.github/oss-bot.json',
+      },
+      configurable: [ ],
+      private: {
+        file: {
+          rootPath: './repo_configs/',
+        },
       },
     },
   },
