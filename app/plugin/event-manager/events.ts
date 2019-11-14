@@ -21,11 +21,11 @@ export class RepoPushEvent {
   installationId: number;
   fullName: string;
   ref: string;
-  commits: {
+  commits: Array<{
     added: string[];
     removed: string[];
     modified: string[];
-  }[];
+  }>;
 }
 
 /**
