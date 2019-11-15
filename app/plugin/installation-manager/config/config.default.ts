@@ -1,5 +1,5 @@
 export default {
-  event: {
+  installation: {
     client: {},
   },
 };

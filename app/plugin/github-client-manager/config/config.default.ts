@@ -1,3 +1,5 @@
 export default {
-  client: {},
+  githubClient: {
+    client: {},
+  },
 };
