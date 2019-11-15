@@ -50,3 +50,17 @@ export class ConfigManagerConfigLoadedEvent {
   fullName: string;
   config: any;
 }
+
+/**
+ * When a comment an issue
+ */
+export class CommandManagerIssuesEvent {
+  installationId: number;
+  fullName: string;
+  issue: {
+    id: string;
+    author: string;
+    body: string;
+  };
+}
+

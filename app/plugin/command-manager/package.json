@@ -1,0 +1,7 @@
+{
+  "name": "mentor-bot-command",
+  "description": "Command plugin for mentor bot",
+  "eggPlugin": {
+    "name": "command"
+  }
+}
