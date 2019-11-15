@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { mergeWith, isArray } from 'lodash';
+
 export function parseRepoName(fullName: string): { owner: string, repo: string } {
   const s = fullName.split('/');
   if (s.length !== 2) {
@@ -53,4 +55,36 @@ export class AutoCreateMap<K, V> extends Map<K, V> {
     }
     return value;
   }
+}
+
+export function customizerMerge(...objs: any[]): any {
+
+  if (!objs || objs.length === 0) {
+    return { };
+  }
+  const errorList: any[] = [];
+  try {
+    for (let i = 1; i < objs.length; i++) {
+      mergeWith(objs[0], objs[i], (objValue: any, srcValue: any) => {
+        if (typeof objValue !== typeof srcValue) {
+          errorList.push(`invailed typeof ${srcValue} ${typeof srcValue}, ${objValue} require ${typeof objValue}`);
+          return objValue ? objValue : {};
+        }
+        if (isArray(srcValue) && srcValue[0] && srcValue[0].__merge__ === true) {
+            srcValue = (srcValue as any[]).shift();
+            return objValue.concat(srcValue.filter(v => !objValue.includes(v)));
+        }
+      });
+    }
+    return {
+      error: errorList,
+      config: objs[0],
+    };
+  } catch (err) {
+    return{
+      error : [ ...errorList, err ],
+      config: objs[0],
+    };
+  }
+
 }
