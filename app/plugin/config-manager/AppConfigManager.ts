@@ -58,7 +58,6 @@ export class AppConfigManager extends AppPluginBase<AppConfigManagerConfig> {
     // config loaded, update self config map
     this.app.event.subscribeAll(ConfigManagerInternalConfigLoadedEvent, async event => {
       this.configMap.set(this.genRepoConfigKey(event.installationId, event.fullName), event.config);
-      this.app.event.publish('worker', ConfigManagerConfigLoadedEvent, event);
     });
 
   }
@@ -80,6 +79,8 @@ export class AppConfigManager extends AppPluginBase<AppConfigManagerConfig> {
     };
     // notify all workers to update cache
     this.app.event.publish('workers', ConfigManagerInternalConfigLoadedEvent, newEvent);
+    // publish event to all
+    this.app.event.publish('all', ConfigManagerConfigLoadedEvent, newEvent);
   }
 
   // installationId/fullName <= (installationId, fullName)
