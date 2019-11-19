@@ -63,7 +63,22 @@ export class GitHubWebhooksManagerReadyEvent {
 export class IssueEvent {
   installationId: number;
   fullName: string;
-  action: string;
+  action: 'assigned'
+          | 'closed'
+          | 'deleted'
+          | 'demilestoned'
+          | 'edited'
+          | 'labeled'
+          | 'locked'
+          | 'milestoned'
+          | 'opened'
+          | 'pinned'
+          | 'reopened'
+          | 'transferred'
+          | 'unassigned'
+          | 'unlabeled'
+          | 'unlocked'
+          | 'unpinned';
   issue: Issue | undefined;
   changes: {};
 }
@@ -75,7 +90,7 @@ export class CommentUpdateEvent {
   installationId: number;
   fullName: string;
   issueNumber: number;
-  action: string;
+  action: 'created' | 'deleted' | 'edited';
   comment: Comment | undefined;
 }
 
@@ -85,7 +100,7 @@ export class CommentUpdateEvent {
 export class LabelUpdateEvent {
   installationId: number;
   fullName: string;
-  action: string;
+  action: 'created' | 'deleted' | 'edited';
   labelName: string;
 }
 
@@ -95,6 +110,19 @@ export class LabelUpdateEvent {
 export class PullRequestEvent {
   installationId: number;
   fullName: string;
-  action: string;
+  action: 'assigned'
+          | 'closed'
+          | 'edited'
+          | 'labeled'
+          | 'locked'
+          | 'opened'
+          | 'ready_for_review'
+          | 'reopened'
+          | 'review_request_removed'
+          | 'review_requested'
+          | 'unassigned'
+          | 'unlabeled'
+          | 'unlocked'
+          | 'synchronize';
   pullRequest: PullRequest | undefined;
 }

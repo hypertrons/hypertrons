@@ -116,30 +116,33 @@ export class AppGitHubClientManager extends AppPluginBase<null> {
                       'issues.unlabeled',
                       'issues.unlocked',
                       'issues.unpinned', ], e => {
-            this.app.event.publish('all', IssueEvent, {
-              installationId,
-              fullName: e.payload.repository.full_name,
-              action: e.payload.action,
-              issue: this.githubWrapper.issueWrapper(e.payload.issue),
-              changes: e.payload.changes,
-            });
+          const ie = {
+            installationId,
+            fullName: e.payload.repository.full_name,
+            action: e.payload.action,
+            issue: this.githubWrapper.issueWrapper(e.payload.issue),
+            changes: e.payload.changes,
+          };
+          this.app.event.publish('all', IssueEvent, ie);
         });
         webhooks.on([ 'issue_comment.created', 'issue_comment.deleted', 'issue_comment.edited' ], e => {
-          this.app.event.publish('all', CommentUpdateEvent, {
+          const ice = {
             installationId,
             fullName: e.payload.repository.full_name,
             issueNumber: e.payload.issue.number,
             action: e.payload.action,
             comment: this.githubWrapper.commentWrapper(e.payload.comment),
-          });
+          };
+          this.app.event.publish('all', CommentUpdateEvent, ice);
         });
         webhooks.on([ 'label.created', 'label.deleted' , 'label.edited' ], e => {
-          this.app.event.publish('all', LabelUpdateEvent, {
+          const le = {
             installationId,
             fullName: e.payload.repository.full_name,
             action: e.payload.action,
             labelName: e.payload.label.name,
-          });
+          };
+          this.app.event.publish('all', LabelUpdateEvent, le);
         });
         webhooks.on([ 'pull_request.assigned',
                       'pull_request.closed',
@@ -155,17 +158,13 @@ export class AppGitHubClientManager extends AppPluginBase<null> {
                       'pull_request.unlabeled',
                       'pull_request.unlocked',
                       'pull_request.synchronize' ], e => {
-            console.log(JSON.stringify(e));
-
-            const pre = {
-              installationId,
-              fullName: e.payload.repository.full_name,
-              action: e.payload.action,
-              pullRequest: this.githubWrapper.pullRequest(e.payload.pull_request),
-            };
-            this.app.event.publish('all', PullRequestEvent, pre);
-
-            console.log(JSON.stringify(pre));
+          const pre = {
+            installationId,
+            fullName: e.payload.repository.full_name,
+            action: e.payload.action,
+            pullRequest: this.githubWrapper.pullRequestWrapper(e.payload.pull_request),
+          };
+          this.app.event.publish('all', PullRequestEvent, pre);
         });
       });
     });
