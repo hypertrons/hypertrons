@@ -14,14 +14,7 @@
 
 import { Agent } from 'egg';
 import assert from 'assert';
-import { GloablEvents } from './Utils';
-
-interface PluginLogger {
-  debug: (msg: any, ...args: any[]) => void;
-  info: (msg: any, ...args: any[]) => void;
-  warn: (msg: any, ...args: any[]) => void;
-  error: (msg: any, ...args: any[]) => void;
-}
+import { GloablEvents, BotLogger } from './Utils';
 
 /**
  * Oss mentor bot agent plugin base class
@@ -55,7 +48,7 @@ export abstract class AgentPluginBase<TConfig> {
   protected agent: Agent;
   protected name: string;
   protected config: TConfig;
-  protected logger: PluginLogger;
+  public logger: BotLogger;
 
   constructor(config: TConfig, agent: Agent) {
     this.agent = agent;

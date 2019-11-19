@@ -1,7 +1,0 @@
-{
-  "name": "mentor-bot-github-webhook",
-  "description": "GitHub webhook for mentor bot",
-  "eggPlugin": {
-    "name": "githubWebhook"
-  }
-}

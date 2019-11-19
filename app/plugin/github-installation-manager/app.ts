@@ -12,15 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export class GitHubClientConfig {
-  name: string;
-  endpoint: string;
-  appId: number;
-  privateKeyPath: string;
-  privateKeyPathAbsolute: boolean;
-  webhook: {
-    path: string;
-    secret: string;
-    proxyUrl: string;
-  };
+import { Application } from 'egg';
+import { AppGitHubInstallationManager } from './AppGitHubInstallationManager';
+import { AppPluginBase } from '../../basic/AppPluginBase';
+
+declare module 'egg' {
+  interface Application {
+    githubInstallation: AppGitHubInstallationManager;
+  }
 }
+
+module.exports = (app: Application) => {
+  AppPluginBase.LoadToApp('githubInstallation', AppGitHubInstallationManager, app);
+};

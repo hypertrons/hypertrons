@@ -12,10 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export default {
-  githubData: {
-    client: {
-      tokens: [],
-    },
-  },
-};
+export class GitHubInstallationConfig {
+  name: string;
+  endpoint: string;
+  appId: number;
+  privateKeyPath: string;
+  privateKeyPathAbsolute: boolean;
+  webhook: {
+    path: string;
+    secret: string;
+    proxyUrl: string;
+  };
+}

@@ -1,0 +1,7 @@
+{
+  "name": "mentor-bot-github-installation",
+  "description": "GitHub installation for mentor bot",
+  "eggPlugin": {
+    "name": "githubInstallation"
+  }
+}

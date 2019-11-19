@@ -12,38 +12,52 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { IClient } from '../installation-manager/IClient';
 import Octokit = require('@octokit/rest');
-import { parseRepoName } from '../../basic/Utils';
+import { IClient } from '../../installation-manager/IClient';
+import { parseRepoName, BotLogger } from '../../../basic/Utils';
+import { GitHubInstallation } from '../github-installation/GitHubInstallation';
+import { Repo } from '../../../basic/DataTypes';
 
-export class AppGitHubClient implements IClient {
-  public installationId: number;
+export class GitHubClient implements IClient {
+
   public name: string;
   public owner: string;
   public repo: string;
   public rawClient: Octokit;
+  public installation: GitHubInstallation;
+  private repoData: Repo;
+  private logger: BotLogger;
 
-  constructor(installationId: number, name: string) {
-    this.installationId = installationId;
+  constructor(name: string, installation: GitHubInstallation) {
     this.name = name;
-    const { owner, repo } = parseRepoName(name);
+    const { owner, repo } = parseRepoName(this.name);
     this.owner = owner;
     this.repo = repo;
-    this.rawClient = new Octokit();
+    this.installation = installation;
+    this.logger = this.installation.githubInstallationManager.logger;
+    this.updateData();
   }
 
-  public async getFileContent(filePath: string): Promise<string | undefined> {
+  private async updateData(): Promise<void> {
+    this.logger.info(`Start to update data for ${this.name} in ${this.installation.id}`);
+  }
+
+  public async getFileContent(path: string): Promise<string | undefined > {
     try {
       const res = await this.rawClient.repos.getContents({
         owner: this.owner,
         repo: this.repo,
-        path: filePath,
+        path,
       });
       const content = (res.data as any).content;
       return Buffer.from(content, 'base64').toString('ascii');
     } catch (e) {
       return undefined;
     }
+  }
+
+  public getRepoDate(): Repo {
+    return this.repoData;
   }
 
 }

@@ -99,3 +99,10 @@ export function ParseDate(date: string | number | null): Date | null {
     return null;
   }
 }
+
+export interface BotLogger {
+  debug: (msg: any, ...args: any[]) => void;
+  info: (msg: any, ...args: any[]) => void;
+  warn: (msg: any, ...args: any[]) => void;
+  error: (msg: any, ...args: any[]) => void;
+}

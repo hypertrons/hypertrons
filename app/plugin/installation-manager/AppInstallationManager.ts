@@ -15,7 +15,7 @@
 import { AppPluginBase } from '../../basic/AppPluginBase';
 import { IClient } from './IClient';
 import { Application } from 'egg';
-import { InstallationType, InstallationClientReadyEvent } from './types';
+import { InstallationType } from './types';
 
 export class AppInstallationManager extends AppPluginBase<Config> {
 
@@ -26,11 +26,7 @@ export class AppInstallationManager extends AppPluginBase<Config> {
     this.clientMap = new Map<number, InstallationType>();
   }
 
-  public async onReady(): Promise<void> {
-    this.app.event.subscribeOne(InstallationClientReadyEvent, async e => {
-      this.clientMap.set(e.installationId, e.installationType);
-    });
-  }
+  public async onReady(): Promise<void> { }
 
   public async onStart(): Promise<void> { }
 
@@ -41,7 +37,7 @@ export class AppInstallationManager extends AppPluginBase<Config> {
     if (type) {
       switch (type) {
         case 'github':
-          return this.app.githubClient.getClient(installationId, name);
+          return this.app.githubInstallation.getClient(installationId, name);
         case 'gitlab':
           break;
         default:

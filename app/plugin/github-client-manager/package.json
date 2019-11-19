@@ -1,7 +1,0 @@
-{
-  "name": "mentor-bot-github-client",
-  "description": "GitHub client for mentor bot",
-  "eggPlugin": {
-    "name": "githubClient"
-  }
-}

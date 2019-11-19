@@ -1,7 +1,0 @@
-{
-  "name": "mentor-bot-github-data",
-  "description": "GitHub data manager for mentor bot",
-  "eggPlugin": {
-    "name": "githubData"
-  }
-}
