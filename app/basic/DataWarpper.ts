@@ -12,93 +12,137 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Issue, IssueLabel, Comment, PullRequest } from './DataTypes';
-import { WebhookPayloadIssuesIssue, WebhookPayloadIssuesIssueLabelsItem, WebhookPayloadIssueCommentComment, WebhookPayloadPullRequestPullRequest } from '@octokit/webhooks';
+import { Issue, Comment, PullRequest, Repo } from './DataTypes';
+import {
+  PayloadRepository,
+  WebhookPayloadIssuesIssue,
+  WebhookPayloadIssueCommentComment,
+  WebhookPayloadPullRequestPullRequest,
+} from '@octokit/webhooks';
+import { ParseDate } from './Utils';
 
 export interface DataWrapper {
+  repoWrapper(any): any;
   issueWrapper(any): any;
-  issueLabelWrapper(any): any;
   commentWrapper(any): any;
   pullRequest(any): any;
 }
 
 export class GithubWrapper implements DataWrapper {
 
-  public issueWrapper(i: WebhookPayloadIssuesIssue): Issue {
-    return {
-      id: i.id.toString(),
-      author: i.user.login,
-      number: i.number,
-      createdAt: i.created_at,
-      updatedAt: i.updated_at,
-      closedAt: i.closed_at,
-      title: i.title,
-      body: i.body,
-      labels: i.labels.map(label => {
-        return this.issueLabelWrapper(label);
-      }),
-      comments: Comment,
-    };
-  }
-
-  public issueLabelWrapper(label: WebhookPayloadIssuesIssueLabelsItem): IssueLabel {
+  public repoWrapper(repo: PayloadRepository): Repo | undefined {
+    try {
       return {
-        id: label.id,
-        name: label.name,
-        color: label.color,
-        default: label.default,
+        // basic
+        id: repo.id.toString(),
+        owner: repo.owner.login,
+        ownerInfo: {
+          login: repo.owner.login,
+          __typename: repo.owner.type,
+          name: repo.owner.name === undefined ? '' : repo.owner.name,
+          bio: '',
+          description: '',
+          createdAt: null,
+          company: '',
+          location: '',
+          websiteUrl: null,
+          repositories: {
+            totalCount: 0,
+          },
+          membersWithRole: {
+            totalCount: 0,
+          },
+        },
+        name: repo.name,
+        license: repo.license,
+        codeOfConduct: null,
+        createdAt: new Date(repo.created_at),
+        updatedAt: new Date(repo.updated_at),
+        pushedAt: new Date(repo.pushed_at),
+        isFork: repo.fork,
+        description: repo.description,
+        language: repo.language,
+        // star
+        starCount: repo.stargazers_count,
+        stars: [ ],
+        // watch
+        watchCount: repo.watchers_count,
+        // fork
+        forkCount: repo.forks_count,
+        directForkCount: 0,
+        forks: [ ],
+        // branch
+        branchCount: 0,
+        defaultBranchName: repo.default_branch,
+        defaultBranchCommitCount: 0,
+        // release
+        releaseCount: 0,
+        // issue
+        issues: [ ],
+        // pull request
+        pulls: [ ],
+        // contributors
+        contributors: [ ],
       };
+    } catch (error) {
+      return undefined;
+    }
   }
 
-  public commentWrapper(comment: WebhookPayloadIssueCommentComment): Comment {
-    return {
-      id: comment.id.toString(),
-      login: comment.user.login,
-      body : comment.body,
-      url : comment.url,
-      createdAt : comment.created_at,
-    };
+  public issueWrapper(i: WebhookPayloadIssuesIssue): Issue | undefined {
+    try {
+      return {
+        id: i.id.toString(),
+        author: i.user.login,
+        number: i.number,
+        createdAt: new Date(i.created_at),
+        updatedAt: new Date(i.updated_at),
+        closedAt: ParseDate(i.closed_at),
+        title: i.title,
+        body: i.body,
+        labels: i.labels.map(l => l.name),
+        comments: [ ],
+      };
+    } catch (error) {
+      return undefined;
+    }
   }
 
-  public pullRequest(pullRequest: WebhookPayloadPullRequestPullRequest): PullRequest {
-    return {
-      id: pullRequest.id.toString(),
-      author: pullRequest.user.login,
-      number: pullRequest.number,
-      createdAt: pullRequest.created_at,
-      updatedAt: pullRequest.updated_at,
-      closedAt: pullRequest.closed_at,
-      mergedAt: pullRequest.merged_at,
-      title: pullRequest.title,
-      body: pullRequest.body,
-      labels: pullRequest.labels.map(label => {
-        return this.issueLabelWrapper(label);
-      }),
-      comments: [ ],
-      reviewComments: pullRequest.review_comments,
-      additions: 1,
-      deletions: 1,
-    };
+  public commentWrapper(comment: WebhookPayloadIssueCommentComment): Comment | undefined {
+    try {
+      return {
+        id: comment.id.toString(),
+        login: comment.user.login,
+        body: comment.body,
+        url: comment.url,
+        createdAt: new Date(comment.created_at),
+      };
+    } catch (error) {
+      return undefined;
+    }
   }
 
-}
-
-export class GitlabWrapper implements DataWrapper {
-
-  public issueWrapper(data: any): any {
-    return data;
-  }
-
-  public issueLabelWrapper(data: any): any {
-    return data;
-  }
-
-  public commentWrapper(data: any): any {
-    return data;
-  }
-
-  public pullRequest(data: any): any {
-    return data;
+  public pullRequest(pullRequest: WebhookPayloadPullRequestPullRequest): PullRequest | undefined {
+    try {
+      return {
+        id: pullRequest.id.toString(),
+        author: pullRequest.user.login,
+        number: pullRequest.number,
+        createdAt: new Date(pullRequest.created_at),
+        updatedAt: new Date(pullRequest.updated_at),
+        closedAt: ParseDate(pullRequest.closed_at),
+        mergedAt: ParseDate(pullRequest.merged_at),
+        title: pullRequest.title,
+        body: pullRequest.body,
+        labels: pullRequest.labels.map(label => label.name),
+        comments: [ ],
+        reviewComments: [ ],
+        additions: pullRequest.additions,
+        deletions: pullRequest.deletions,
+      };
+    } catch (error) {
+      return undefined;
+    }
   }
 
 }
