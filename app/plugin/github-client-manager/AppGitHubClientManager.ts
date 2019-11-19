@@ -114,6 +114,24 @@ export class AppGitHubClientManager extends AppPluginBase<null> {
           });
         });
       });
+      webhooks.on([
+        'issues.assigned',
+        'issues.closed',
+        'issues.deleted',
+        'issues.demilestoned',
+        'issues.edited',
+        'issues.labeled',
+        'issues.locked',
+        'issues.milestoned',
+        'issues.opened',
+        'issues.pinned',
+        'issues.reopened',
+        'issues.transferred',
+        'issues.unassigned',
+        'issues.unlabeled',
+        'issues.unlocked',
+        'issues.unpinned', ], e => {
+      });
     });
   }
 
