@@ -26,7 +26,7 @@ export class AgentInstallationManager extends AgentPluginBase<Config> {
 
   public async onStart(): Promise<void> {
     this.config.configs.forEach((c, index) => {
-      this.agent.event.publish('agent', InstallationInitEvent, {
+      this.agent.event.publish('all', InstallationInitEvent, {
         installationId: index,
         ...c,
       });

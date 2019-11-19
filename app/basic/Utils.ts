@@ -88,3 +88,14 @@ export function customizerMerge(...objs: any[]): any {
   }
 
 }
+
+export function ParseDate(date: string | number | null): Date | null {
+  try {
+    if (date !== null) {
+      return new Date(date);
+    }
+    return null;
+  } catch (error) {
+    return null;
+  }
+}

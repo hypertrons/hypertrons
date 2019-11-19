@@ -19,6 +19,7 @@ import { AppPluginBase } from '../../basic/AppPluginBase';
 import { InstallationInitEvent } from '../installation-manager/types';
 import { GitHubClientConfig } from '../github-client-manager/GitHubInstallationConfig';
 import { join } from 'path';
+import { GitHubWebhooksManagerReadyEvent } from '../event-manager/events';
 
 export class GitHubWebhook extends AppPluginBase<null> {
 
@@ -66,6 +67,11 @@ export class GitHubWebhook extends AppPluginBase<null> {
         ctx.body = 'ok';
         await next();
       });
+
+      this.logger.info('Start send wehbook ready to ', e.installationId);
+      this.app.event.publish('worker', GitHubWebhooksManagerReadyEvent, {
+        installationId: e.installationId,
+      });
     });
   }
 
@@ -73,9 +79,10 @@ export class GitHubWebhook extends AppPluginBase<null> {
 
   public async onClose(): Promise<void> { }
 
-  public register(func: (installationId: number, webhooks: Webhooks) => any) {
-    for (const [ installationId, webhooks ] of this.webhooks) {
-      func(installationId, webhooks);
+  public register(installationId: number, func: (webhooks: Webhooks) => any) {
+    const webhooks = this.webhooks.get(installationId);
+    if (webhooks) {
+      func(webhooks);
     }
   }
 
