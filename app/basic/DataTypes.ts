@@ -22,10 +22,10 @@ export interface Repo {
       name: string;
       bio: string;
       description: string;
-      createdAt: Date;
+      createdAt: Date | null;
       company: string;
       location: string;
-      websiteUrl: URL;
+      websiteUrl: URL | null;
       repositories: {
           totalCount: number;
       }
@@ -34,14 +34,14 @@ export interface Repo {
       }
   };
   name: string;
-  license: string;
-  codeOfConduct: string;
+  license: string | null;
+  codeOfConduct: string | null;
   createdAt: Date;
   updatedAt: Date;
   pushedAt: Date | null;
   isFork: boolean;
-  description: string;
-  language: string;
+  description: string | null;
+  language: string | null;
   // star
   starCount: number;
   stars: UserWithTimeStamp[];

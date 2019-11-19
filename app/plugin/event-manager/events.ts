@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { Issue, Comment, PullRequest } from '../../basic/DataTypes';
+
 /**
  * Client ready
  */
@@ -49,4 +51,50 @@ export class ConfigManagerConfigLoadedEvent {
   installationId: number;
   fullName: string;
   config: any;
+}
+
+export class GitHubWebhooksManagerReadyEvent {
+  installationId: number;
+}
+
+/**
+ * When update a issue
+ */
+export class IssueEvent {
+  installationId: number;
+  fullName: string;
+  action: string;
+  issue: Issue | undefined;
+  changes: {};
+}
+
+/**
+ * When update a comment
+ */
+export class CommentUpdateEvent {
+  installationId: number;
+  fullName: string;
+  issueNumber: number;
+  action: string;
+  comment: Comment | undefined;
+}
+
+/**
+ * When update a label
+ */
+export class LabelUpdateEvent {
+  installationId: number;
+  fullName: string;
+  action: string;
+  labelName: string;
+}
+
+/**
+ * When update a pull request
+ */
+export class PullRequestEvent {
+  installationId: number;
+  fullName: string;
+  action: string;
+  pullRequest: PullRequest | undefined;
 }
