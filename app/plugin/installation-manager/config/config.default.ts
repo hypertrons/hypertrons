@@ -1,5 +1,7 @@
 export default {
   installation: {
-    client: {},
+    client: {
+      configs: [],
+    },
   },
 };
