@@ -66,8 +66,12 @@ export class AppConfigManager extends AppPluginBase<AppConfigManagerConfig> {
 
   public async onClose() { }
 
-  public async getConfig(installationId: number, fullName: string): Promise<any> {
-    return this.configMap.get(this.genRepoConfigKey(installationId, fullName));
+  public async getConfig<TConfig>(installationId: number, fullName: string, pluginName: string): Promise<TConfig | null> {
+    const config = this.configMap.get(this.genRepoConfigKey(installationId, fullName));
+    if (config[pluginName] && config[pluginName].client) {
+      return config.client as TConfig;
+    }
+    return null;
   }
 
   private async loadConfig(installationId: number, fullName: string): Promise<void> {

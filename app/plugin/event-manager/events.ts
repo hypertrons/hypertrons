@@ -98,3 +98,11 @@ export class PullRequestEvent {
   action: string;
   pullRequest: PullRequest | undefined;
 }
+
+/**
+ * When GitHub Data loaded
+ */
+export class GitHubManagerDataLoadedEvent {
+  installationId: number;
+  fullName: string;
+}

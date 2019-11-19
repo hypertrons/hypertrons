@@ -12,16 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Application } from 'egg';
-import { AppPluginBase } from '../../basic/AppPluginBase';
-import { AppConfigManager } from './AppConfigManager';
-
-declare module 'egg' {
-  interface Application {
-    configManager: AppConfigManager;
-  }
-}
-
-module.exports = (app: Application) => {
-  AppPluginBase.LoadToApp('configManager', AppConfigManager, app);
+export default {
+  githubData: {
+    client: {
+      tokens: [],
+    },
+  },
 };
