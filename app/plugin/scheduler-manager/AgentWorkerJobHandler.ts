@@ -32,9 +32,10 @@ export class AgentWorkerJobHandler implements ISchedulerJobHandler {
     this.func = func;
     this.job = scheduleJob(name, time, () => { });
 
-    do {
-      this.genInnerName();
-    } while (!curMap.has(this.innerName));
+    this.genInnerName();
+    if (curMap.has(this.innerName)) {
+      throw new Error(`Already have a job named in ${this.innerName}`);
+    }
     curMap.set(this.innerName, this);
 
     this.app.event.publish('agent', SchedulerWorkerRegisterEvent, {
@@ -69,7 +70,7 @@ export class AgentWorkerJobHandler implements ISchedulerJobHandler {
   }
 
   private genInnerName() {
-    this.innerName = `${this.name}_${Math.random()}`;
+    this.innerName = `${this.name}`;
   }
 
 }

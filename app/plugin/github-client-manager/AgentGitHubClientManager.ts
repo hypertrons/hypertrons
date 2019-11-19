@@ -71,7 +71,7 @@ export class AgentGitHubClientManager extends AgentPluginBase<null> {
       const repos = await octokit.apps.listRepos();
       repos.data.repositories.forEach(async r => {
         // for any repo, send repo init event to all workers
-        this.agent.event.publish('workers', GitHubRepoInitEvent, {
+        this.agent.event.publish('all', GitHubRepoInitEvent, {
           appId: config.appId,
           privateKey,
           fullName: r.full_name,

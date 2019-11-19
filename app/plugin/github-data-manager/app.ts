@@ -13,15 +13,15 @@
 // limitations under the License.
 
 import { Application } from 'egg';
+import { AppGitHubDataManager } from './AppGitHubDataManager';
 import { AppPluginBase } from '../../basic/AppPluginBase';
-import { AppConfigManager } from './AppConfigManager';
 
 declare module 'egg' {
   interface Application {
-    configManager: AppConfigManager;
+    githubData: AppGitHubDataManager;
   }
 }
 
 module.exports = (app: Application) => {
-  AppPluginBase.LoadToApp('configManager', AppConfigManager, app);
+  AppPluginBase.LoadToApp('githubData', AppGitHubDataManager, app);
 };

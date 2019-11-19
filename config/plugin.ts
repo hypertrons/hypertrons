@@ -41,6 +41,11 @@ const plugin: EggPlugin = {
     path: join(__dirname, '../app/plugin/github-webhook-manager'),
   },
 
+  githubData: {
+    enable: true,
+    path: join(__dirname, '../app/plugin/github-data-manager'),
+  },
+
   configManager: {
     enable: true,
     path: join(__dirname, '../app/plugin/config-manager'),

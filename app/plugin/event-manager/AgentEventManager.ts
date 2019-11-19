@@ -53,8 +53,6 @@ export class AgentEventManager extends AgentPluginBase<null> {
         break;
       case 'workers':
         this.agent.messenger.sendToApp(IPC_EVENT_NAME, p);
-        p.type = 'worker';
-        this.agent.messenger.sendRandom(IPC_EVENT_NAME, p);
         break;
       case 'all':
         this.agent.messenger.sendToApp(IPC_EVENT_NAME, p);

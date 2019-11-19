@@ -55,8 +55,8 @@ export class AppEventManager extends AppPluginBase<null> {
     };
     switch (type) {
       case 'worker':
-        // if worker, consume immediately by self
-        this.consume(getClassName(constructor), type, param);
+        // if worker, send random to avoid self consume
+        this.app.messenger.sendRandom(IPC_EVENT_NAME, p);
         break;
       case 'workers':
         // if workers, send to all workers
@@ -69,7 +69,9 @@ export class AppEventManager extends AppPluginBase<null> {
       case 'all':
         // broadcast will send to agent and all workers
         this.app.messenger.broadcast(IPC_EVENT_NAME, p);
-        this.consume(getClassName(constructor), 'worker', param);
+        // send to a random worker
+        p.type = 'worker';
+        this.app.messenger.sendRandom(IPC_EVENT_NAME, p);
         break;
       default: break;
     }

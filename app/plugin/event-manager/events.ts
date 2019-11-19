@@ -126,3 +126,11 @@ export class PullRequestEvent {
           | 'synchronize';
   pullRequest: PullRequest | undefined;
 }
+
+/**
+ * When GitHub Data loaded
+ */
+export class GitHubManagerDataLoadedEvent {
+  installationId: number;
+  fullName: string;
+}
