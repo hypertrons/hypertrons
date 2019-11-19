@@ -13,7 +13,6 @@
 // limitations under the License.
 
 export interface IClient {
-  installationId: number;
   name: string;
   rawClient: any;
 

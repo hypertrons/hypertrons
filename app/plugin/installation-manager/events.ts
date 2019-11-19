@@ -12,8 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export default {
-  githubWebhook: {
-    client: {},
-  },
-};
+export class InstallationRepoAddEvent {
+  fullName: string;
+  installationId: number;
+}
+
+export class InstallationRepoRemoveEvent {
+  fullName: string;
+  installationId: number;
+}

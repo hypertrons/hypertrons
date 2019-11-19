@@ -15,14 +15,7 @@
 import { Application, Context } from 'egg';
 import { join } from 'path';
 import assert from 'assert';
-import { GloablEvents } from './Utils';
-
-interface PluginLogger {
-  debug: (msg: any, ...args: any[]) => void;
-  info: (msg: any, ...args: any[]) => void;
-  warn: (msg: any, ...args: any[]) => void;
-  error: (msg: any, ...args: any[]) => void;
-}
+import { GloablEvents, BotLogger } from './Utils';
 
 /**
  * Oss mentor bot app plugin base class
@@ -56,7 +49,7 @@ export abstract class AppPluginBase<TConfig> {
   protected app: Application;
   protected name: string;
   protected config: TConfig;
-  protected logger: PluginLogger;
+  public logger: BotLogger;
 
   constructor(config: TConfig, app: Application) {
     this.app = app;
@@ -88,7 +81,7 @@ export abstract class AppPluginBase<TConfig> {
    * @param path path
    * @param middlewares middlewares
    */
-  protected get(path: string, ...middlewares: Middleware[]) {
+  public get(path: string, ...middlewares: Middleware[]) {
     this.app.router.get(this.getRouterPath(path), ...middlewares);
   }
 
@@ -97,7 +90,7 @@ export abstract class AppPluginBase<TConfig> {
    * @param path path
    * @param middlewares middlewares
    */
-  protected post(path: string, ...middlewares: Middleware[]) {
+  public post(path: string, ...middlewares: Middleware[]) {
     this.app.router.post(this.getRouterPath(path), ...middlewares);
   }
 
@@ -106,7 +99,7 @@ export abstract class AppPluginBase<TConfig> {
    * @param path path
    * @param middlewares middlewares
    */
-  protected put(path: string, ...middlewares: Middleware[]) {
+  public put(path: string, ...middlewares: Middleware[]) {
     this.app.router.put(this.getRouterPath(path), ...middlewares);
   }
 
@@ -115,7 +108,7 @@ export abstract class AppPluginBase<TConfig> {
    * @param path path
    * @param middlewares middlewares
    */
-  protected delete(path: string, ...middlewares: Middleware[]) {
+  public delete(path: string, ...middlewares: Middleware[]) {
     this.app.router.delete(this.getRouterPath(path), ...middlewares);
   }
 

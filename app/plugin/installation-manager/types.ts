@@ -19,9 +19,3 @@ export class InstallationInitEvent {
   type: InstallationType;
   config: any;
 }
-
-export class InstallationClientReadyEvent {
-  installationId: number;
-  installationType: InstallationType;
-  name: string;
-}

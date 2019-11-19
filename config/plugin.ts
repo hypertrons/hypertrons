@@ -31,24 +31,14 @@ const plugin: EggPlugin = {
     path: join(__dirname, '../app/plugin/installation-manager'),
   },
 
-  githubClient: {
-    enable: true,
-    path: join(__dirname, '../app/plugin/github-client-manager'),
-  },
-
-  githubWebhook: {
-    enable: true,
-    path: join(__dirname, '../app/plugin/github-webhook-manager'),
-  },
-
-  githubData: {
-    enable: true,
-    path: join(__dirname, '../app/plugin/github-data-manager'),
-  },
-
   configManager: {
     enable: true,
     path: join(__dirname, '../app/plugin/config-manager'),
+  },
+
+  githubInstallation: {
+    enable: true,
+    path: join(__dirname, '../app/plugin/github-installation-manager'),
   },
 };
 

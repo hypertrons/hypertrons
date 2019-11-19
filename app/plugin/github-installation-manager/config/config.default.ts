@@ -12,16 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Application } from 'egg';
-import { GitHubWebhook } from './GitHubWebhook';
-import { AppPluginBase } from '../../basic/AppPluginBase';
-
-declare module 'egg' {
-  interface Application {
-    githubWebhook: GitHubWebhook;
-  }
-}
-
-module.exports = (app: Application) => {
-  AppPluginBase.LoadToApp('githubWebhook', GitHubWebhook, app);
+export default {
+  githubInstallation: {
+    client: { },
+  },
 };
