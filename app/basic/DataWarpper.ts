@@ -22,13 +22,18 @@ import {
 import { ParseDate } from './Utils';
 
 export interface DataWrapper {
-  repoWrapper(any): Repo | undefined;
-  issueWrapper(any): Issue | undefined;
-  commentWrapper(any): Comment | undefined;
-  pullRequest(any): PullRequest | undefined ;
+  actionWrapper(action: any): string | undefined;
+  repoWrapper(repo: any): Repo | undefined;
+  issueWrapper(issue: any): Issue | undefined;
+  commentWrapper(comment: any): Comment | undefined;
+  pullRequestWrapper(pullRequest: any): PullRequest | undefined;
 }
 
 export class GithubWrapper implements DataWrapper {
+
+  public actionWrapper(action: string | undefined): string | undefined {
+    return action;
+  }
 
   public repoWrapper(repo: PayloadRepository): Repo | undefined {
     try {
@@ -89,18 +94,18 @@ export class GithubWrapper implements DataWrapper {
     }
   }
 
-  public issueWrapper(i: WebhookPayloadIssuesIssue): Issue | undefined {
+  public issueWrapper(issue: WebhookPayloadIssuesIssue): Issue | undefined {
     try {
       return {
-        id: i.id.toString(),
-        author: i.user.login,
-        number: i.number,
-        createdAt: new Date(i.created_at),
-        updatedAt: new Date(i.updated_at),
-        closedAt: ParseDate(i.closed_at),
-        title: i.title,
-        body: i.body,
-        labels: i.labels.map(l => l.name),
+        id: issue.id.toString(),
+        author: issue.user.login,
+        number: issue.number,
+        createdAt: new Date(issue.created_at),
+        updatedAt: new Date(issue.updated_at),
+        closedAt: ParseDate(issue.closed_at),
+        title: issue.title,
+        body: issue.body,
+        labels: issue.labels.map(l => l.name),
         comments: [ ],
       };
     } catch (error) {
@@ -122,7 +127,7 @@ export class GithubWrapper implements DataWrapper {
     }
   }
 
-  public pullRequest(pullRequest: WebhookPayloadPullRequestPullRequest): PullRequest | undefined {
+  public pullRequestWrapper(pullRequest: WebhookPayloadPullRequestPullRequest): PullRequest | undefined {
     try {
       return {
         id: pullRequest.id.toString(),
