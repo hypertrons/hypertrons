@@ -41,7 +41,7 @@ const plugin: EggPlugin = {
     path: join(__dirname, '../app/plugin/github-installation-manager'),
   },
 
-  componentManager: {
+  component: {
     enable: true,
     path: join(__dirname, '../app/plugin/component-manager'),
   },

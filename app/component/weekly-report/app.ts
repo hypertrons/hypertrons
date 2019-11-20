@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Application } from 'egg';
-import { BotLogger } from '../../basic/Utils';
-import { ComponentHelper } from '../../basic/ComponentHelper';
+import { ComponentContext } from '../../basic/ComponentHelper';
+import { Config } from './config';
 
-module.exports = (app: Application, config: any, logger: BotLogger, componentHelper: ComponentHelper) => {
-
+export default (ctx: ComponentContext<Config>) => {
+  ctx.logger.info('Start to load weekly report component');
 };

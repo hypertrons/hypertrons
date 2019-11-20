@@ -18,10 +18,10 @@ import { AppComponentManager } from './AppComponentManager';
 
 declare module 'egg' {
   interface Application {
-    componentManager: AppComponentManager;
+    component: AppComponentManager;
   }
 }
 
 module.exports = (app: Application) => {
-  AppPluginBase.LoadToApp('componentManager', AppComponentManager, app);
+  AppPluginBase.LoadToApp('component', AppComponentManager, app);
 };
