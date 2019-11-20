@@ -23,4 +23,7 @@ export class GitHubInstallationConfig {
     secret: string;
     proxyUrl: string;
   };
+  fetcher: {
+    tokens: string[];
+  };
 }

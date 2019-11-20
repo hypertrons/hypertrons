@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import { mergeWith, isArray } from 'lodash';
+import waitFor from 'p-wait-for';
 
 export function parseRepoName(fullName: string): { owner: string, repo: string } {
   const s = fullName.split('/');
@@ -105,4 +106,8 @@ export interface BotLogger {
   info: (msg: any, ...args: any[]) => void;
   warn: (msg: any, ...args: any[]) => void;
   error: (msg: any, ...args: any[]) => void;
+}
+
+export function waitUntil(func: () => boolean, options?: object): Promise<void> {
+  return waitFor(func, Object.assign({ interval: 1000 }, options));
 }

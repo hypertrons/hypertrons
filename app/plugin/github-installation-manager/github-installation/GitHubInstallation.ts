@@ -21,6 +21,7 @@ import { BotLogger } from '../../../basic/Utils';
 import EventSource from 'eventsource';
 import { join } from 'path';
 import { Context } from 'egg';
+import { DataCat } from 'github-data-cat';
 
 type ClientGenerator = () => Promise<GitHubClient>;
 
@@ -29,6 +30,7 @@ export class GitHubInstallation {
   public id: number;
   public githubInstallationManager: AppGitHubInstallationManager;
   public webhooks: Webhooks;
+  public dataCat: DataCat;
 
   private clients: Map<string, ClientGenerator>;
   private logger: BotLogger;
@@ -38,6 +40,10 @@ export class GitHubInstallation {
     this.githubInstallationManager = mgr;
     this.logger = mgr.logger;
     this.clients = new Map<string, ClientGenerator>();
+    this.dataCat = new DataCat({
+      tokens: config.fetcher.tokens,
+    });
+    this.dataCat.init();
     this.initWebhooks(config);
   }
 
