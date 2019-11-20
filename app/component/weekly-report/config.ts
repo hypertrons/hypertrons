@@ -12,8 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export default {
-  component: {
-    weeklyReport: { },
-  },
+export interface Config {
+  time: string;
+}
+
+const config: Config = {
+  time: '0 0 14 * * *',
 };
+
+export default config;

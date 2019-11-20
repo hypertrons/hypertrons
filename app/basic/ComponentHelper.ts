@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { Application } from 'egg';
+import { BotLogger } from './Utils';
+
 export class ComponentHelper {
 
   private componentMap: Map<string, any>;
@@ -28,4 +31,11 @@ export class ComponentHelper {
     return this.componentMap.get(name);
   }
 
+}
+
+export interface ComponentContext<T> {
+  helper: ComponentHelper;
+  app: Application;
+  config: T;
+  logger: BotLogger;
 }

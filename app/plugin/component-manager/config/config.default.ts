@@ -17,3 +17,9 @@ export default {
     client: { },
   },
 };
+
+export interface Config {
+  basePath: string;
+  entryModule: string;
+  configModule: string;
+}
