@@ -15,7 +15,7 @@
 import { AppPluginBase } from '../../basic/AppPluginBase';
 import { IClient } from './IClient';
 import { Application } from 'egg';
-import { InstallationType } from './types';
+import { InstallationType, InstallationInitEvent } from './types';
 
 export class AppInstallationManager extends AppPluginBase<Config> {
 
@@ -26,7 +26,11 @@ export class AppInstallationManager extends AppPluginBase<Config> {
     this.clientMap = new Map<number, InstallationType>();
   }
 
-  public async onReady(): Promise<void> { }
+  public async onReady(): Promise<void> {
+    this.app.event.subscribeAll(InstallationInitEvent, async e => {
+      this.clientMap.set(e.installationId, e.type);
+    });
+  }
 
   public async onStart(): Promise<void> { }
 
