@@ -1,0 +1,7 @@
+{
+  "name": "mentor-bot-component",
+  "description": "component manager for mentor bot",
+  "eggPlugin": {
+    "name": "componentManager"
+  }
+}

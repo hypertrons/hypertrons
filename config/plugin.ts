@@ -40,6 +40,11 @@ const plugin: EggPlugin = {
     enable: true,
     path: join(__dirname, '../app/plugin/github-installation-manager'),
   },
+
+  componentManager: {
+    enable: true,
+    path: join(__dirname, '../app/plugin/component-manager'),
+  },
 };
 
 export default plugin;
