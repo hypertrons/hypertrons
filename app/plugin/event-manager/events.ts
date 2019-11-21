@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import { Issue, Comment, PullRequest } from '../../basic/DataTypes';
+import { Command } from '../command-manager/Command';
 
 /**
  * Client ready
@@ -133,4 +134,16 @@ export class PullRequestEvent {
 export class GitHubManagerDataLoadedEvent {
   installationId: number;
   fullName: string;
+}
+
+/**
+ * When Command Manager publish a event
+ */
+export class CommandManagerNewCommandEvent {
+  installationId: number;
+  fullName: string;
+  from: 'issue' | 'comment';
+  comment: Comment | undefined;
+  issue: Issue | undefined;
+  command: Command;
 }
