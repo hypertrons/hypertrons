@@ -22,7 +22,7 @@ export class AppCommandManager extends AppPluginBase<null> {
         // handle issue event
         this.app.event.subscribeOne(IssueEvent, async e => {
             this.logger.debug(`Start to resolve the issue event for ${e.installationId} and repo ${e.fullName}`);
-            if ((e.action === 'edited' || e.action === 'opened') && e.issue !== undefined){
+            if ((e.action === 'edited' || e.action === 'opened') && e.issue !== undefined) {
                 this.logger.debug(`the issue's body is ${e.issue.body}`);
                 const commands = this.getCommandsFromBody(e.issue.body);
                 commands.map(command => {
@@ -58,7 +58,7 @@ export class AppCommandManager extends AppPluginBase<null> {
                     });
                 });
             }
-        })
+        });
     }
 
     public async onStart() {
@@ -81,7 +81,7 @@ export class AppCommandManager extends AppPluginBase<null> {
             for (let i = 1; i < arr.length; i++) {
                 params.push(arr[i]);
             }
-            command = new Command(arr[0], params);
+            command = { exec: arr[0], param: params };
         }
         return command;
     }
