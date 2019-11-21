@@ -52,11 +52,12 @@ export class AppEventManager extends AppPluginBase<null> {
       type,
       className: getClassName(constructor),
       payload: param,
+      from: 'worker',
     };
     switch (type) {
       case 'worker':
         // if worker, send random to avoid self consume
-        this.app.messenger.sendRandom(IPC_EVENT_NAME, p);
+        this.app.messenger.sendToAgent(IPC_EVENT_NAME, p);
         break;
       case 'workers':
         // if workers, send to all workers

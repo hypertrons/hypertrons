@@ -25,4 +25,5 @@ export interface IpcEventType {
   className: string;
   type: 'worker' | 'workers' | 'agent' | 'all';
   payload: any;
+  from: 'worker' | 'agent';
 }
