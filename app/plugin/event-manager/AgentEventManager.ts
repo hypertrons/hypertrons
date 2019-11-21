@@ -57,8 +57,11 @@ export class AgentEventManager extends AgentPluginBase<null> {
       case 'all':
         this.agent.messenger.sendToApp(IPC_EVENT_NAME, p);
         this.consume(className, type, param);
-        p.type = 'worker';
-        this.agent.messenger.sendRandom(IPC_EVENT_NAME, p);
+        // need to create a new param here because IPC send may async and may affect former event
+        this.agent.messenger.sendRandom(IPC_EVENT_NAME, {
+          ...p,
+          type: 'worker',
+        });
         break;
       case 'agent':
         this.consume(className, type, param);

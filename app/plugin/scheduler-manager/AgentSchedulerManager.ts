@@ -43,7 +43,7 @@ export class AgentSchedulerManager extends AgentPluginBase<null> {
       const job = this.workerHandlerMap.get(e.name);
       if (!job) return;
       switch (e.type) {
-        case 'cancle':
+        case 'cancel':
           job.cancel();
           this.workerHandlerMap.delete(e.name);
           break;

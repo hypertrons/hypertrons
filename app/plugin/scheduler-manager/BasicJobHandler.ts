@@ -23,7 +23,7 @@ export class BasicJobHanlder implements ISchedulerJobHandler {
     this.job = job;
   }
 
-  cancle(): void {
+  cancel(): void {
     this.job.cancel();
   }
 

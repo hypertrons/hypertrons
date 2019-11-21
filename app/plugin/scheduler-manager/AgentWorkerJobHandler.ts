@@ -44,10 +44,10 @@ export class AgentWorkerJobHandler implements ISchedulerJobHandler {
     });
   }
 
-  public cancle(): void {
+  public cancel(): void {
     this.app.event.publish('agent', SchedulerWorkerUpdateEvent, {
       name: this.innerName,
-      type: 'cancle',
+      type: 'cancel',
     });
   }
 
@@ -86,6 +86,6 @@ export class SchedulerAgentScheduleEvent {
 
 export class SchedulerWorkerUpdateEvent {
   public name: string;
-  public type: 'update' | 'cancle';
+  public type: 'update' | 'cancel';
   public time?: string;
 }
