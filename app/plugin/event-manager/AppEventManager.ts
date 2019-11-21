@@ -70,8 +70,11 @@ export class AppEventManager extends AppPluginBase<null> {
         // broadcast will send to agent and all workers
         this.app.messenger.broadcast(IPC_EVENT_NAME, p);
         // send to a random worker
-        p.type = 'worker';
-        this.app.messenger.sendRandom(IPC_EVENT_NAME, p);
+        // need to create a new param here because IPC send may async and may affect former event
+        this.app.messenger.sendRandom(IPC_EVENT_NAME, {
+          ...p,
+          type: 'worker',
+        });
         break;
       default: break;
     }
