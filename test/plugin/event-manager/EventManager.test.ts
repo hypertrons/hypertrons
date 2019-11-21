@@ -33,7 +33,7 @@ describe('EventManager', () => {
 
   const test = async (sender: any, type: 'worker' | 'workers' | 'agent' | 'all', ...types: consumeType[]) => {
     sender.event.publish(type, TestEvent, {});
-    await waitFor(10);
+    await waitFor(2);
     assert(count === getScore(...types));
   };
 
