@@ -25,7 +25,7 @@ export class AgentEventManager extends AgentPluginBase<null> {
     super(config, agent);
     this.handlerMap = new EventHandlerMap();
     this.agent.messenger.on(IPC_EVENT_NAME, (e: IpcEventType) => {
-      this.consume(e.className, e.type, e.payload);
+      this.consume(e.className, e.type, e.payload, e.from);
     });
   }
 
@@ -46,6 +46,7 @@ export class AgentEventManager extends AgentPluginBase<null> {
       type,
       className,
       payload: param,
+      from: 'agent',
     };
     switch (type) {
       case 'worker':
@@ -56,7 +57,7 @@ export class AgentEventManager extends AgentPluginBase<null> {
         break;
       case 'all':
         this.agent.messenger.sendToApp(IPC_EVENT_NAME, p);
-        this.consume(className, type, param);
+        this.consume(className, type, param, 'agent');
         // need to create a new param here because IPC send may async and may affect former event
         this.agent.messenger.sendRandom(IPC_EVENT_NAME, {
           ...p,
@@ -64,14 +65,14 @@ export class AgentEventManager extends AgentPluginBase<null> {
         });
         break;
       case 'agent':
-        this.consume(className, type, param);
+        this.consume(className, type, param, 'agent');
         break;
       default:
         break;
     }
   }
 
-  private async consume<T>(className: string, type: 'worker' | 'workers' | 'agent' | 'all', param: T): Promise<void> {
+  private async consume<T>(className: string, type: 'worker' | 'workers' | 'agent' | 'all', param: T, from: 'worker' | 'agent'): Promise<void> {
     switch (type) {
       case 'agent':
       case 'all':
@@ -82,12 +83,15 @@ export class AgentEventManager extends AgentPluginBase<null> {
         }
         break;
       case 'worker':
-        // if worker, means need to send to a random worker
-        this.agent.messenger.sendRandom(IPC_EVENT_NAME, {
-          className,
-          type,
-          payload: param,
-        });
+        if (from === 'worker') {
+          // if worker from app, means need to send to a random worker
+          this.agent.messenger.sendRandom(IPC_EVENT_NAME, {
+            className,
+            type,
+            payload: param,
+            from: 'agent',
+          });
+        }
         break;
       default:
         break;
