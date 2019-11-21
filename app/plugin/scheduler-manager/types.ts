@@ -22,9 +22,9 @@ export type ISchedulerJobCallback = (time: Date) => void;
  */
 export interface ISchedulerJobHandler {
   /**
-   * cancle current scheduler
+   * cancel current scheduler
    */
-  cancle(): void;
+  cancel(): void;
   /**
    * reschedule the scheduler
    */
