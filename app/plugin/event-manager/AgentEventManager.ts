@@ -81,6 +81,14 @@ export class AgentEventManager extends AgentPluginBase<null> {
           this.logger.error(`Error processing handlers, className=${className}, e=`, e);
         }
         break;
+      case 'worker':
+        // if worker, means need to send to a random worker
+        this.agent.messenger.sendRandom(IPC_EVENT_NAME, {
+          className,
+          type,
+          payload: param,
+        });
+        break;
       default:
         break;
     }
