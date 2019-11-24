@@ -125,7 +125,7 @@ export class GitHubClient implements IClient {
     }
   }
 
-  public getRepoDate(): Repo {
+  public getRepoData(): Repo {
     return this.repoData;
   }
 
