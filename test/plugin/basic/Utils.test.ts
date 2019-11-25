@@ -88,4 +88,24 @@ describe('Utils', () => {
     });
   });
 
+  describe('uniqueArray', () => {
+    it('should return origin array', async () => {
+      const array = [ 1, 2, 3, 4 ];
+      const ua = Utils.uniqueArray(array);
+      assert.deepEqual(ua, [ 1, 2, 3, 4 ]);
+    });
+
+    it('should return empty array', async () => {
+      const array = [];
+      const ua = Utils.uniqueArray(array);
+      assert.deepEqual(ua, []);
+    });
+
+    it('should return unique array', async () => {
+      const array = [ 1, 2, 3, 2, 1 ];
+      const ua = Utils.uniqueArray(array);
+      assert.deepEqual(ua, [ 1, 2, 3 ]);
+    });
+  });
+
 });

@@ -123,3 +123,10 @@ export function loggerWrapper(logger: EggLogger , prefix: string | (() => string
 export function waitUntil(func: () => boolean, options?: object): Promise<void> {
   return waitFor(func, Object.assign({ interval: 1000 }, options));
 }
+
+export function uniqueArray<T>(arr: T[]): T[] {
+  const unique = (value: T, index: number, self: T[]) => {
+      return self.indexOf(value) === index;
+  };
+  return arr.filter(unique);
+}
