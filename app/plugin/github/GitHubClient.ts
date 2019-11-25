@@ -12,36 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { HostingClientBase } from '../../basic/HostingPlatform/HostingClientBase';
+import { parseRepoName, ParseDate, waitUntil } from '../../basic/Utils';
 import Octokit = require('@octokit/rest');
-import { IClient } from '../../installation-manager/IClient';
-import { parseRepoName, BotLogger, waitUntil, ParseDate } from '../../../basic/Utils';
-import { GitHubInstallation } from '../github-installation/GitHubInstallation';
-import { Repo } from '../../../basic/DataTypes';
+import { Repo } from '../../basic/DataTypes';
+import { Application } from 'egg';
+import { DataCat } from 'github-data-cat';
 
-export class GitHubClient implements IClient {
+export class GitHubClient extends HostingClientBase<Octokit> {
 
-  public name: string;
-  public owner: string;
-  public repo: string;
-  public rawClient: Octokit;
-  public installation: GitHubInstallation;
+  private owner: string;
+  private repo: string;
+  private dataCat: DataCat;
   private repoData: Repo;
-  private logger: BotLogger;
 
-  constructor(name: string, installation: GitHubInstallation) {
-    this.name = name;
-    const { owner, repo } = parseRepoName(this.name);
-    this.owner = owner;
-    this.repo = repo;
-    this.installation = installation;
-    this.logger = this.installation.githubInstallationManager.logger;
+  constructor(name: string, hostId: number, app: Application, dataCat: DataCat) {
+    super(name, hostId, app);
+    ({ owner: this.owner, repo: this.repo } = parseRepoName(name));
+    this.dataCat = dataCat;
     this.updateData();
   }
 
   private async updateData(): Promise<void> {
-    this.logger.info(`Start to update data for ${this.name} in ${this.installation.id}`);
+    this.logger.info(`Start to update data for ${this.name}`);
 
-    const dataCat = this.installation.dataCat;
+    const dataCat = this.dataCat;
     await waitUntil(() => dataCat.inited);
 
     const full = await dataCat.repo.full(this.owner, this.repo, {
@@ -110,7 +105,7 @@ export class GitHubClient implements IClient {
     };
   }
 
-  public async getFileContent(path: string): Promise<string | undefined > {
+  public async getFileContent(path: string): Promise<string | undefined> {
     try {
       const res = await this.rawClient.repos.getContents({
         owner: this.owner,
@@ -124,8 +119,11 @@ export class GitHubClient implements IClient {
     }
   }
 
-  public getRepoData(): Repo {
+  public getData(): Repo {
     return this.repoData;
   }
 
+  public getConfig<T>(comp: string): T {
+    return this.config[comp];
+  }
 }

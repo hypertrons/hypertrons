@@ -12,18 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export class GitHubInstallationConfig {
-  name: string;
-  endpoint: string;
-  appId: number;
-  privateKeyPath: string;
-  privateKeyPathAbsolute: boolean;
-  webhook: {
-    path: string;
-    secret: string;
-    proxyUrl: string;
-  };
-  fetcher: {
-    tokens: string[];
-  };
-}
+export default {
+  github: {
+    client: {},
+  },
+};

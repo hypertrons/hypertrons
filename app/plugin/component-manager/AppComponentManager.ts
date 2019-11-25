@@ -18,14 +18,19 @@ import { ComponentHelper, ComponentContext } from '../../basic/ComponentHelper';
 import { Config } from './config/config.default';
 import { existsSync, readdirSync, statSync } from 'fs';
 import { join } from 'path';
+import { waitUntil } from '../../basic/Utils';
 
 export class AppComponentManager extends AppPluginBase<Config> {
 
   private componentHelper: ComponentHelper;
+  private componentLoaded: boolean;
+  private defaultConfig: any;
 
   constructor(config: Config, app: Application) {
     super(config, app);
     this.componentHelper = new ComponentHelper();
+    this.componentLoaded = false;
+    this.defaultConfig = {};
   }
 
   public async onReady(): Promise<void> {
@@ -37,7 +42,7 @@ export class AppComponentManager extends AppPluginBase<Config> {
   public async onClose(): Promise<void> { }
 
   protected checkConfigFields(): string[] {
-    return [ 'basePath' ];
+    return [ 'basePath', 'entryModule', 'configModule' ];
   }
 
   private loadComponents(): void {
@@ -56,6 +61,7 @@ export class AppComponentManager extends AppPluginBase<Config> {
       componentsDir.forEach(path => {
         this.loadComponent(join(basePath, path), path);
       });
+      this.componentLoaded = true;
     } catch (e) {
       this.logger.error(`Error while load components, e=${e}`);
     }
@@ -75,6 +81,7 @@ export class AppComponentManager extends AppPluginBase<Config> {
         config = await import(join(path, this.config.configModule));
         if (config.default) {
           config = config.default;
+          this.defaultConfig[name] = config;
         }
       } catch {
         this.logger.warn(`Config module not exists for component ${name}`);
@@ -103,6 +110,11 @@ export class AppComponentManager extends AppPluginBase<Config> {
     } catch (e) {
       this.logger.error(`Error while load component ${name}, e=${e}`);
     }
+  }
+
+  public async getDefaultConfig(): Promise<any> {
+    waitUntil(() => this.componentLoaded);
+    return this.defaultConfig;
   }
 
 }

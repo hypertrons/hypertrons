@@ -14,6 +14,7 @@
 
 import { mergeWith, isArray } from 'lodash';
 import waitFor from 'p-wait-for';
+import { EggLogger } from 'egg-logger';
 
 export function parseRepoName(fullName: string): { owner: string, repo: string } {
   const s = fullName.split('/');
@@ -106,6 +107,17 @@ export interface BotLogger {
   info: (msg: any, ...args: any[]) => void;
   warn: (msg: any, ...args: any[]) => void;
   error: (msg: any, ...args: any[]) => void;
+}
+
+export function loggerWrapper(logger: EggLogger , prefix: string | (() => string)): BotLogger {
+  const isString = typeof prefix === 'string';
+  const caller = prefix as () => string;
+  return {
+    debug: (msg, ...args) => logger.debug(isString ? prefix : caller(), msg, ...args),
+    info: (msg, ...args) => logger.info(isString ? prefix : caller(), msg, ...args),
+    warn: (msg, ...args) => logger.warn(isString ? prefix : caller(), msg, ...args),
+    error: (msg, ...args) => logger.error(isString ? prefix : caller(), msg, ...args),
+  };
 }
 
 export function waitUntil(func: () => boolean, options?: object): Promise<void> {

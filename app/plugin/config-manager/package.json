@@ -1,7 +1,0 @@
-{
-  "name": "mentor-bot-config",
-  "description": "config manager for mentor bot",
-  "eggPlugin": {
-    "name": "configManager"
-  }
-}

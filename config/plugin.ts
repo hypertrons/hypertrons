@@ -31,19 +31,14 @@ const plugin: EggPlugin = {
     path: join(__dirname, '../app/plugin/installation-manager'),
   },
 
-  configManager: {
-    enable: true,
-    path: join(__dirname, '../app/plugin/config-manager'),
-  },
-
   command: {
     enable: true,
     path: join(__dirname, '../app/plugin/command-manager'),
   },
 
-  githubInstallation: {
+  github: {
     enable: true,
-    path: join(__dirname, '../app/plugin/github-installation-manager'),
+    path: join(__dirname, '../app/plugin/github'),
   },
 
   component: {

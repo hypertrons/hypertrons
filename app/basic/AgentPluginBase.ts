@@ -14,7 +14,7 @@
 
 import { Agent } from 'egg';
 import assert from 'assert';
-import { GloablEvents, BotLogger } from './Utils';
+import { GloablEvents, BotLogger, loggerWrapper } from './Utils';
 
 /**
  * Oss mentor bot agent plugin base class
@@ -53,13 +53,7 @@ export abstract class AgentPluginBase<TConfig> {
   constructor(config: TConfig, agent: Agent) {
     this.agent = agent;
     this.config = config;
-    const logPrefix = () => `[${this.name}-agent]`;
-    this.logger = {
-      debug: (msg, ...args) => this.agent.logger.debug(logPrefix(), msg, ...args),
-      info: (msg, ...args) => this.agent.logger.info(logPrefix(), msg, ...args),
-      warn: (msg, ...args) => this.agent.logger.warn(logPrefix(), msg, ...args),
-      error: (msg, ...args) => this.agent.logger.error(logPrefix(), msg, ...args),
-    };
+    this.logger = loggerWrapper(this.agent.logger, () => `[${this.name}-agent]`);
     this.checkConfigFields().forEach(f => this.checkConfig(config, f));
     this.agent.messenger.on(GloablEvents.READY, () => {
       this.logger.info('Bot ready, start to run onReady.');

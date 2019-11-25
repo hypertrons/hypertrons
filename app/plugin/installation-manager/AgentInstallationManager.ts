@@ -13,8 +13,9 @@
 // limitations under the License.
 
 import { Agent } from 'egg';
-import { InstallationType, InstallationInitEvent } from './types';
+import { InstallationType } from './types';
 import { AgentPluginBase } from '../../basic/AgentPluginBase';
+import { HostingPlatformInitEvent } from '../../basic/HostingPlatform/event';
 
 export class AgentInstallationManager extends AgentPluginBase<Config> {
 
@@ -26,8 +27,9 @@ export class AgentInstallationManager extends AgentPluginBase<Config> {
 
   public async onStart(): Promise<void> {
     this.config.configs.forEach((c, index) => {
-      this.agent.event.publish('all', InstallationInitEvent, {
-        installationId: index,
+      this.logger.info(`Start to send platform init event, id=${index}`);
+      this.agent.event.publish('all', HostingPlatformInitEvent, {
+        id: index,
         ...c,
       });
     });
