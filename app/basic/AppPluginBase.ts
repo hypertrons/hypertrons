@@ -15,7 +15,7 @@
 import { Application, Context } from 'egg';
 import { join } from 'path';
 import assert from 'assert';
-import { GloablEvents, BotLogger } from './Utils';
+import { GloablEvents, BotLogger, loggerWrapper } from './Utils';
 
 /**
  * Oss mentor bot app plugin base class
@@ -54,13 +54,7 @@ export abstract class AppPluginBase<TConfig> {
   constructor(config: TConfig, app: Application) {
     this.app = app;
     this.config = config;
-    const logPrefix = () => `[${this.name}-app]`;
-    this.logger = {
-      debug: (msg, ...args) => this.app.logger.debug(logPrefix(), msg, ...args),
-      info: (msg, ...args) => this.app.logger.info(logPrefix(), msg, ...args),
-      warn: (msg, ...args) => this.app.logger.warn(logPrefix(), msg, ...args),
-      error: (msg, ...args) => this.app.logger.error(logPrefix(), msg, ...args),
-    };
+    this.logger = this.logger = loggerWrapper(this.app.logger, () => `[${this.name}-app]`);
     this.checkConfigFields().forEach(f => this.checkConfig(config, f));
     this.app.messenger.on(GloablEvents.READY, () => {
       this.logger.info('Bot ready, start to run onReady.');

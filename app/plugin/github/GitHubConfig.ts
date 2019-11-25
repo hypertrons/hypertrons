@@ -12,12 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/**
- * When a repo's config is loaded
- * worker -> all
- */
-export class ConfigManagerInternalConfigLoadedEvent {
-  installationId: number;
-  fullName: string;
-  config: any;
+import { HostingConfigBase } from '../../basic/HostingPlatform/HostingConfigBase';
+
+export class GitHubConfig extends HostingConfigBase {
+  endpoint: string;
+  appId: number;
+  privateKeyPath: string;
+  privateKeyPathAbsolute: boolean;
+  webhook: {
+    path: string;
+    secret: string;
+    proxyUrl: string;
+  };
+  fetcher: {
+    tokens: string[];
+  };
 }

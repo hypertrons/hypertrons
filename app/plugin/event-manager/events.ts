@@ -14,29 +14,28 @@
 
 import { Issue, Comment, PullRequest } from '../../basic/DataTypes';
 import { Command } from '../command-manager/Command';
+import { IClient } from '../installation-manager/IClient';
 
-/**
- * Client ready
- */
-export class ClientReadyEvent {
+export class RepoEventBase {
   installationId: number;
   fullName: string;
+  client?: IClient;
 }
+
+/**
+ * Repo config loaded
+ */
+export class RepoConfigLoadedEvent extends RepoEventBase { }
 
 /**
  * Repo removed
  */
-export class RepoRemovedEvent {
-  installationId: number;
-  fullName: string;
-}
+export class RepoRemovedEvent extends RepoEventBase { }
 
 /**
  * When a push to a repo
  */
-export class RepoPushEvent {
-  installationId: number;
-  fullName: string;
+export class RepoPushEvent extends RepoEventBase {
   ref: string;
   commits: Array<{
     added: string[];
@@ -46,24 +45,9 @@ export class RepoPushEvent {
 }
 
 /**
- * When a repo's config is updated
- */
-export class ConfigManagerConfigLoadedEvent {
-  installationId: number;
-  fullName: string;
-  config: any;
-}
-
-export class GitHubWebhooksManagerReadyEvent {
-  installationId: number;
-}
-
-/**
  * When update a issue
  */
-export class IssueEvent {
-  installationId: number;
-  fullName: string;
+export class IssueEvent extends RepoEventBase {
   action: 'assigned'
           | 'closed'
           | 'deleted'
@@ -87,9 +71,7 @@ export class IssueEvent {
 /**
  * When update a comment
  */
-export class CommentUpdateEvent {
-  installationId: number;
-  fullName: string;
+export class CommentUpdateEvent extends RepoEventBase {
   issueNumber: number;
   action: 'created' | 'deleted' | 'edited';
   comment: Comment | undefined;
@@ -98,9 +80,7 @@ export class CommentUpdateEvent {
 /**
  * When update a label
  */
-export class LabelUpdateEvent {
-  installationId: number;
-  fullName: string;
+export class LabelUpdateEvent extends RepoEventBase {
   action: 'created' | 'deleted' | 'edited';
   labelName: string;
 }
@@ -108,9 +88,7 @@ export class LabelUpdateEvent {
 /**
  * When update a pull request
  */
-export class PullRequestEvent {
-  installationId: number;
-  fullName: string;
+export class PullRequestEvent extends RepoEventBase {
   action: 'assigned'
           | 'closed'
           | 'edited'
@@ -129,19 +107,9 @@ export class PullRequestEvent {
 }
 
 /**
- * When GitHub Data loaded
- */
-export class GitHubManagerDataLoadedEvent {
-  installationId: number;
-  fullName: string;
-}
-
-/**
  * When Command Manager publish a event
  */
-export class CommandManagerNewCommandEvent {
-  installationId: number;
-  fullName: string;
+export class CommandManagerNewCommandEvent extends RepoEventBase {
   from: 'issue' | 'comment';
   comment: Comment | undefined;
   issue: Issue | undefined;

@@ -12,18 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export default {
-  configManager: {
-    client: {
-      remote: {
-        filePath: '.github/oss-bot.json',
+export class HostingConfigBase {
+  name: string;
+  config: {
+    remote: {
+      filePath: string;
+    };
+    private: {
+      file?: {
+        rootPath: string;
       },
-      configurable: [ ],
-      private: {
-        file: {
-          rootPath: './repo_configs/',
-        },
+      mysql?: {
+        host: string;
+        port: number;
+        db: string;
+        user: string;
+        pass: string;
       },
-    },
-  },
-};
+    };
+  };
+}

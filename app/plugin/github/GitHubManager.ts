@@ -12,16 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { HostingManagerBase } from '../../basic/HostingPlatform/HostingManagerBase';
+import { GitHubApp } from './GitHubApp';
+import { GitHubClient } from './GitHubClient';
+import Octokit = require('@octokit/rest');
+import { GitHubConfig } from './GitHubConfig';
 import { Application } from 'egg';
-import { AppGitHubInstallationManager } from './AppGitHubInstallationManager';
-import { AppPluginBase } from '../../basic/AppPluginBase';
 
-declare module 'egg' {
-  interface Application {
-    githubInstallation: AppGitHubInstallationManager;
+export class GitHubManager extends HostingManagerBase<GitHubApp, GitHubClient, Octokit, GitHubConfig> {
+
+  constructor(config: null, app: Application) {
+    super(config, app);
+    this.type = 'github';
   }
-}
 
-module.exports = (app: Application) => {
-  AppPluginBase.LoadToApp('githubInstallation', AppGitHubInstallationManager, app);
-};
+  protected async getNewHostingPlatform(id: number, config: GitHubConfig): Promise<GitHubApp> {
+    return new GitHubApp(id, config, this.app);
+  }
+
+}

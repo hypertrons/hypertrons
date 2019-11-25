@@ -82,6 +82,11 @@ export class AppEventManager extends AppPluginBase<null> {
   }
 
   private async consume<T>(className: string, type: 'worker' | 'workers' | 'agent' | 'all', param: T): Promise<void> {
+    const p = param as any;
+    if (p.installationId !== undefined && p.installationId !== null && p.fullName) {
+      // if is a repo event, attach client automatically
+      p.client = await this.app.installation.getClient(p.installationId, p.fullName);
+    }
     switch (type) {
       case 'worker':
         try {

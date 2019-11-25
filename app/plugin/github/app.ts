@@ -12,8 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export default {
-  githubInstallation: {
-    client: { },
-  },
+import { Application } from 'egg';
+import { AppPluginBase } from '../../basic/AppPluginBase';
+import { GitHubManager } from './GitHubManager';
+
+declare module 'egg' {
+  interface Application {
+    github: GitHubManager;
+  }
+}
+
+module.exports = (app: Application) => {
+  AppPluginBase.LoadToApp('github', GitHubManager, app);
 };

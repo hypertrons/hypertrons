@@ -12,16 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Application } from 'egg';
-import { AppPluginBase } from '../../basic/AppPluginBase';
-import { AppConfigManager } from './AppConfigManager';
+export type HostingPlatformTypes = 'github' | 'gitlab';
 
-declare module 'egg' {
-  interface Application {
-    configManager: AppConfigManager;
-  }
+export class HostingPlatformInitEvent {
+  id: number;
+  type: HostingPlatformTypes;
+  config: any;
 }
 
-module.exports = (app: Application) => {
-  AppPluginBase.LoadToApp('configManager', AppConfigManager, app);
-};
+export class HostingManagerInitRepoEvent {
+  id: number;
+  fullName: string;
+  payload: any;
+}
+
+export class HostingPlatformConfigInitedEvent {
+  id: number;
+  fullName: string;
+  config: any;
+}
