@@ -39,15 +39,15 @@ export class AppConfigManager extends AppPluginBase<AppConfigManagerConfig> {
     });
 
     // update the configuration when a repo was removed
-    this.app.event.subscribeOne(RepoRemovedEvent, async event => {
-      this.loadConfig(event.installationId, event.fullName);
+    this.app.event.subscribeAll(RepoRemovedEvent, async event => {
+      this.configMap.delete(this.genRepoConfigKey(event.installationId, event.fullName));
     });
 
     // update configuration when receive a push event
     this.app.event.subscribeOne(RepoPushEvent, async event => {
       if (event.commits.some(c => {
-          // put modified first because this is the most common situation
-          return c.modified.indexOf(this.config.remote.filePath) >= 0 ||
+        // put modified first because this is the most common situation
+        return c.modified.indexOf(this.config.remote.filePath) >= 0 ||
           c.added.indexOf(this.config.remote.filePath) >= 0 ||
           c.removed.indexOf(this.config.remote.filePath) >= 0;
       })) {

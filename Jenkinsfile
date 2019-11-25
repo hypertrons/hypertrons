@@ -11,7 +11,6 @@ pipeline {
     stages {
         stage('Install') {
             steps{
-                sh 'cp -R $PWD/* /home && cd /home'
                 sh 'npm install'
             }
         }

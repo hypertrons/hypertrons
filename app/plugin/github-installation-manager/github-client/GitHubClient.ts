@@ -108,7 +108,6 @@ export class GitHubClient implements IClient {
         };
       }),
     };
-    console.log(JSON.stringify(this.repoData));
   }
 
   public async getFileContent(path: string): Promise<string | undefined > {
