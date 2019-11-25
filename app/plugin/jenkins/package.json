@@ -1,0 +1,7 @@
+{
+  "name": "mentor-bot-jenkins-manager",
+  "description": "Jenkins plugin for mentor bot",
+  "eggPlugin": {
+    "name": "jenkins"
+  }
+}

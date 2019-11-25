@@ -120,3 +120,8 @@ export class CommandManagerNewCommandEvent extends RepoEventBase {
   issue: Issue | undefined;
   command: Command;
 }
+
+// TODO, define NewCheckRunEvent body
+export class NewCheckRunEvent extends RepoEventBase {
+
+}
