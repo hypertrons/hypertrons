@@ -2,7 +2,7 @@ pipeline {
     agent {
         docker {
             image 'node:10'
-            args '-u root'
+            args '-v /data:/data:ro -u root'
         }
     }
     options {
@@ -16,6 +16,7 @@ pipeline {
         }
         stage('Test') {
             steps {
+                sh 'npm run licensecheck'
                 sh 'npm run lint'
                 sh 'npm run test-local'
             }
@@ -43,7 +44,7 @@ pipeline {
                         text: """
                         Project `${env.JOB_NAME}` ${buildResult} build (<${env.BUILD_URL}|#${currentBuild.number}>) for commit (<${env.GIT_URL}|${commitId}>) on branch `${env.BRANCH_NAME}`\nExecution time: ${currentBuild.durationString}\nMessage: The build ${buildResult}.
                         """,
-                        fallback: "Jenkins pipeline result",
+                        fallback: "Jenkins pipeline ${buildResult}",
                         color: myColor
                     ]
                 ]

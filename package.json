@@ -19,7 +19,8 @@
     "ci": "npm run lint && npm run cov && npm run tsc",
     "autod": "autod",
     "lint": "tslint --project . -c tslint.json",
-    "clean": "ets clean"
+    "clean": "ets clean",
+    "licensecheck": "license-check"
   },
   "dependencies": {
     "@octokit/app": "^4.1.0",
@@ -30,6 +31,7 @@
     "eventsource": "^1.0.7",
     "extend2": "^1.0.0",
     "github-data-cat": "^1.0.1",
+    "license-check": "^1.1.5",
     "lodash": "^4.17.15",
     "node-schedule": "^1.3.2",
     "p-wait-for": "^3.1.0"
@@ -63,5 +65,17 @@
     "coverage"
   ],
   "author": "Xlab",
-  "license": "MIT"
+  "license": "MIT",
+  "license-check-config": {
+    "src": [
+      "app.ts",
+      "app/**/*.ts",
+      "config/**/*.ts",
+      "test/**/*.ts"
+    ],
+    "path": "/data/license.header",
+    "blocking": true,
+    "logInfo": false,
+    "logError": true
+  }
 }
