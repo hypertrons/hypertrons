@@ -50,6 +50,11 @@ const plugin: EggPlugin = {
     enable: true,
     path: join(__dirname, '../app/plugin/component-manager'),
   },
+
+  jenkins: {
+    enable: true,
+    path: join(__dirname, '../app/plugin/jenkins'),
+  },
 };
 
 export default plugin;
