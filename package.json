@@ -32,6 +32,7 @@
     "extend2": "^1.0.0",
     "github-data-cat": "^1.0.1",
     "license-check": "^1.1.5",
+    "gitlab": "^12.0.0",
     "lodash": "^4.17.15",
     "node-schedule": "^1.3.2",
     "p-wait-for": "^3.1.0"

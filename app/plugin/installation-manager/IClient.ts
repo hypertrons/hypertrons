@@ -1,3 +1,5 @@
+import { Repo } from '../../basic/DataTypes';
+
 // Copyright 2019 Xlab
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,13 +18,17 @@ export interface IClient {
   name: string;
   rawClient: any;
 
+  getRepoData(): Repo;
+
   getCompConfig<TConfig>(comp: string): TConfig | undefined;
 
   getFileContent(filePath: string): Promise<string | undefined>;
 
   addIssue(title: string, body: string, labels?: string[]): Promise<void>;
 
-  addLabel(number: number, labels: string[]): Promise<void>;
+  listLabels(): Promise<Array<{name: string, description: string, color: string}>>;
+
+  addLabels(number: number, labels: string[]): Promise<void>;
 
   createLabel(labels: Array<{name: string, description: string, color: string}>): Promise<void>;
 
