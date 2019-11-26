@@ -37,6 +37,7 @@
     "p-wait-for": "^3.1.0"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.149",
     "@types/mocha": "^2.2.40",
     "@types/node": "^7.0.12",
     "@types/node-schedule": "^1.2.4",

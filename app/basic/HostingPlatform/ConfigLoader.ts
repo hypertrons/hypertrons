@@ -26,7 +26,7 @@ export class ConfigLoader {
 
   constructor(app: Application) {
     this.app = app;
-    this.logger = loggerWrapper(app.logger, 'config-loader');
+    this.logger = loggerWrapper(app.logger, '[config-loader]');
   }
 
   public async loadConfig(config: HostingConfigBase, installationId: number,

@@ -19,6 +19,7 @@ import { Config } from './config/config.default';
 import { existsSync, readdirSync, statSync } from 'fs';
 import { join } from 'path';
 import { waitUntil } from '../../basic/Utils';
+import { cloneDeep } from 'lodash';
 
 export class AppComponentManager extends AppPluginBase<Config> {
 
@@ -114,7 +115,7 @@ export class AppComponentManager extends AppPluginBase<Config> {
 
   public async getDefaultConfig(): Promise<any> {
     waitUntil(() => this.componentLoaded);
-    return this.defaultConfig;
+    return cloneDeep(this.defaultConfig);
   }
 
 }
