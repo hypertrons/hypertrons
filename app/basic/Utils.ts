@@ -15,6 +15,7 @@
 import { mergeWith, isArray } from 'lodash';
 import waitFor from 'p-wait-for';
 import { EggLogger } from 'egg-logger';
+import { pope } from 'pope';
 
 export function parseRepoName(fullName: string): { owner: string, repo: string } {
   const s = fullName.split('/');
@@ -129,4 +130,12 @@ export function uniqueArray<T>(arr: T[]): T[] {
       return self.indexOf(value) === index;
   };
   return arr.filter(unique);
+}
+
+export function renderString(template: string, param?: any): string {
+  return pope(template, param);
+}
+
+export function getLastWeek(): Date {
+  return new Date(new Date().getTime() - 7 * 24 * 60 * 60 * 1000);
 }
