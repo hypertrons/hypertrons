@@ -16,7 +16,7 @@
 'use strict';
 
 import assert from 'assert';
-import { waitFor, prepareTestApplication, testClear } from '../Util';
+import { waitFor, prepareTestApplication, testClear } from '../../Util';
 import { Application, Agent } from 'egg';
 
 describe('EventManager', () => {
@@ -47,7 +47,7 @@ describe('EventManager', () => {
 
   const test = async (sender: any, type: 'worker' | 'workers' | 'agent' | 'all', ...types: consumeType[]) => {
     sender.event.publish(type, TestEvent, {});
-    await waitFor(2);
+    await waitFor(5);
     assert(count === getScore(...types));
   };
 

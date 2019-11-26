@@ -13,8 +13,12 @@
 // limitations under the License.
 
 export default {
-  componentManager: {
-    client: { },
+  component: {
+    client: {
+      basePath: 'app/component',
+      entryModule: 'app',
+      configModule: 'config',
+    },
   },
 };
 
