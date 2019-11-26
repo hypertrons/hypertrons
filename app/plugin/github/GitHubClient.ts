@@ -23,12 +23,14 @@ export class GitHubClient extends HostingClientBase<Octokit> {
 
   private owner: string;
   private repo: string;
+  private repoName: {owner: string, repo: string};
   private dataCat: DataCat;
   private repoData: Repo;
 
   constructor(name: string, hostId: number, app: Application, dataCat: DataCat) {
     super(name, hostId, app);
-    ({ owner: this.owner, repo: this.repo } = parseRepoName(name));
+    this.repoName = parseRepoName(name);
+    ({ owner: this.owner, repo: this.repo } = this.repoName);
     this.dataCat = dataCat;
     this.updateData();
   }
@@ -108,8 +110,7 @@ export class GitHubClient extends HostingClientBase<Octokit> {
   public async getFileContent(path: string): Promise<string | undefined> {
     try {
       const res = await this.rawClient.repos.getContents({
-        owner: this.owner,
-        repo: this.repo,
+        ...this.repoName,
         path,
       });
       const content = (res.data as any).content;
@@ -119,11 +120,44 @@ export class GitHubClient extends HostingClientBase<Octokit> {
     }
   }
 
+  public async addIssue(title: string, body: string, labels?: string[] | undefined): Promise<void> {
+    await this.rawClient.issues.create({
+      ...this.repoName,
+      title,
+      body,
+      labels,
+    });
+  }
+
+  public async addLabel(number: number, labels: string[]): Promise<void> {
+    await this.rawClient.issues.addLabels({
+      ...this.repoName,
+      issue_number: number,
+      labels,
+    });
+  }
+
+  public async createLabel(labels: Array<{name: string, description: string, color: string}>): Promise<void> {
+    await Promise.all(labels.map(label => {
+      return this.rawClient.issues.createLabel({
+        ...this.repoName,
+        ...label,
+      });
+    }));
+  }
+
+  public async updateLabel(labels: Array<{ current_name: string; description?: string; color?: string; }>): Promise<void> {
+    await Promise.all(labels.map(label => {
+      if (!label.description && !label.color) return;
+      return this.rawClient.issues.updateLabel({
+        ...this.repoName,
+        ...label,
+      });
+    }));
+  }
+
   public getData(): Repo {
     return this.repoData;
   }
 
-  public getConfig<T>(comp: string): T {
-    return this.config[comp];
-  }
 }

@@ -14,8 +14,9 @@
 
 import { BotLogger, loggerWrapper } from '../Utils';
 import { Application } from 'egg';
+import { IClient } from '../../plugin/installation-manager/IClient';
 
-export abstract class HostingClientBase<TRawClient> {
+export abstract class HostingClientBase<TRawClient> implements IClient {
 
   public hostId: number;
   public rawClient: TRawClient;
@@ -31,6 +32,14 @@ export abstract class HostingClientBase<TRawClient> {
   }
 
   public abstract async getFileContent(path: string): Promise<string | undefined>;
+
+  public abstract async addIssue(title: string, body: string, labels?: string[] | undefined): Promise<void>;
+
+  public abstract async addLabel(number: number, labels: string[]): Promise<void>;
+
+  public abstract async updateLabel(labels: Array<{ current_name: string; description?: string; color?: string; }>): Promise<void>;
+
+  public abstract async createLabel(labels: Array<{name: string, description: string, color: string}>): Promise<void>;
 
   public getCompConfig<TConfig>(comp: string): TConfig | undefined {
     if (this.config[comp]) {
