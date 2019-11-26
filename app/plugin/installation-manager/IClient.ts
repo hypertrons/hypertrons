@@ -16,5 +16,15 @@ export interface IClient {
   name: string;
   rawClient: any;
 
+  getCompConfig<TConfig>(comp: string): TConfig | undefined;
+
   getFileContent(filePath: string): Promise<string | undefined>;
+
+  addIssue(title: string, body: string, labels?: string[]): Promise<void>;
+
+  addLabel(number: number, labels: string[]): Promise<void>;
+
+  createLabel(labels: Array<{name: string, description: string, color: string}>): Promise<void>;
+
+  updateLabel(labels: Array<{current_name: string, description?: string, color?: string}>): Promise<void>;
 }
