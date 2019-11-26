@@ -15,6 +15,7 @@
 import { BotLogger, loggerWrapper } from '../Utils';
 import { Application } from 'egg';
 import { IClient } from '../../plugin/installation-manager/IClient';
+import { Repo } from '../DataTypes';
 
 export abstract class HostingClientBase<TRawClient> implements IClient {
 
@@ -23,6 +24,7 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
   public name: string;
   protected logger: BotLogger;
   protected config: any;
+  protected repoData: Repo;
 
   constructor(name: string, hostId: number, app: Application) {
     this.name = name;
@@ -35,11 +37,17 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
 
   public abstract async addIssue(title: string, body: string, labels?: string[] | undefined): Promise<void>;
 
-  public abstract async addLabel(number: number, labels: string[]): Promise<void>;
+  public abstract async listLabels(): Promise<Array<{name: string, description: string, color: string}>>;
+
+  public abstract async addLabels(number: number, labels: string[]): Promise<void>;
 
   public abstract async updateLabel(labels: Array<{ current_name: string; description?: string; color?: string; }>): Promise<void>;
 
   public abstract async createLabel(labels: Array<{name: string, description: string, color: string}>): Promise<void>;
+
+  public getRepoData(): Repo {
+    return this.repoData;
+  }
 
   public getCompConfig<TConfig>(comp: string): TConfig | undefined {
     if (this.config[comp]) {

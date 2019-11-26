@@ -25,7 +25,6 @@ export class GitHubClient extends HostingClientBase<Octokit> {
   private repo: string;
   private repoName: {owner: string, repo: string};
   private dataCat: DataCat;
-  private repoData: Repo;
 
   constructor(name: string, hostId: number, app: Application, dataCat: DataCat) {
     super(name, hostId, app);
@@ -129,7 +128,21 @@ export class GitHubClient extends HostingClientBase<Octokit> {
     });
   }
 
-  public async addLabel(number: number, labels: string[]): Promise<void> {
+  public async listLabels(): Promise<Array<{name: string, description: string, color: string}>> {
+    const res = await this.rawClient.issues.listLabelsForRepo({
+      ...this.repoName,
+      per_page: 100,
+    });
+    return res.data.map(r => {
+      return {
+        name: r.name,
+        description: r.description,
+        color: r.color,
+      };
+    });
+  }
+
+  public async addLabels(number: number, labels: string[]): Promise<void> {
     await this.rawClient.issues.addLabels({
       ...this.repoName,
       issue_number: number,

@@ -41,6 +41,11 @@ const plugin: EggPlugin = {
     path: join(__dirname, '../app/plugin/github'),
   },
 
+  gitlab: {
+    enable: true,
+    path: join(__dirname, '../app/plugin/gitlab'),
+  },
+
   component: {
     enable: true,
     path: join(__dirname, '../app/plugin/component-manager'),

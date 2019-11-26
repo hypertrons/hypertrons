@@ -1,0 +1,7 @@
+{
+  "name": "mentor-bot-gitlab-manager",
+  "description": "GitLab manager for mentor bot",
+  "eggPlugin": {
+    "name": "gitlab"
+  }
+}
