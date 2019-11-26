@@ -113,9 +113,9 @@ export abstract class HostingManagerBase<THostingPlatform extends HostingBase<TC
       // config init, set config for client
       const hp = this.hpMap.get(e.id);
       if (hp) {
-        this.logger.info(`Start to update config for ${hp.getName()}, repo=${e.fullName}, config=${JSON.stringify(e.config)}`);
-        const client = hp.getClient(e.fullName);
+        const client = await hp.getClient(e.fullName);
         if (client) {
+          this.logger.info(`Start to update config for ${hp.getName()}, repo=${e.fullName}, config=${JSON.stringify(e.config)}`);
           (client as any).config = e.config;
         }
       }
