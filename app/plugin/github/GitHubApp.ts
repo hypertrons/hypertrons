@@ -22,8 +22,7 @@ import { join } from 'path';
 import { existsSync, readFileSync } from 'fs';
 import Webhooks = require('@octokit/webhooks');
 import { GithubWrapper } from '../../basic/DataWarpper';
-import { InstallationRepoAddEvent, InstallationRepoRemoveEvent } from '../installation-manager/events';
-import { IssueEvent, CommentUpdateEvent, LabelUpdateEvent, PullRequestEvent } from '../event-manager/events';
+import { IssueEvent, CommentUpdateEvent, LabelUpdateEvent, PullRequestEvent, RepoRemovedEvent, RepoAddedEvent } from '../event-manager/events';
 import { DataCat } from 'github-data-cat';
 import EventSource from 'eventsource';
 
@@ -132,7 +131,7 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
     const githubWrapper = new GithubWrapper();
     webhooks.on('installation.created', e => {
       e.payload.repositories.forEach(r => {
-        this.app.event.publish('all', InstallationRepoAddEvent, {
+        this.app.event.publish('all', RepoAddedEvent, {
           installationId: this.id,
           fullName: r.full_name,
         });
@@ -140,7 +139,7 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
     });
     webhooks.on('installation_repositories.added', e => {
       e.payload.repositories_added.forEach(r => {
-        this.app.event.publish('all', InstallationRepoAddEvent, {
+        this.app.event.publish('all', RepoAddedEvent, {
           installationId: this.id,
           fullName: r.full_name,
         });
@@ -148,7 +147,7 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
     });
     webhooks.on('installation.deleted', e => {
       e.payload.repositories.forEach(r => {
-        this.app.event.publish('all', InstallationRepoRemoveEvent, {
+        this.app.event.publish('all', RepoRemovedEvent, {
           installationId: this.id,
           fullName: r.full_name,
         });
@@ -156,7 +155,7 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
     });
     webhooks.on('installation_repositories.removed', e => {
       e.payload.repositories_removed.forEach(r => {
-        this.app.event.publish('all', InstallationRepoRemoveEvent, {
+        this.app.event.publish('all', RepoRemovedEvent, {
           installationId: this.id,
           fullName: r.full_name,
         });

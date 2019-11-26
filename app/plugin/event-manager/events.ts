@@ -28,6 +28,11 @@ export class RepoEventBase {
 export class RepoConfigLoadedEvent extends RepoEventBase { }
 
 /**
+ * Repo added
+ */
+export class RepoAddedEvent extends RepoEventBase { }
+
+/**
  * Repo removed
  */
 export class RepoRemovedEvent extends RepoEventBase { }

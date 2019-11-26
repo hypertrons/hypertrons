@@ -142,6 +142,14 @@ export class GitHubClient extends HostingClientBase<Octokit> {
     });
   }
 
+  public async updateIssue(number: number, update: {title?: string, body?: string, state?: 'open' | 'closed'}): Promise<void> {
+    await this.rawClient.issues.update({
+      ...this.repoName,
+      issue_number: number,
+      ...update,
+    });
+  }
+
   public async addLabels(number: number, labels: string[]): Promise<void> {
     await this.rawClient.issues.addLabels({
       ...this.repoName,
@@ -150,7 +158,7 @@ export class GitHubClient extends HostingClientBase<Octokit> {
     });
   }
 
-  public async createLabel(labels: Array<{name: string, description: string, color: string}>): Promise<void> {
+  public async createLabels(labels: Array<{name: string, description: string, color: string}>): Promise<void> {
     await Promise.all(labels.map(label => {
       return this.rawClient.issues.createLabel({
         ...this.repoName,
@@ -159,7 +167,7 @@ export class GitHubClient extends HostingClientBase<Octokit> {
     }));
   }
 
-  public async updateLabel(labels: Array<{ current_name: string; description?: string; color?: string; }>): Promise<void> {
+  public async updateLabels(labels: Array<{ current_name: string; name?: string; description?: string; color?: string; }>): Promise<void> {
     await Promise.all(labels.map(label => {
       if (!label.description && !label.color) return;
       return this.rawClient.issues.updateLabel({

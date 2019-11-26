@@ -28,9 +28,11 @@ export interface IClient {
 
   listLabels(): Promise<Array<{name: string, description: string, color: string}>>;
 
+  updateIssue(number: number, update: {title?: string, body?: string, state?: 'open' | 'closed'}): Promise<void>;
+
   addLabels(number: number, labels: string[]): Promise<void>;
 
-  createLabel(labels: Array<{name: string, description: string, color: string}>): Promise<void>;
+  createLabels(labels: Array<{name: string, description: string, color: string}>): Promise<void>;
 
-  updateLabel(labels: Array<{current_name: string, description?: string, color?: string}>): Promise<void>;
+  updateLabels(labels: Array<{current_name: string, name?: string; description?: string, color?: string}>): Promise<void>;
 }
