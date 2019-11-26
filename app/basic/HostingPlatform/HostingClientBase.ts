@@ -39,11 +39,13 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
 
   public abstract async listLabels(): Promise<Array<{name: string, description: string, color: string}>>;
 
+  public abstract async updateIssue(number: number, update: {title?: string, body?: string, state?: 'open' | 'closed'}): Promise<void>;
+
   public abstract async addLabels(number: number, labels: string[]): Promise<void>;
 
-  public abstract async updateLabel(labels: Array<{ current_name: string; description?: string; color?: string; }>): Promise<void>;
+  public abstract async updateLabels(labels: Array<{ current_name: string; name?: string; description?: string; color?: string; }>): Promise<void>;
 
-  public abstract async createLabel(labels: Array<{name: string, description: string, color: string}>): Promise<void>;
+  public abstract async createLabels(labels: Array<{name: string, description: string, color: string}>): Promise<void>;
 
   public getRepoData(): Repo {
     return this.repoData;

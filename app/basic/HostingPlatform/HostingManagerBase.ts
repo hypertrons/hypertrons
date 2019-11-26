@@ -20,7 +20,7 @@ import { HostingClientBase } from './HostingClientBase';
 import { waitUntil } from '../Utils';
 import { HostingConfigBase } from './HostingConfigBase';
 import { ConfigLoader } from './ConfigLoader';
-import { RepoConfigLoadedEvent } from '../../plugin/event-manager/events';
+import { RepoConfigLoadedEvent, RepoAddedEvent } from '../../plugin/event-manager/events';
 
 export abstract class HostingManagerBase<THostingPlatform extends HostingBase<TConfig, TClient, TRawClient>,
   TClient extends HostingClientBase<TRawClient>, TRawClient,
@@ -67,6 +67,29 @@ export abstract class HostingManagerBase<THostingPlatform extends HostingBase<TC
           });
         });
       }
+    });
+
+    this.app.event.subscribeOne(RepoAddedEvent, async e => {
+      const hp = this.hpMap.get(e.installationId);
+      if (!hp) return;
+      this.app.event.publish('all', HostingManagerInitRepoEvent, {
+        id: e.installationId,
+        fullName: e.fullName,
+        payload: null,
+      });
+      await waitUntil(() => (hp as any).clientMap.has(e.fullName));
+      const client = await hp.getClient(e.fullName);
+      if (!client) return;
+      const config = await this.configLoader.loadConfig((hp as any).config, e.installationId, e.fullName, client);
+      this.app.event.publish('all', HostingPlatformConfigInitedEvent, {
+        id: e.installationId,
+        fullName: e.fullName,
+        config,
+      });
+      await waitUntil(() => (client as any).config !== undefined);
+      this.app.event.publish('all', RepoConfigLoadedEvent, {
+        ...e,
+      });
     });
 
     this.app.event.subscribeAll(HostingPlatformInitEvent, async e => {

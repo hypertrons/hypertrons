@@ -61,7 +61,19 @@ export class GitLabClient extends HostingClientBase<Gitlab> {
     });
   }
 
-  public async updateLabel(labels: Array<{ current_name: string; description?: string | undefined; color?: string | undefined }>): Promise<void> {
+  public async updateIssue(number: number, update: {title?: string | undefined; body?: string | undefined; state?: 'open' | 'closed' | undefined; }): Promise<void> {
+    // API doc: https://docs.gitlab.com/ee/api/issues.html#edit-issue
+    let state_event: any;
+    if (update.state === 'open') state_event = 'reopen';
+    if (update.state === 'closed') state_event = 'close';
+    await this.rawClient.Issues.edit(this.id, number, {
+      title: update.title,
+      description: update.body,
+      state_event,
+    });
+  }
+
+  public async updateLabels(labels: Array<{ current_name: string; description?: string | undefined; color?: string | undefined }>): Promise<void> {
     // API doc: https://docs.gitlab.com/ee/api/labels.html#edit-an-existing-label
     await Promise.all(labels.map(label => {
       return this.rawClient.Labels.edit(this.id, label.current_name, {
@@ -71,7 +83,7 @@ export class GitLabClient extends HostingClientBase<Gitlab> {
     }));
   }
 
-  public async createLabel(labels: Array<{ name: string; description: string; color: string; }>): Promise<void> {
+  public async createLabels(labels: Array<{ name: string; description: string; color: string; }>): Promise<void> {
     // API doc: https://docs.gitlab.com/ee/api/labels.html#create-a-new-label
     await Promise.all(labels.map(async label => {
       return this.rawClient.Labels.create(this.id, label.name, label.color, {
