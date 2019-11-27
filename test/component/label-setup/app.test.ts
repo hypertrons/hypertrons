@@ -24,17 +24,8 @@ describe('LabelSetupComponent', () => {
   let agent: Agent;
 
   class MockRepoConfigLoadedEvent {
-    /**
-     * Function execution counter. When a function is called,
-     * the corresponding position result will at least +1
-     *
-     * positon     function          increments
-     * counter[0]  getCompConfig()   +1
-     * counter[1]  listLabels()      +1
-     * counter[2]  updateLabels()    +updateTask.length
-     * counter[3]  createLabels()    +createTask.length
-     */
-    counter = [ 0, 0, 0, 0 ];
+    updateCounter = 0;
+    createCounter = 0;
 
     compConfig = {
       enable: true,
@@ -45,19 +36,17 @@ describe('LabelSetupComponent', () => {
     fullName: string = 'testEvent';
     client: any = {
       getCompConfig: <T>(_: string): T => {
-        this.counter[0]++;
         return this.compConfig;
       },
       listLabels: () => {
-        this.counter[1]++;
         return this.labels;
       },
       updateLabels: <T>(updateTask: T[]): void => {
-        this.counter[2] += updateTask.length;
+        this.updateCounter += updateTask.length;
         return;
       },
       createLabels: <T>(createTask: T[]): void => {
-        this.counter[3] += createTask.length;
+        this.createCounter += createTask.length;
         return;
       },
     };
@@ -78,12 +67,6 @@ describe('LabelSetupComponent', () => {
 
   }
 
-  const checkCounter = (e: MockRepoConfigLoadedEvent, ...expection: number[]) => {
-    for (let i = 0; i < expection.length; i++) {
-      assert(e.counter[i] === expection[i]);
-    }
-  };
-
   beforeEach(async () => {
     ({ app, agent } = await prepareTestApplication());
   });
@@ -96,48 +79,47 @@ describe('LabelSetupComponent', () => {
     e.setConfigEnable(false);
     agent.event.publish('worker', RepoConfigLoadedEvent, e);
     await waitFor(5);
-    checkCounter(e, 1, 0, 0, 0);
+    assert(e.updateCounter === 0);
+    assert(e.createCounter === 0);
   });
 
   it('no need to update', async () => {
     const e = new MockRepoConfigLoadedEvent();
     e.setNewLabels([
       { name: 'test1' },
-      { name: 'test2' },
     ]);
     e.setOldLabels([
       { name: 'test1' },
-      { name: 'test2' },
     ]);
     agent.event.publish('worker', RepoConfigLoadedEvent, e);
     await waitFor(5);
-    checkCounter(e, 1, 1, 0, 0);
+    assert(e.updateCounter === 0);
+    assert(e.createCounter === 0);
   });
 
   it('update old labels', async () => {
     const e = new MockRepoConfigLoadedEvent();
     e.setNewLabels([
       { name: 'test1', color: 'color1' },
-      { name: 'test2', color: 'color2' },
     ]);
     e.setOldLabels([
       { name: 'test1' },
-      { name: 'test2' },
     ]);
     agent.event.publish('worker', RepoConfigLoadedEvent, e);
     await waitFor(5);
-    checkCounter(e, 1, 1, 2, 0);
+    assert(e.updateCounter === 1);
+    assert(e.createCounter === 0);
   });
 
   it('create new labels', async () => {
     const e = new MockRepoConfigLoadedEvent();
     e.setNewLabels([
       { name: 'test1' },
-      { name: 'test2' },
     ]);
     agent.event.publish('worker', RepoConfigLoadedEvent, e);
     await waitFor(5);
-    checkCounter(e, 1, 1, 0, 2);
+    assert(e.updateCounter === 0);
+    assert(e.createCounter === 1);
   });
 
   it('mixed tests', async () => {
@@ -153,7 +135,8 @@ describe('LabelSetupComponent', () => {
     ]);
     agent.event.publish('worker', RepoConfigLoadedEvent, e);
     await waitFor(5);
-    checkCounter(e, 1, 1, 1, 1);
+    assert(e.updateCounter === 1);
+    assert(e.createCounter === 1);
   });
 
 });
