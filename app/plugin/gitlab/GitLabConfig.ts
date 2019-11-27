@@ -17,4 +17,10 @@ import { HostingConfigBase } from '../../basic/HostingPlatform/HostingConfigBase
 export class GitLabConfig extends HostingConfigBase {
   host: string;
   primaryToken: string;
+  webhook: {
+    host: string;
+    path: string;
+    secret: string;
+    proxy: string;
+  };
 }

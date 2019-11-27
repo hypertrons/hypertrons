@@ -77,7 +77,7 @@ export class GitLabClient extends HostingClientBase<Gitlab> {
     // API doc: https://docs.gitlab.com/ee/api/labels.html#edit-an-existing-label
     await Promise.all(labels.map(label => {
       return this.rawClient.Labels.edit(this.id, label.current_name, {
-        color: label.color,
+        color: this.parseColor(label.color),
         description: label.description,
       });
     }));
@@ -86,10 +86,17 @@ export class GitLabClient extends HostingClientBase<Gitlab> {
   public async createLabels(labels: Array<{ name: string; description: string; color: string; }>): Promise<void> {
     // API doc: https://docs.gitlab.com/ee/api/labels.html#create-a-new-label
     await Promise.all(labels.map(async label => {
-      return this.rawClient.Labels.create(this.id, label.name, label.color, {
+      return this.rawClient.Labels.create(this.id, label.name, this.parseColor(label.color), {
         description: label.description,
       });
     }));
   }
 
+  private parseColor<T>(color: T): T {
+    if (!color) return color;
+    if (!(color as any).startsWith('#')) {
+      color = `#${color}` as any;
+    }
+    return (color as any).toUpperCase();
+  }
 }

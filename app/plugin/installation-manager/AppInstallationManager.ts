@@ -44,7 +44,7 @@ export class AppInstallationManager extends AppPluginBase<Config> {
         case 'github':
           return this.app.github.getClient(installationId, name);
         case 'gitlab':
-          break;
+          return this.app.gitlab.getClient(installationId, name);
         default:
           break;
       }
