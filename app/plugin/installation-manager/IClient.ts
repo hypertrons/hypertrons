@@ -1,5 +1,3 @@
-import { Repo } from '../../basic/DataTypes';
-
 // Copyright 2019 Xlab
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +11,8 @@ import { Repo } from '../../basic/DataTypes';
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
+import { CheckRun, Repo } from '../../basic/DataTypes';
 
 export interface IClient {
   name: string;
@@ -35,4 +35,6 @@ export interface IClient {
   createLabels(labels: Array<{name: string, description: string, color: string}>): Promise<void>;
 
   updateLabels(labels: Array<{current_name: string, name?: string; description?: string, color?: string}>): Promise<void>;
+
+  createCheckRun(check: CheckRun): Promise<void>;
 }

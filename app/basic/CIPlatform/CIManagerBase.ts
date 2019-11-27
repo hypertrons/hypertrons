@@ -14,29 +14,25 @@
 
 import { Application } from 'egg';
 import { AppPluginBase } from '../AppPluginBase';
-import { CIConfigBase } from './CIConfigBase';
 import { CIClientBase } from './CIClientBase';
-import { PullRequestEvent } from '../../plugin/event-manager/events';
+import { CIRunEvent } from '../../plugin/event-manager/events';
 import { loggerWrapper } from '../Utils';
 
-export abstract class CIManagerBase<TConfig extends CIConfigBase> extends AppPluginBase<TConfig> {
+export abstract class CIManagerBase<TConfig> extends AppPluginBase<null> {
 
   protected client: CIClientBase<TConfig>;
-  protected id: string;
+  protected ciName: string;
 
-  constructor(id: string, config: TConfig, app: Application) {
+  constructor(ciName: string, config: null, app: Application) {
     super(config, app);
-    this.id = id;
-    this.logger = loggerWrapper(app.logger, `[ci-manager-${this.id}]`);
+    this.ciName = ciName;
+    this.logger = loggerWrapper(app.logger, `[ci-manager-${this.ciName}]`);
   }
 
   public async onReady(): Promise<void> {
-    this.app.event.subscribeOne(PullRequestEvent, async e => {
-      if (e.action === 'opened' && e.client !== undefined) {
-        const ciConfig = e.client.getCompConfig<TConfig>('ci');
-        if (ciConfig !== undefined && ciConfig.enable && ciConfig.id === this.id) {
-          this.client.run(e, ciConfig);
-        }
+    this.app.event.subscribeOne(CIRunEvent, async e => {
+      if (e.ciName === this.ciName) {
+        this.client.run(e.pullRequest, e.ciConfig);
       }
     });
   }

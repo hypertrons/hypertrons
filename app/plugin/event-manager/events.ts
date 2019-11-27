@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Issue, Comment, PullRequest } from '../../basic/DataTypes';
+import { Issue, Comment, PullRequest, CIRunOutput } from '../../basic/DataTypes';
 import { Command } from '../command-manager/Command';
 import { IClient } from '../installation-manager/IClient';
 
@@ -121,7 +121,19 @@ export class CommandManagerNewCommandEvent extends RepoEventBase {
   command: Command;
 }
 
-// TODO, define NewCheckRunEvent body
-export class NewCheckRunEvent extends RepoEventBase {
+/**
+ * Run a CI pipeline
+ * Warnning: extend ciName when add new ci platform, for example, 'jenkins' | 'travis-ci'
+ */
+export class CIRunEvent {
+  ciName: 'jenkins';
+  ciConfig: any;
+  pullRequest: PullRequest;
+}
 
+/**
+ * When CI pipeline finished
+ */
+export class CIRunFinishedEvent extends RepoEventBase {
+  ciRunOutput: CIRunOutput;
 }

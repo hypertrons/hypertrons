@@ -14,33 +14,28 @@
 
 import { BotLogger, loggerWrapper } from '../Utils';
 import { Application } from 'egg';
-import { CIConfigBase } from './CIConfigBase';
-import { NewCheckRunEvent, PullRequestEvent } from '../../plugin/event-manager/events';
+import { CIRunFinishedEvent } from '../../plugin/event-manager/events';
+import { PullRequest } from '../DataTypes';
 
-export abstract class CIClientBase<TCIConfig extends CIConfigBase> {
+export abstract class CIClientBase<TConfig> {
 
   protected logger: BotLogger;
   protected app: Application;
-  protected name: string;
 
-  constructor(name: string, app: Application) {
+  constructor(ciName: string, app: Application) {
     this.app = app;
-    this.name = name;
-    this.logger = loggerWrapper(app.logger, `[ci-client-${this.name}]`);
-
-    this.logger.info('new client');
+    this.logger = loggerWrapper(app.logger, `[ci-client-${ciName}]`);
+    this.logger.info('new ci client');
   }
 
-  protected abstract async runInternal(pr: PullRequestEvent, config: TCIConfig): Promise<any>;
+  protected abstract async runInternal(pr: PullRequest, config: TConfig): Promise<any>;
 
-  protected abstract async convert(pr: PullRequestEvent, ret: any): Promise<NewCheckRunEvent>;
+  protected abstract async convert(pr: PullRequest, config: TConfig, ret: any): Promise<CIRunFinishedEvent>;
 
-  public async run(pr: PullRequestEvent, config: TCIConfig | undefined): Promise<void> {
+  public async run(pr: PullRequest, config: TConfig): Promise<void> {
     try {
-      if (config !== undefined) {
-        const ret = await this.runInternal(pr, config);
-        this.app.event.publish('all', NewCheckRunEvent, await this.convert(pr, ret));
-      }
+      const ret = await this.runInternal(pr, config);
+      this.app.event.publish('all', CIRunFinishedEvent, await this.convert(pr, config, ret));
     } catch (error) {
       this.logger.error(error);
     }

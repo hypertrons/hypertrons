@@ -12,16 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { CIConfigBase } from '../../basic/CIPlatform/CIConfigBase';
-
-export class JenkinsConfig extends CIConfigBase {
-  id: string;
-  enable: boolean;
-  config: {
-    endpoints: string;
-    imClientName: {
-      slack: string;
-      email: string;
-    }
-  };
+export class JenkinsConfig {
+  endpoints: string;
+  pipeline: string;
 }
