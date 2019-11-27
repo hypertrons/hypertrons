@@ -15,7 +15,6 @@
 import { ComponentContext } from '../../basic/ComponentHelper';
 import { LabelSetupConfig } from './config';
 import { RepoConfigLoadedEvent } from '../../plugin/event-manager/events';
-import { parseRepoName } from '../../basic/Utils';
 
 export default async (ctx: ComponentContext<LabelSetupConfig>) => {
   ctx.logger.info('Start to load label setup component');
@@ -29,8 +28,6 @@ export default async (ctx: ComponentContext<LabelSetupConfig>) => {
     if (!e.client) return;
     const labelConfig = e.client.getCompConfig<LabelSetupConfig>('label-setup');
     if (!labelConfig || !labelConfig.enable) return;
-    const owner = parseRepoName(e.fullName).owner;
-    const repo = parseRepoName(e.fullName).repo;
     const currentLabels = await e.client.listLabels();
 
     // traverse new config, update all contained labels
@@ -40,8 +37,6 @@ export default async (ctx: ComponentContext<LabelSetupConfig>) => {
     const updateTask: Array<{current_name: string; description?: string; color?: string}> = [];
     labelConfig.labels.forEach(label => {
       const param: any = {
-        owner,
-        repo,
         name: label.name,
         color: label.color,
         description: label.description,
@@ -75,8 +70,8 @@ export default async (ctx: ComponentContext<LabelSetupConfig>) => {
       return;
     }
     ctx.logger.info(`Gonna update ${updateCount} labels and create ${createCount} labels for ${e.fullName}`);
-    await e.client.updateLabels(updateTask);
-    await e.client.createLabels(createTask);
+    if (updateCount !== 0) await e.client.updateLabels(updateTask);
+    if (createCount !== 0) await e.client.createLabels(createTask);
     ctx.logger.info(`Update labels for ${e.fullName} done.`);
   }
 
