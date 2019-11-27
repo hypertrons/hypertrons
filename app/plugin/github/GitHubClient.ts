@@ -15,7 +15,7 @@
 import { HostingClientBase } from '../../basic/HostingPlatform/HostingClientBase';
 import { parseRepoName, ParseDate, waitUntil } from '../../basic/Utils';
 import Octokit = require('@octokit/rest');
-import { Repo } from '../../basic/DataTypes';
+import { Repo, CIRunOutput } from '../../basic/DataTypes';
 import { Application } from 'egg';
 import { DataCat } from 'github-data-cat';
 
@@ -175,6 +175,11 @@ export class GitHubClient extends HostingClientBase<Octokit> {
         ...label,
       });
     }));
+  }
+
+  public async createCheckRun(check: CIRunOutput): Promise<void> {
+    const res = await this.rawClient.checks.create(check);
+    this.logger.info(`new check result ${res.status}`);
   }
 
   public getData(): Repo {

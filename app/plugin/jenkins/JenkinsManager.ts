@@ -19,7 +19,7 @@ import { JenkinsClient } from './JenkinsClient';
 
 export class JenkinsManager extends CIManagerBase<JenkinsConfig> {
 
-  constructor(config: JenkinsConfig, app: Application) {
+  constructor(config: null, app: Application) {
     super('jenkins', config, app);
     this.client = new JenkinsClient('jenkins', app);
   }

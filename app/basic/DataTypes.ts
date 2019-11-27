@@ -113,3 +113,43 @@ export interface UserWithTimeStampAndEmail {
   email: string;
   time: Date;
 }
+
+// reference api docs: https://developer.github.com/v3/checks/runs/#create-a-check-run
+export interface CIRunOutput {
+  name: string;
+  head_sha: string;
+  owner: string;
+  repo: string;
+  started_at?: string; // YYYY-MM-DDTHH:MM:SSZ
+  completed_at?: string; // YYYY-MM-DDTHH:MM:SSZ
+  details_url?: string;
+  external_id?: string;
+  output?: CIRunOutputOut;
+  status?: 'queued' | 'in_progress' | 'completed';
+  conclusion?:
+  | 'success'
+  | 'failure'
+  | 'neutral'
+  | 'cancelled'
+  | 'timed_out'
+  | 'action_required';
+}
+
+export interface CIRunOutputOut {
+  title: string;
+  summary: string;
+  text?: string;
+  annotations?: CIRunOutputAnnotation[];
+}
+
+export interface CIRunOutputAnnotation {
+  message: string;
+  path: string;
+  start_line: number;
+  end_line: number;
+  annotation_level: 'notice' | 'warning' | 'failure';
+  title?: string;
+  end_column?: number;
+  raw_details?: string;
+  start_column?: number;
+}

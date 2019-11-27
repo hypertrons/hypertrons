@@ -1,3 +1,5 @@
+import { JenkinsConfig } from '../../plugin/jenkins/JenkinsConfig';
+
 // Copyright 2019 Xlab
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,14 +14,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export class CIConfigBase {
-  id: string;
+/**
+ * Warnning: extend ciConfig when add new ci platform, for example, JenkinsConfig | TravisConfig
+ */
+export interface CIConfig {
   enable: boolean;
-  config: {
-    endpoints: string;
-    imClientName: {
-      slack: string;
-      email: string;
-    }
-  };
+  ciName: string;
+  ciConfig: JenkinsConfig;
 }
+
+const config: CIConfig = {
+  enable: false,
+  ciName: '',
+  ciConfig: {
+    endpoints: '',
+    pipeline: '',
+  },
+};
+
+export default config;

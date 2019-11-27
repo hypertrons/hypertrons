@@ -13,9 +13,10 @@
 // limitations under the License.
 
 import { CIClientBase } from '../../basic/CIPlatform/CIClientBase';
-import { PullRequestEvent, NewCheckRunEvent } from '../event-manager/events';
 import { Application } from 'egg';
+import { CIRunFinishedEvent } from '../event-manager/events';
 import { JenkinsConfig } from './JenkinsConfig';
+import { PullRequest } from '../../basic/DataTypes';
 
 export class JenkinsClient extends CIClientBase<JenkinsConfig> {
 
@@ -23,16 +24,14 @@ export class JenkinsClient extends CIClientBase<JenkinsConfig> {
     super(name, app);
   }
 
-  protected async runInternal(pr: PullRequestEvent, config: JenkinsConfig): Promise<any> {
-    // TODO run ci pipeline
+  protected runInternal(pr: PullRequest, config: JenkinsConfig): Promise<any> {
     this.logger.info(pr, config);
-    return null;
+    throw new Error('runInternal method not implemented.');
   }
 
-  protected async convert(pr: PullRequestEvent, ret: any): Promise<NewCheckRunEvent> {
-    // TODO convert ci ret to NewCheckRunEvent
-    this.logger.info(pr, ret);
-    throw new Error('');
+  protected convert(pr: PullRequest, config: JenkinsConfig, ret: any): Promise<CIRunFinishedEvent> {
+    this.logger.info(pr, config, ret);
+    throw new Error('Method not implemented.');
   }
 
 }
