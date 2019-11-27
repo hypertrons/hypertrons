@@ -16,6 +16,7 @@ import { BotLogger, loggerWrapper } from '../Utils';
 import { HostingClientBase } from './HostingClientBase';
 import { HostingConfigBase } from './HostingConfigBase';
 import { Application } from 'egg';
+import { join } from 'path';
 
 export abstract class HostingBase<TConfig extends HostingConfigBase, TClient extends HostingClientBase<TRawClient>, TRawClient> {
 
@@ -52,6 +53,12 @@ export abstract class HostingBase<TConfig extends HostingConfigBase, TClient ext
 
   public getName(): string {
     return this.name;
+  }
+
+  protected post(path: string, middleware: any): string {
+    const p = join(this.id.toString(), path);
+    this.app.installation.post(p, middleware);
+    return join('installation', p);
   }
 
 }
