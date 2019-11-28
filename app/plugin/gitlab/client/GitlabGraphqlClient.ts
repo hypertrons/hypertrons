@@ -1,3 +1,17 @@
+// Copyright 2019 Xlab
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import fetch from 'node-fetch';
 import { waitUntil, BotLogger } from '../../../basic/Utils';
 
@@ -31,7 +45,7 @@ export class GitlabGraphqlClient {
     }
   }
 
-  public async query<TR, T>(_query: string, _param: T): Promise<TR | null> {
+  public async query<T>(_query: string, _param: T): Promise<string> {
     await waitUntil(() => {
       if (this.concurrentReqNumber >= this.maxConcurrentReqNumber) {
         return false;
@@ -43,11 +57,11 @@ export class GitlabGraphqlClient {
     return this.internalQuery(_query, _param, 0);
   }
 
-  private async internalQuery<TR, T>(
+  private async internalQuery<T>(
     _query: string,
     _param: T,
     retryTimes: number,
-  ): Promise<TR | null> {
+  ): Promise<string> {
     try {
       const response = await fetch(`${this.host}/api/graphql`, {
         method: 'POST',
@@ -74,6 +88,6 @@ export class GitlabGraphqlClient {
       this.concurrentReqNumber -= 1;
       this.logger.error(e.message);
     }
-    return null;
+    return '';
   }
 }

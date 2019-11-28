@@ -17,52 +17,52 @@ export interface Repo {
   id: string;
   owner: string;
   ownerInfo: {
-      login: string;
-      __typename: string;
-      name: string;
-      bio: string;
-      description: string;
-      createdAt: Date | null;
-      company: string;
-      location: string;
-      websiteUrl: URL | null;
-      repositories: {
-          totalCount: number;
-      }
-      membersWithRole: {
-          totalCount: number;
-      }
-  };
+    login: string;
+    __typename: string;
+    name: string;
+    bio: string;
+    description: string;
+    createdAt: Date | null;
+    company: string;
+    location: string;
+    websiteUrl: URL | null;
+    repositories: {
+      totalCount: number;
+    };
+    membersWithRole: {
+      totalCount: number;
+    };
+  } | null;
   name: string;
   license: string | null;
   codeOfConduct: string | null;
   createdAt: Date;
   updatedAt: Date;
   pushedAt: Date | null;
-  isFork: boolean;
-  description: string | null;
+  isFork: boolean | null;
+  description: string;
   language: string | null;
   // star
   starCount: number;
-  stars: UserWithTimeStamp[];
+  stars: UserWithTimeStamp[] | null;
   // watch
-  watchCount: number;
+  watchCount: number | null;
   // fork
   forkCount: number;
-  directForkCount: number;
-  forks: UserWithTimeStamp[];
+  directForkCount: number | null;
+  forks: UserWithTimeStamp[] | null;
   // branch
-  branchCount: number;
-  defaultBranchName: string;
-  defaultBranchCommitCount: number;
+  branchCount: number | null;
+  defaultBranchName: string | null;
+  defaultBranchCommitCount: number | null;
   // release
-  releaseCount: number;
+  releaseCount: number | null;
   // issue
   issues: Issue[];
   // pull request
-  pulls: PullRequest[];
+  pulls: PullRequest[] | null;
   // contributors
-  contributors: UserWithTimeStampAndEmail[];
+  contributors: UserWithTimeStampAndEmail[] | null;
 }
 
 export interface Issue {
@@ -97,7 +97,7 @@ export interface PullRequest {
 
 export interface Comment {
   id: string;
-  login: string;
+  login: string | null; // author
   body: string;
   url: string;
   createdAt: Date;
@@ -152,4 +152,9 @@ export interface CIRunOutputAnnotation {
   end_column?: number;
   raw_details?: string;
   start_column?: number;
+}
+
+export interface PageInfo {
+  hasNextPage: boolean;
+  endCursor: string;
 }
