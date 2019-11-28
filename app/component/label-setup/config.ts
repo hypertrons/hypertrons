@@ -12,146 +12,57 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-interface Label {
+import { configClass, configProp } from '../../config-generator/decorators';
+import defaultConfig from './defaultConfig';
+
+@configClass({
+  description: 'every label type',
+})
+class Label {
+
+  @configProp({
+    description: 'Label name',
+    defaultValue: '',
+  })
   name: string;
+
+  @configProp({
+    description: 'Label description',
+    defaultValue: '',
+  })
   description: string;
+
+  @configProp({
+    description: 'Label color',
+    defaultValue: '#FFFFFF',
+  })
   color: string;
+
+  @configProp({
+    description: 'Label keywords, use to auto label issues and pulls',
+    defaultValue: [],
+    arrayType: 'string',
+  })
   keywords?: string[];
+
 }
 
-export class LabelSetupConfig {
-  constructor() {
-    this.labels = [
-      // Kind
-      {
-        name: 'kind/bug',
-        description: 'Category issues or prs related to bug.',
-        color: 'e11d21',
-        keywords: [ 'bug', 'bugreport', 'bug-report', 'bugfix', 'cannot', 'can not', "can't",
-                    'error', 'failure', 'failed to ', 'fix:' ],
-      },
-      {
-        name: 'kind/feature',
-        description: 'Category issues or prs related to feature request.',
-        color: 'c7def8',
-        keywords: [ 'feature', 'feature request', 'feature-request', 'feature_request' ],
-      },
-      {
-        name: 'kind/enhancement',
-        description: 'Category issues or prs related to enhancement.',
-        color: '93edba',
-        keywords: [ 'enhancement', 'refactor' ],
-      },
-      {
-        name: 'kind/question',
-        description: 'Category issues related to questions or problems',
-        color: 'f1ee18',
-        keywords: [ 'question', 'problem', 'confusion', 'how to', 'where to', "what's",
-                    'what is', 'what are' ],
-      },
-      {
-        name: 'kind/discussion',
-        description: 'Category issues related to discussion',
-        color: 'c2e0c6',
-        keywords: [ 'discussion', 'disscuss' ],
-      },
-      {
-        name: 'kind/notice',
-        description: 'Some notice issue sent from project',
-        color: 'ededed',
-        keywords: [ 'notice' ],
-      },
+@configClass({
+  description: 'Manage label for repo automatically, not delete already exist labels',
+})
+export default class Config {
 
-      // Size
-      {
-        name: 'size/XXL',
-        description: 'Indicate a PR that changes 1000+ lines.',
-        color: 'ee0000',
-      },
-      {
-        name: 'size/XL',
-        description: 'Indicate a PR that changes 500-999 lines.',
-        color: 'ee5500',
-      },
-      {
-        name: 'size/L',
-        description: 'Indicate a PR that changes 100-499 lines.',
-        color: 'ee9900',
-      },
-      {
-        name: 'size/M',
-        description: 'Indicate a PR that changes 30-99 lines.',
-        color: 'eebb00',
-      },
-      {
-        name: 'size/S',
-        description: 'Indicate a PR that changes 10-29 lines.',
-        color: '77bb00',
-      },
-      {
-        name: 'size/XS',
-        description: 'Indicate a PR that changes 0-9 lines.',
-        color: '009900',
-      },
+  @configProp({
+    description: 'Enable this component or not',
+    defaultValue: defaultConfig.enable,
+  })
+  enable: boolean;
 
-      // Priority
-      {
-        name: 'priority/urgent',
-        description: 'Most important, need to be worked on as soon as possible',
-        color: 'e11d21',
-      },
-      {
-        name: 'priority/high',
-        description: 'Very important, need to be worked with soon but not very urgent',
-        color: 'eb6420',
-      },
-      {
-        name: 'priority/normal',
-        description: 'normal , may need sometime to complete.',
-        color: 'f7be99',
-      },
-      {
-        name: 'priority/low',
-        description: 'Not important, can be finish by new contributors.',
-        color: '67a8f7',
-      },
-
-      // Area
-      {
-        name: 'area/document',
-        description: 'Category issues or prs related to document.',
-        color: '0366d6',
-        keywords: [ 'doc', 'docs', 'documents', 'document' ],
-      },
-
-      // weekly report
-      {
-        name: 'weekly-report',
-        description: 'Auto generated weekly report.',
-        color: '0366d6',
-        keywords: [ '[WeeklyReport]' ],
-      },
-
-      // inactive
-      {
-        name: 'inactive',
-        description: 'Category issues or prs not active.',
-        color: 'e11d21',
-      },
-
-      // merge conflict
-      {
-        name: 'merge-conflict',
-        description: 'Category prs with merge conflict.',
-        color: 'e11d21',
-      },
-    ];
-  }
-
+  @configProp({
+    description: 'Labels to use',
+    defaultValue: defaultConfig.labels,
+    arrayType: Label,
+  })
   labels: Label[];
-  enable: boolean = false;
+
 }
-
-const config = new LabelSetupConfig();
-
-export default config;

@@ -13,15 +13,15 @@
 // limitations under the License.
 
 import { ComponentContext } from '../../basic/ComponentHelper';
-import { CIConfig } from './config';
+import Config from './config';
 import { CIRunEvent, PullRequestEvent } from '../../plugin/event-manager/events';
 
-export default async (ctx: ComponentContext<CIConfig>) => {
+export default async (ctx: ComponentContext<Config>) => {
   ctx.logger.info('Start to load ci component');
 
   ctx.app.event.subscribeOne(PullRequestEvent, async e => {
     if (e.client) {
-      const config = e.client.getCompConfig<CIConfig>('ci');
+      const config = e.client.getCompConfig<Config>('ci');
       if (config !== undefined && config.enable && config.ciName === 'jenkins' && e.pullRequest) {
         ctx.app.event.publish('all', CIRunEvent, {
           ciName: config.ciName,

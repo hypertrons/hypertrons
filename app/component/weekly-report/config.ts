@@ -12,97 +12,120 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export interface Config {
-  enable: boolean;
-  jobName: string;
-  generateTime: string;
-  weeklyReportTemplate: {
-    title: string,
-    header: string,
-    overview: string,
-    pullRequests: string,
-    singleAuthorPullRequest: string,
-    singlePullRequest: string,
-    review: string,
-    singleReview: string,
-    newContributors: string,
-    singleContributor: string,
-    noNewContributors: string,
-  };
+import { configClass, configProp } from '../../config-generator/decorators';
+import defaultConfig, { templateDefaultConfig } from './defaultConfig';
+
+@configClass({
+  description: 'Templates of weekly report component',
+})
+export class WeeklyReportTemplate {
+  @configProp({
+    description: 'Title template',
+    defaultValue: templateDefaultConfig.title,
+    renderParams: [ 'alias', 'startTime', 'endTime' ],
+  })
+  title: string;
+
+  @configProp({
+    description: 'Header template',
+    defaultValue: templateDefaultConfig.header,
+    renderParams: [ 'alias' ],
+  })
+  header: string;
+
+  @configProp({
+    description: 'Overview template',
+    defaultValue: templateDefaultConfig.overview,
+    renderParams: [ 'watch', 'star', 'startDelta', 'fork', 'forkDelta', 'contributor', 'contributorDelta',
+                    'newIssue', 'closeIssue', 'newPr', 'mergedPr' ],
+  })
+  overview: string;
+
+  @configProp({
+    description: 'Pull template',
+    defaultValue: templateDefaultConfig.pullRequests,
+    renderParams: [ 'pullRequestStrs' ],
+  })
+  pullRequests: string;
+
+  @configProp({
+    description: 'Single author pull template',
+    defaultValue: templateDefaultConfig.singleAuthorPullRequest,
+    renderParams: [ 'name', 'count', 'singlePullRequestStrs' ],
+  })
+  singleAuthorPullRequest: string;
+
+  @configProp({
+    description: 'Single pull template',
+    defaultValue: templateDefaultConfig.singlePullRequest,
+    renderParams: [ 'number', 'title' ],
+  })
+  singlePullRequest: string;
+
+  @configProp({
+    description: 'Review template',
+    defaultValue: templateDefaultConfig.review,
+    renderParams: [ 'alias', 'reviewerStrs' ],
+  })
+  review: string;
+
+  @configProp({
+    description: 'Single review template',
+    defaultValue: templateDefaultConfig.singleReview,
+    renderParams: [ 'login', 'reviewCount' ],
+  })
+  singleReview: string;
+
+  @configProp({
+    description: 'New contributor template',
+    defaultValue:  templateDefaultConfig.newContributors,
+    renderParams: [ 'alias', 'contributorStrs', 'owner', 'repo', 'branch' ],
+  })
+  newContributors: string;
+
+  @configProp({
+    description: 'Single contributor template',
+    defaultValue: templateDefaultConfig.singleContributor,
+    renderParams: [ 'login' ],
+  })
+  singleContributor: string;
+
+  @configProp({
+    description: 'No new contributor template',
+    defaultValue: templateDefaultConfig.noNewContributors,
+    renderParams: [ 'alias', 'owner', 'repo', 'branch' ],
+  })
+  noNewContributors: string;
 }
 
-const config: Config = {
-  enable : false,
-  jobName : 'WeeklyReport',
-  generateTime: '0 0 19 * * 3',
-  weeklyReportTemplate : {
-    title: '[WeeklyReport] Weekly report for {{alias}} {{startTime}} to {{endTime}}',
-    header: `# Weekly Report of {{alias}}
+@configClass({
+  description: 'Send weekly report automatically',
+})
+export default class Config {
+  @configProp({
+    description: 'Enable this component or not',
+    defaultValue: defaultConfig.enable,
+  })
+  enable: boolean;
 
-This is a weekly report of {{alias}}. It summarizes what have changed in the project during the passed week, including pr merged, new contributors, and more things in the future.
+  @configProp({
+    description: 'Job name of the weekly report',
+    defaultValue: defaultConfig.jobName,
+  })
+  jobName: string;
 
-`,
-    overview: `## Repo Overview
+  @configProp({
+    type: 'cron',
+    description: 'Weekly report generate time, cron format',
+    defaultValue: defaultConfig.generateTime,
+  })
+  generateTime: string;
 
-### Basic data
-
-Baisc data shows how the watch, star, fork and contributors count changed in the passed week.
-
-| Watch | Star | Fork | Contributors |
-|:-----:|:----:|:----:|:------------:|
-| {{watch}} | {{star}} ({{starDelta}}) | {{fork}} ({{forkDelta}}) | {{contributor}} ({{contributorDelta}}) |
-
-### Issues & PRs
-
-Issues & PRs show the new/closed issues/pull requests count in the passed week.
-
-| New Issues | Closed Issues | New PR | Merged PR |
-|:----------:|:-------------:|:------:|:---------:|
-| {{newIssue}} | {{closeIssue}} | {{newPr}} | {{mergedPr}} |
-`,
-
-    pullRequests: `## PR Overview
-
-Thanks to contributions from community, **{{mergedPrCount}}** pull requests was merged in the repository last week. They are:
-
-| Contributor ID | Count | Pull Requests |
-|:--------------:|:-----:|:-------------|
-{{pullRequestStrs}}
-`,
-    singleAuthorPullRequest: `| @{{name}} | {{count}} | {{singlePullRequestStrs}} |
-`,
-    singlePullRequest: '#{{number}} {{title}} <br>',
-    review: `## Code Review Statistics
-
-{{alias}} encourages everyone to participant in code review, in order to improve software quality. ` +
-                `This robot would automatically help to count pull request reviews of single github user as the following every week. So, try to help review code in this project.
-
-| Contributor ID | Pull Request Reviews |
-|:--------------:|:--------------------:|
-{{reviewerStrs}}
-`,
-    singleReview: `| @{{login}} | {{reviewCount}} |
-`,
-    newContributors: `## Contributors Overview
-
-It is {{alias}} team's great honor to have new contributors from community. We really appreciate your contributions. ` +
-                'Feel free to tell us if you have any opinion and please share this open source project with more people if you could. ' +
-                `If you hope to be a contributor as well, please start from https://github.com/{{owner}}/{{repo}}/blob/master/CONTRIBUTING.md .
-Here is the list of new contributors:
-
-{{contributorStrs}}
-
-Thanks to you all.
-`,
-    singleContributor: `@{{login}}
-`,
-    noNewContributors: `## New Contributors
-
-We have no new contributors in this project this week.
-{{alias}} team encourages everything about contribution from community.
-For more details, please refer to https://github.com/{{owner}}/{{repo}}/blob/master/CONTRIBUTING.md .
-`,
-  },
-};
-
-export default config;
+  @configProp({
+    type: 'object',
+    description: 'Weekly report templates',
+    classType: WeeklyReportTemplate,
+    defaultValue: defaultConfig.weeklyReportTemplate,
+  })
+  weeklyReportTemplate: WeeklyReportTemplate;
+}

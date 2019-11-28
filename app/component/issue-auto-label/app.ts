@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import { ComponentContext } from '../../basic/ComponentHelper';
-import { Config } from './config';
+import Config from './config';
 import { IssueEvent } from '../../plugin/event-manager/events';
 import { uniqueArray } from '../../basic/Utils';
-import { LabelSetupConfig } from '../label-setup/config';
+import LabelSetupConfig from '../label-setup/config';
 
 export default async (ctx: ComponentContext<Config>) => {
   ctx.logger.info('Start to load issue auto label component');
