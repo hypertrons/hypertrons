@@ -26,7 +26,7 @@ export default async (ctx: ComponentContext<LabelSetupConfig>) => {
   async function setupLabelConfig(e: RepoConfigLoadedEvent): Promise<void> {
     // config check
     if (!e.client) return;
-    const labelConfig = e.client.getCompConfig<LabelSetupConfig>('label-setup');
+    const labelConfig = e.client.getCompConfig<LabelSetupConfig>(ctx.name);
     if (!labelConfig || !labelConfig.enable) return;
     const currentLabels = await e.client.listLabels();
 

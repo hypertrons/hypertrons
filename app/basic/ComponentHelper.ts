@@ -14,6 +14,7 @@
 
 import { Application } from 'egg';
 import { BotLogger } from './Utils';
+import { IClient } from '../plugin/installation-manager/IClient';
 
 export class ComponentHelper {
 
@@ -36,6 +37,7 @@ export class ComponentHelper {
 export interface ComponentContext<T> {
   helper: ComponentHelper;
   app: Application;
-  config: T;
   logger: BotLogger;
+  name: string;
+  getConfig: (client: IClient) => T;
 }

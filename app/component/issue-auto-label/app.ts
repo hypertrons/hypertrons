@@ -31,10 +31,9 @@ export default async (ctx: ComponentContext<Config>) => {
     if (!e.issue || !e.client) return;
     const issue = e.issue;
     const title = issue.title.toLowerCase();
-    const config = e.client.getCompConfig<Config>('issue-auto-label');
-    if (!config || !config.enable) return;
+    const config = e.client.getCompConfig<Config>(ctx.name);
     const labelConfig = e.client.getCompConfig<LabelSetupConfig>('label-setup');
-    if (!labelConfig) return;
+    if (!config || !config.enable || !labelConfig) return;
 
     // search keyword to decide labels
     let attachLabels: string[] = [];

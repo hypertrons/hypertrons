@@ -74,6 +74,15 @@ describe('LabelSetupComponent', () => {
     testClear(app, agent);
   });
 
+  it('should not trigger if client is empty', async () => {
+    const e = new MockRepoConfigLoadedEvent();
+    e.client = undefined;
+    agent.event.publish('worker', RepoConfigLoadedEvent, e);
+    await waitFor(5);
+    assert(e.updateCounter === 0);
+    assert(e.createCounter === 0);
+  });
+
   it('should not trigger if enable is false', async () => {
     const e = new MockRepoConfigLoadedEvent();
     e.setConfigEnable(false);

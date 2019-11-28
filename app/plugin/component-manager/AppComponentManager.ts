@@ -20,6 +20,7 @@ import { existsSync, readdirSync, statSync } from 'fs';
 import { join } from 'path';
 import { waitUntil } from '../../basic/Utils';
 import { cloneDeep } from 'lodash';
+import { IClient } from '../installation-manager/IClient';
 
 export class AppComponentManager extends AppPluginBase<Config> {
 
@@ -104,7 +105,10 @@ export class AppComponentManager extends AppPluginBase<Config> {
           error: (msg, ...args) => this.app.logger.error(logPrefix, msg, ...args),
         },
         app: this.app,
-        config,
+        name,
+        getConfig: (client: IClient): any => {
+          return client.getCompConfig<any>(name);
+        },
       };
       await component.default(ctx);
 
