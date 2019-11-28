@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import { ComponentContext } from '../../basic/ComponentHelper';
-import { Config } from './config';
+import Config from './config';
 import { RepoConfigLoadedEvent, RepoRemovedEvent } from '../../plugin/event-manager/events';
 import { IClient } from '../../plugin/installation-manager/IClient';
 import { ISchedulerJobHandler } from '../../plugin/scheduler-manager/types';

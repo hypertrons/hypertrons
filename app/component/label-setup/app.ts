@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import { ComponentContext } from '../../basic/ComponentHelper';
-import { LabelSetupConfig } from './config';
+import Config from './config';
 import { RepoConfigLoadedEvent } from '../../plugin/event-manager/events';
 
-export default async (ctx: ComponentContext<LabelSetupConfig>) => {
+export default async (ctx: ComponentContext<Config>) => {
   ctx.logger.info('Start to load label setup component');
 
   ctx.app.event.subscribeOne(RepoConfigLoadedEvent, async p => {
@@ -26,7 +26,7 @@ export default async (ctx: ComponentContext<LabelSetupConfig>) => {
   async function setupLabelConfig(e: RepoConfigLoadedEvent): Promise<void> {
     // config check
     if (!e.client) return;
-    const labelConfig = e.client.getCompConfig<LabelSetupConfig>(ctx.name);
+    const labelConfig = e.client.getCompConfig<Config>(ctx.name);
     if (!labelConfig || !labelConfig.enable) return;
     const currentLabels = await e.client.listLabels();
 

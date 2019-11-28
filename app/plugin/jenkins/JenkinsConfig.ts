@@ -12,7 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { configProp, configClass } from '../../config-generator/decorators';
+
+const defaultConfig: JenkinsConfig = {
+  endpoints: '',
+  pipeline: '',
+};
+
+@configClass({
+  description: 'Jenkins config type',
+})
 export class JenkinsConfig {
+
+  @configProp({
+    description: 'Endpoint of the Jenkins platform',
+    defaultValue: defaultConfig.endpoints,
+  })
   endpoints: string;
+
+  @configProp({
+    description: 'Pipeline config content',
+    defaultValue: defaultConfig.pipeline,
+  })
   pipeline: string;
 }
+
+export { defaultConfig };

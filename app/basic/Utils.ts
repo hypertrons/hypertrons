@@ -68,9 +68,9 @@ export function customizerMerge(...objs: any[]): any {
   const errorList: any[] = [];
   try {
     for (let i = 1; i < objs.length; i++) {
-      mergeWith(objs[0], objs[i], (objValue: any, srcValue: any) => {
+      mergeWith(objs[0], objs[i], (objValue: any, srcValue: any, key: string) => {
         if (typeof objValue !== typeof srcValue) {
-          errorList.push(`invailed typeof ${srcValue} ${typeof srcValue}, ${objValue} require ${typeof objValue}`);
+          errorList.push(`Invailed typeof ${srcValue} ${typeof srcValue}, ${objValue} require ${typeof objValue}, key=${key}`);
           return objValue ? objValue : {};
         }
         if (isArray(srcValue) && srcValue[0] && srcValue[0].__merge__ === true) {

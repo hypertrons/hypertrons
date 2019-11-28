@@ -12,24 +12,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { JenkinsConfig } from '../../plugin/jenkins/JenkinsConfig';
-
 /**
  * Warnning: extend ciConfig when add new ci platform, for example, JenkinsConfig | TravisConfig
  */
-export interface CIConfig {
+import { JenkinsConfig } from '../../plugin/jenkins/JenkinsConfig';
+import { configClass, configProp } from '../../config-generator/decorators';
+import defaultConfig from './defaultConfig';
+
+@configClass({
+   description: 'CI platform config',
+ })
+export default class Config {
+
+  @configProp({
+    description: 'Enable this component or not',
+    defaultValue: defaultConfig.enable,
+  })
   enable: boolean;
+
+  @configProp({
+    description: 'CI platform type',
+    type: 'enum',
+    enumValues: [ 'jenkins' ],
+    defaultValue: defaultConfig.ciName,
+  })
   ciName: string;
+
+  @configProp({
+    description: 'Jenkins config',
+    type: 'object',
+    classType: JenkinsConfig,
+    defaultValue: defaultConfig.ciConfig,
+  })
   ciConfig: JenkinsConfig;
 }
-
-const config: CIConfig = {
-  enable: false,
-  ciName: '',
-  ciConfig: {
-    endpoints: '',
-    pipeline: '',
-  },
-};
-
-export default config;

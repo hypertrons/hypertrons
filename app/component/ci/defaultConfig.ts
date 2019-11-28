@@ -12,16 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { configProp, configClass } from '../../config-generator/decorators';
-import defaultConfig from './defaultConfig';
+import Config from './config';
+import { defaultConfig as JenkinsDefaultConfig } from '../../plugin/jenkins/JenkinsConfig';
 
-@configClass({
-  description: 'Add label to issues or pulls automatically',
-})
-export default class Config {
-  @configProp({
-    description: 'Enable this component or not',
-    defaultValue: defaultConfig.enable,
-  })
-  enable: boolean;
-}
+const defaultConfig: Config = {
+  enable: false,
+  ciName: 'jenkins',
+  ciConfig: JenkinsDefaultConfig,
+};
+
+export default defaultConfig;

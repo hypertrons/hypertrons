@@ -20,6 +20,7 @@ import { existsSync, readdirSync, statSync } from 'fs';
 import { join } from 'path';
 import { waitUntil } from '../../basic/Utils';
 import { cloneDeep } from 'lodash';
+import { getConfigMeta } from '../../config-generator/decorators';
 import { IClient } from '../installation-manager/IClient';
 
 export class AppComponentManager extends AppPluginBase<Config> {
@@ -27,16 +28,22 @@ export class AppComponentManager extends AppPluginBase<Config> {
   private componentHelper: ComponentHelper;
   private componentLoaded: boolean;
   private defaultConfig: any;
+  private configStructure: any;
 
   constructor(config: Config, app: Application) {
     super(config, app);
     this.componentHelper = new ComponentHelper();
     this.componentLoaded = false;
     this.defaultConfig = {};
+    this.configStructure = {};
   }
 
   public async onReady(): Promise<void> {
     this.loadComponents();
+    this.get('configs', async (ctx, next) => {
+      ctx.body = this.configStructure;
+      await next();
+    });
   }
 
   public async onStart(): Promise<void> { }
@@ -78,20 +85,29 @@ export class AppComponentManager extends AppPluginBase<Config> {
         return;
       }
 
-      let config: any;
+      let constructor: any;
       try {
-        config = await import(join(path, this.config.configModule));
-        if (config.default) {
-          config = config.default;
-          this.defaultConfig[name] = config;
+        constructor = await import(join(path, this.config.configModule));
+        if (constructor.default) {
+          constructor = constructor.default;
+          const defaultConfig = new constructor();
+          const meta = getConfigMeta(constructor);
+          if (meta) {
+            this.configStructure[name] = meta;
+            // the new default config should be empty, need to generate from meta
+            this.defaultConfig[name] = this.genDefaultConfigByMeta(defaultConfig, meta);
+          } else {
+            this.logger.error(`Config meta miss on config ${name}`);
+          }
         }
-      } catch {
-        this.logger.warn(`Config module not exists for component ${name}`);
+      } catch (e) {
+        this.logger.warn(`Error loading config of ${name}, e=`, e);
       }
 
+      // components can be empty and only have configs
       const component = await import(join(path, this.config.entryModule));
       if (!component.default || typeof(component.default) !== 'function') {
-        this.logger.error(`Component ${name} not export a function`);
+        this.logger.info(`Component ${name} not export a function`);
         return;
       }
 
@@ -111,10 +127,21 @@ export class AppComponentManager extends AppPluginBase<Config> {
         },
       };
       await component.default(ctx);
-
     } catch (e) {
       this.logger.error(`Error while load component ${name}, e=${e}`);
     }
+  }
+
+  private genDefaultConfigByMeta(config: any, meta: any): any {
+    if (!meta.properties) return null;
+    meta.properties.forEach(p => {
+      if (p.type !== 'object') {
+        config[p.name] = p.defaultValue;
+      } else {
+        config[p.name] = this.genDefaultConfigByMeta({}, p);
+      }
+    });
+    return config;
   }
 
   public async getDefaultConfig(): Promise<any> {
