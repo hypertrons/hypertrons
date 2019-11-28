@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Issue, Comment, PullRequest, CIRunOutput } from '../../basic/DataTypes';
+import { Issue, Comment, PullRequest, CheckRun, Push } from '../../basic/DataTypes';
 import { Command } from '../command-manager/Command';
 import { IClient } from '../installation-manager/IClient';
 
@@ -135,5 +135,12 @@ export class CIRunEvent {
  * When CI pipeline finished
  */
 export class CIRunFinishedEvent extends RepoEventBase {
-  ciRunOutput: CIRunOutput;
+  ciRunOutput: CheckRun;
+}
+
+/**
+ * When receive a push event
+ */
+export class PushEvent extends RepoEventBase {
+  push: Push;
 }

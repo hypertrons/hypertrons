@@ -21,8 +21,8 @@ import { App } from '@octokit/app';
 import { join } from 'path';
 import { existsSync, readFileSync } from 'fs';
 import Webhooks = require('@octokit/webhooks');
-import { GithubWrapper } from '../../basic/DataWarpper';
-import { IssueEvent, CommentUpdateEvent, LabelUpdateEvent, PullRequestEvent, RepoRemovedEvent, RepoAddedEvent } from '../event-manager/events';
+import { GithubWrapper } from '../../basic/DataWrapper';
+import { IssueEvent, CommentUpdateEvent, LabelUpdateEvent, PullRequestEvent, RepoRemovedEvent, RepoAddedEvent, PushEvent } from '../event-manager/events';
 import { DataCat } from 'github-data-cat';
 import EventSource from 'eventsource';
 
@@ -227,6 +227,13 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
       };
       this.app.event.publish('all', PullRequestEvent, pre);
     });
+    webhooks.on('push', e => {
+      const pe = {
+        installationId: this.id,
+        fullName: e.payload.repository.full_name,
+        push: githubWrapper.pushWrapper(e.payload),
+      };
+      this.app.event.publish('all', PushEvent, pe);
+    });
   }
-
 }
