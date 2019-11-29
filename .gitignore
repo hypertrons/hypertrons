@@ -18,6 +18,6 @@ config/**/*.js
 app/**/*.map
 test/**/*.map
 config/**/*.map
-
+.travis.yml
 private-key.pem
 globalConfig.json
