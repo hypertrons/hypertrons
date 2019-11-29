@@ -31,7 +31,7 @@ export class GitlabGraphqlClient {
     }
   }
 
-  public async query<TR, T>(_query: string, _param: T): Promise<TR | null> {
+  public async query<T>(_query: string, _param: T): Promise<string> {
     await waitUntil(() => {
       if (this.concurrentReqNumber >= this.maxConcurrentReqNumber) {
         return false;
@@ -43,11 +43,11 @@ export class GitlabGraphqlClient {
     return this.internalQuery(_query, _param, 0);
   }
 
-  private async internalQuery<TR, T>(
+  private async internalQuery<T>(
     _query: string,
     _param: T,
     retryTimes: number,
-  ): Promise<TR | null> {
+  ): Promise<string> {
     try {
       const response = await fetch(`${this.host}/api/graphql`, {
         method: 'POST',
@@ -74,6 +74,6 @@ export class GitlabGraphqlClient {
       this.concurrentReqNumber -= 1;
       this.logger.error(e.message);
     }
-    return null;
+    return '';
   }
 }
