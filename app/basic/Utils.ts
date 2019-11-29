@@ -74,7 +74,7 @@ export function customizerMerge(...objs: any[]): any {
           return objValue ? objValue : {};
         }
         if (isArray(srcValue) && srcValue[0] && srcValue[0].__merge__ === true) {
-            srcValue = (srcValue as any[]).shift();
+            (srcValue as any[]).shift();
             return objValue.concat(srcValue.filter(v => !objValue.includes(v)));
         }
       });

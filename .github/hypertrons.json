@@ -1,6 +1,36 @@
 {
   "label-setup": {
-    "enable": true
+    "enable": true,
+    "labels": [
+      {
+        "__merge__": true
+      },
+      {
+        "name": "difficulty/1",
+        "description": "Difficulty score for issue or pull, 1 score",
+        "color": "008672"
+      },
+      {
+        "name": "difficulty/2",
+        "description": "Difficulty score for issue or pull, 2 score",
+        "color": "f1ee18"
+      },
+      {
+        "name": "difficulty/3",
+        "description": "Difficulty score for issue or pull, 3 score",
+        "color": "67a8f7"
+      },
+      {
+        "name": "difficulty/5",
+        "description": "Difficulty score for issue or pull, 5 score",
+        "color": "f7be99"
+      },
+      {
+        "name": "difficulty/8",
+        "description": "Difficulty score for issue or pull, 8 score, should split the issue",
+        "color": "e11d21"
+      }
+    ]
   },
   "issue-auto-label": {
     "enable": true
