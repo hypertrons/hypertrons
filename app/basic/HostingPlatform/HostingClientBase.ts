@@ -15,7 +15,7 @@
 import { BotLogger, loggerWrapper } from '../Utils';
 import { Application } from 'egg';
 import { IClient } from '../../plugin/installation-manager/IClient';
-import { Repo, CIRunOutput } from '../DataTypes';
+import { Repo, CheckRun } from '../DataTypes';
 
 export abstract class HostingClientBase<TRawClient> implements IClient {
 
@@ -47,7 +47,7 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
 
   public abstract async createLabels(labels: Array<{name: string, description: string, color: string}>): Promise<void>;
 
-  public abstract async createCheckRun(check: CIRunOutput): Promise<void>;
+  public abstract async createCheckRun(check: CheckRun): Promise<void>;
 
   public getRepoData(): Repo {
     return this.repoData;

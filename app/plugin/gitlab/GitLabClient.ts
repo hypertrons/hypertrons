@@ -15,7 +15,7 @@
 import { HostingClientBase } from '../../basic/HostingPlatform/HostingClientBase';
 import { Gitlab } from 'gitlab';
 import { Application } from 'egg';
-import { CIRunOutput } from '../../basic/DataTypes';
+import { CheckRun } from '../../basic/DataTypes';
 
 export class GitLabClient extends HostingClientBase<Gitlab> {
 
@@ -101,7 +101,7 @@ export class GitLabClient extends HostingClientBase<Gitlab> {
     return (color as any).toUpperCase();
   }
 
-  public createCheckRun(check: CIRunOutput): Promise<void> {
+  public createCheckRun(check: CheckRun): Promise<void> {
     this.logger.info(check);
     return new Promise(() => {});
   }

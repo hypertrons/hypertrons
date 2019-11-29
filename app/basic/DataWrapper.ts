@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Issue, Comment, PullRequest, Repo } from './DataTypes';
+import { Issue, Comment, PullRequest, Repo, Push } from './DataTypes';
 import {
   PayloadRepository,
   WebhookPayloadIssuesIssue,
   WebhookPayloadIssueCommentComment,
   WebhookPayloadPullRequestPullRequest,
+  WebhookPayloadPush,
 } from '@octokit/webhooks';
 import { ParseDate } from './Utils';
 
@@ -150,4 +151,15 @@ export class GithubWrapper implements DataWrapper {
     }
   }
 
+  public pushWrapper(push: WebhookPayloadPush): Push | undefined {
+    try {
+      return {
+        ...push,
+        repository: this.repoWrapper(push.repository),
+        pusher: push.pusher,
+      };
+    } catch {
+      return undefined;
+    }
+  }
 }
