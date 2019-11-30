@@ -165,6 +165,6 @@ export class CheckRunEvent extends RepoEventBase {
  * for example, 'slack' | 'email' | 'wechat'
  */
 export class IMSendEvent {
-  imName: 'slack' | 'email';
+  imName: 'slack' | 'mail';
   message: any;
 }
