@@ -12,11 +12,12 @@ pipeline {
         stage('Install') {
             steps{
                 sh 'npm install'
-                sh 'npm install --global tsc'
+                sh 'npm install typescript@latest -g'
             }
         }
         stage('Test') {
             steps {
+                sh 'tsc'
                 sh 'npm run licensecheck'
                 sh 'npm run lint'
                 sh 'npm run test-local'
