@@ -123,7 +123,8 @@ export class CommandManagerNewCommandEvent extends RepoEventBase {
 
 /**
  * Run a CI pipeline
- * Warnning: extend ciName when add new ci platform, for example, 'jenkins' | 'travis-ci'
+ * Warnning: extend ciName when add new ci platform,
+ * for example, 'jenkins' | 'travis-ci'
  */
 export class CIRunEvent {
   ciName: 'jenkins';
@@ -133,8 +134,11 @@ export class CIRunEvent {
 
 /**
  * When CI pipeline finished
+ * Warnning: extend ciName when add new ci platform,
+ * for example, 'jenkins' | 'travis-ci'
  */
 export class CIRunFinishedEvent extends RepoEventBase {
+  ciName: 'jenkins';
   ciRunOutput: CheckRun;
 }
 
@@ -143,4 +147,24 @@ export class CIRunFinishedEvent extends RepoEventBase {
  */
 export class PushEvent extends RepoEventBase {
   push: Push;
+}
+
+/**
+ * When check_run updated
+ */
+export class CheckRunEvent extends RepoEventBase {
+  action: 'completed'
+          | 'created'
+          | 'requested_action'
+          | 'rerequested';
+  checkRun: CheckRun;
+}
+
+/**
+ * Warnning: extend imName when add new im platform,
+ * for example, 'slack' | 'email' | 'wechat'
+ */
+export class IMSendEvent {
+  imName: 'slack' | 'email';
+  message: any;
 }
