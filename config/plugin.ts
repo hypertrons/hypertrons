@@ -55,6 +55,11 @@ const plugin: EggPlugin = {
     enable: true,
     path: join(__dirname, '../app/plugin/jenkins'),
   },
+
+  slack: {
+    enable: true,
+    path: join(__dirname, '../app/plugin/slack'),
+  },
 };
 
 export default plugin;

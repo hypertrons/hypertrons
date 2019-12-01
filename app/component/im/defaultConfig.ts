@@ -13,12 +13,11 @@
 // limitations under the License.
 
 import Config from './config';
-import { defaultConfig as JenkinsDefaultConfig } from '../../plugin/ci-jenkins/JenkinsConfig';
+import { defaultConfig as SlackDefaultConfig } from '../../plugin/im-slack/SlackConfig';
 
 const defaultConfig: Config = {
   enable: false,
-  ciName: 'jenkins',
-  ciConfig: JenkinsDefaultConfig,
+  imTemplates: [ SlackDefaultConfig ],
 };
 
 export default defaultConfig;

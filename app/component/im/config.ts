@@ -12,15 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/**
- * Warnning: extend ciConfig when add new ci platform, for example, JenkinsConfig | TravisConfig
- */
-import { JenkinsConfig } from '../../plugin/ci-jenkins/JenkinsConfig';
 import { configClass, configProp } from '../../config-generator/decorators';
 import defaultConfig from './defaultConfig';
+import { SlackConfig } from '../../plugin/im-slack/SlackConfig';
 
 @configClass({
-   description: 'CI platform config',
+   description: 'IM platform config',
  })
 export default class Config {
 
@@ -31,18 +28,11 @@ export default class Config {
   enable: boolean;
 
   @configProp({
-    description: 'CI platform type',
-    type: 'enum',
-    enumValues: [ 'jenkins' ],
-    defaultValue: defaultConfig.ciName,
-  })
-  ciName: string;
-
-  @configProp({
-    description: 'Jenkins config',
+    description: 'IM config',
     type: 'object',
-    classType: JenkinsConfig,
-    defaultValue: defaultConfig.ciConfig,
+    classType: SlackConfig,
+    defaultValue: defaultConfig.imTemplates,
   })
-  ciConfig: JenkinsConfig;
+  imTemplates: SlackConfig[];
+
 }

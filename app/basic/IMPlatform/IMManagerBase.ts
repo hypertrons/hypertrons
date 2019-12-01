@@ -18,9 +18,9 @@ import { IMClientBase } from './IMClientBase';
 import { IMSendEvent } from '../../plugin/event-manager/events';
 import { loggerWrapper } from '../Utils';
 
-export abstract class IMManagerBase<TConfig> extends AppPluginBase<null> {
+export abstract class IMManagerBase<TMessage, TConfig> extends AppPluginBase<null> {
 
-  protected client: IMClientBase<TConfig>;
+  protected client: IMClientBase<TMessage, TConfig>;
   protected imName: string;
 
   constructor(imName: string, config: null, app: Application) {
@@ -32,7 +32,7 @@ export abstract class IMManagerBase<TConfig> extends AppPluginBase<null> {
   public async onReady(): Promise<void> {
     this.app.event.subscribeOne(IMSendEvent, async e => {
       if (e.imName === this.imName) {
-        this.client.send(e.message);
+        this.client.send(e.message, e.config);
       }
     });
   }

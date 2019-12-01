@@ -12,13 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Config from './config';
-import { defaultConfig as JenkinsDefaultConfig } from '../../plugin/ci-jenkins/JenkinsConfig';
-
-const defaultConfig: Config = {
-  enable: false,
-  ciName: 'jenkins',
-  ciConfig: JenkinsDefaultConfig,
+export default {
+  slack: {
+    client: { },
+  },
 };
-
-export default defaultConfig;

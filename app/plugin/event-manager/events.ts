@@ -161,10 +161,13 @@ export class CheckRunEvent extends RepoEventBase {
 }
 
 /**
- * Warnning: extend imName when add new im platform,
- * for example, 'slack' | 'email' | 'wechat'
+ * Warnning: extend imName and config when add new im platform,
+ * for example:
+ *    imName: 'slack' | 'mail' | 'wechat'
+ *    config: SlackConfig | MailConfig
  */
 export class IMSendEvent {
   imName: 'slack' | 'mail';
+  config: any;
   message: any;
 }

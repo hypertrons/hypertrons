@@ -12,13 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Config from './config';
-import { defaultConfig as JenkinsDefaultConfig } from '../../plugin/ci-jenkins/JenkinsConfig';
+import { Application } from 'egg';
+import { SlackManager } from './SlackManager';
+import { AppPluginBase } from '../../basic/AppPluginBase';
 
-const defaultConfig: Config = {
-  enable: false,
-  ciName: 'jenkins',
-  ciConfig: JenkinsDefaultConfig,
+declare module 'egg' {
+  interface Application {
+    slack: SlackManager;
+  }
+}
+
+module.exports = (app: Application) => {
+  AppPluginBase.LoadToApp('slack', SlackManager, app);
 };
-
-export default defaultConfig;
