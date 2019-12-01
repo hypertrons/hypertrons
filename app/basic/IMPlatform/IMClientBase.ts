@@ -15,7 +15,7 @@
 import { BotLogger, loggerWrapper } from '../Utils';
 import { Application } from 'egg';
 
-export abstract class IMClientBase<TMessage> {
+export abstract class IMClientBase<TMessage, TConfig> {
 
   protected logger: BotLogger;
   protected app: Application;
@@ -26,6 +26,6 @@ export abstract class IMClientBase<TMessage> {
     this.logger.info('new im client');
   }
 
-  public abstract async send(message: TMessage): Promise<void>;
+  public abstract async send(message: TMessage, config: TConfig): Promise<void>;
 
 }

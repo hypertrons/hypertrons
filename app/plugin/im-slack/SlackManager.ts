@@ -12,13 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Config from './config';
-import { defaultConfig as JenkinsDefaultConfig } from '../../plugin/ci-jenkins/JenkinsConfig';
+import { Application } from 'egg';
+import { SlackConfig } from './SlackConfig';
+import { IMManagerBase } from '../../basic/IMPlatform/IMManagerBase';
+import { SlackClient } from './SlackClient';
+import { IncomingWebhookSendArguments } from '@slack/webhook/dist/IncomingWebhook';
 
-const defaultConfig: Config = {
-  enable: false,
-  ciName: 'jenkins',
-  ciConfig: JenkinsDefaultConfig,
-};
+export class SlackManager extends IMManagerBase<IncomingWebhookSendArguments, SlackConfig> {
 
-export default defaultConfig;
+  constructor(config: null, app: Application) {
+    super('slack', config, app);
+    this.client = new SlackClient('slack', app);
+  }
+
+}
