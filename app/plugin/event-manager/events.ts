@@ -116,7 +116,9 @@ export class PullRequestEvent extends RepoEventBase {
  * When Command Manager publish a event
  */
 export class CommandManagerNewCommandEvent extends RepoEventBase {
+  login: string;
   from: 'issue' | 'comment';
+  issueNumber: number;
   comment: Comment | undefined;
   issue: Issue | undefined;
   command: Command;
