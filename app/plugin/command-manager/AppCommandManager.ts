@@ -31,7 +31,9 @@ export class AppCommandManager extends AppPluginBase<null> {
                     this.app.event.publish('workers', CommandManagerNewCommandEvent, {
                         installationId: e.installationId,
                         fullName: e.fullName,
+                        login: (e.issue as any).author,
                         from: 'issue',
+                        issueNumber: (e.issue as any).numebr,
                         issue: e.issue,
                         comment: undefined,
                         command,
@@ -51,7 +53,9 @@ export class AppCommandManager extends AppPluginBase<null> {
                     this.app.event.publish('workers', CommandManagerNewCommandEvent, {
                         installationId: e.installationId,
                         fullName: e.fullName,
+                        login: (e.comment as any).login,
                         from: 'comment',
+                        issueNumber: e.issueNumber,
                         issue: undefined,
                         comment: e.comment,
                         command,
@@ -73,7 +77,7 @@ export class AppCommandManager extends AppPluginBase<null> {
      */
     private extract(line: string): Command | null {
         const regExp = /\/{1}[A-Z|a-z].*/g;
-        const arr = line.split(/\s/);
+        const arr = line.split(/\s+/);
         let command: Command | null;
         command = null;
         if (arr[0].match(regExp)) {
@@ -88,7 +92,8 @@ export class AppCommandManager extends AppPluginBase<null> {
 
     /* get commands from comment bod */
     private getCommandsFromBody(body: string): Command[] {
-        const lines = body.split('\n');
+        // in case the system is windows
+        const lines = body.split(/\r?\n/);
         const commands: Command[] = [];
         lines.map(line => {
             const command = this.extract(line);

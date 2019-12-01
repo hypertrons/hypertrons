@@ -30,6 +30,8 @@ export interface IClient {
 
   updateIssue(number: number, update: {title?: string, body?: string, state?: 'open' | 'closed'}): Promise<void>;
 
+  // addAssignees(number: number, assignees: string[]): Promise<void>;
+
   addLabels(number: number, labels: string[]): Promise<void>;
 
   createLabels(labels: Array<{name: string, description: string, color: string}>): Promise<void>;
