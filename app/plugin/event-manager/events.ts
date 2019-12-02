@@ -15,7 +15,6 @@
 import { Issue, Comment, PullRequest, CheckRun, Push } from '../../basic/DataTypes';
 import { Command } from '../command-manager/Command';
 import { IClient } from '../installation-manager/IClient';
-import { IMType } from '../../basic/IMPlatform/IMDataTypes';
 
 export class RepoEventBase {
   installationId: number;
@@ -161,14 +160,4 @@ export class CheckRunEvent extends RepoEventBase {
           | 'requested_action'
           | 'rerequested';
   checkRun: CheckRun;
-}
-
-/**
- * Warnning: extend imName and config when add new im platform,
- * for example, imName: IMType.Slack | IMType.DingTalk | IMType.WeChat
- */
-export class IMSendEvent {
-  imName: IMType.Slack | IMType.DingTalk;
-  config: any;
-  message: any;
 }

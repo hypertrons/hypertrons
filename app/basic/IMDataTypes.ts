@@ -73,9 +73,3 @@ export interface DingTalkFeedCardItem {
 }
 
 export type DingTalkMessageType = DingTalkText | DingTalkLink | DingTalkMarkdown | DingTalkActionCard | DingTalkFeedCardItem;
-
-export enum IMType {
-  Slack = 'slack',
-  DingTalk = 'dingTalk',
-  Mail = 'mail',
-}

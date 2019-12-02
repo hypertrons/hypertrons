@@ -1,0 +1,7 @@
+{
+  "name": "mentor-bot-im-manager",
+  "description": "IM plugin for mentor bot",
+  "eggPlugin": {
+    "name": "imManager"
+  }
+}

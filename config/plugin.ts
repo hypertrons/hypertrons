@@ -56,15 +56,11 @@ const plugin: EggPlugin = {
     path: join(__dirname, '../app/plugin/ci-jenkins'),
   },
 
-  slack: {
+  imManager: {
     enable: true,
-    path: join(__dirname, '../app/plugin/im-slack'),
+    path: join(__dirname, '../app/plugin/im-manager'),
   },
 
-  dingTalk: {
-    enable: true,
-    path: join(__dirname, '../app/plugin/im-dingtalk'),
-  },
 };
 
 export default plugin;

@@ -12,17 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Application } from 'egg';
-import { SlackManager } from './SlackManager';
-import { AppPluginBase } from '../../basic/AppPluginBase';
-import { IMType } from '../../basic/IMPlatform/IMDataTypes';
-
-declare module 'egg' {
-  interface Application {
-    slack: SlackManager;
-  }
-}
-
-module.exports = (app: Application) => {
-  AppPluginBase.LoadToApp(IMType.Slack, SlackManager, app);
+export default {
+  imManager: {
+    client: { },
+  },
 };

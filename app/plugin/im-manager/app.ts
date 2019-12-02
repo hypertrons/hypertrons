@@ -12,8 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export default {
-  dingTalk: {
-    client: { },
-  },
+import { Application } from 'egg';
+import { IMManager } from './IMManager';
+import { AppPluginBase } from '../../basic/AppPluginBase';
+
+declare module 'egg' {
+  interface Application {
+    imManager: IMManager;
+  }
+}
+
+module.exports = (app: Application) => {
+  AppPluginBase.LoadToApp('imManager', IMManager, app);
 };
