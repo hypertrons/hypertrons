@@ -13,12 +13,133 @@
 // limitations under the License.
 
 import { configClass, configProp } from '../../config-generator/decorators';
-import defaultConfig from './defaultConfig';
-import { SlackConfig } from '../../plugin/im-slack/SlackConfig';
+import defaultConfig, { dingTalkDefaultConfig, slackDefaultConfig, mailDefaultConfig } from './defaultConfig';
+
+/**
+ * Mail config
+ */
+@configClass({
+  description: 'SMTP server auth',
+})
+export class MailConnectOptionsAuth {
+  @configProp({
+    description: 'SMTP server auth user',
+    type: 'string',
+    defaultValue: mailDefaultConfig.connectOptions.auth.user,
+  })
+  user: string;
+
+  @configProp({
+    description: 'SMTP server auth password',
+    type: 'string',
+    defaultValue: mailDefaultConfig.connectOptions.auth.pass,
+  })
+  pass: string;
+}
 
 @configClass({
-   description: 'IM platform config',
- })
+  description: 'SMTP connect options',
+})
+export class MailConnectOptions {
+  @configProp({
+    description: 'SMTP server host',
+    type: 'string',
+    defaultValue: mailDefaultConfig.connectOptions.host,
+  })
+  host: string;
+
+  @configProp({
+    description: 'SMTP server port',
+    type: 'number',
+    defaultValue: mailDefaultConfig.connectOptions.port,
+  })
+  port: number;
+
+  @configProp({
+    description: 'Defines if the connection should use SSL (if true) or not (if false)',
+    type: 'boolean',
+    defaultValue: mailDefaultConfig.connectOptions.secure,
+  })
+  secure: boolean;
+
+  @configProp({
+    description: 'SMTP server auth',
+    type: 'object',
+    classType: MailConnectOptionsAuth,
+    defaultValue: mailDefaultConfig.connectOptions.auth,
+  })
+  auth: MailConnectOptionsAuth;
+}
+
+@configClass({
+  description: 'Mail config type',
+})
+export class MailConfig {
+  @configProp({
+    description: 'Config unique name',
+    type: 'string',
+    defaultValue: mailDefaultConfig.name,
+  })
+  name: string;
+
+  @configProp({
+    description: 'Mail SMTP connect options',
+    type: 'object',
+    defaultValue: mailDefaultConfig.connectOptions,
+    classType: MailConnectOptions,
+  })
+  connectOptions: MailConnectOptions;
+}
+
+/**
+ * DingTalk config
+ */
+@configClass({
+  description: 'DingTalk config type',
+})
+export class DingTalkConfig {
+
+  @configProp({
+    description: 'Config unique name',
+    defaultValue: dingTalkDefaultConfig.name,
+  })
+  name: string;
+
+  @configProp({
+    description: 'DingTalk webhook',
+    defaultValue: dingTalkDefaultConfig.webhook,
+  })
+  webhook: string;
+}
+
+/**
+ * Slack config
+ * api: https://slack.dev/node-slack-sdk/webhook
+ */
+@configClass({
+  description: 'Slack config type',
+})
+export class SlackConfig {
+
+  @configProp({
+    description: 'Config unique name',
+    defaultValue: slackDefaultConfig.name,
+  })
+  name: string;
+
+  @configProp({
+    description: 'Slack incoming webhook',
+    defaultValue: slackDefaultConfig.webhook,
+  })
+  webhook: string;
+}
+
+/**
+ * IMConfig
+ */
+@configClass({
+  description: 'IM client config',
+})
 export default class Config {
 
   @configProp({
@@ -28,11 +149,27 @@ export default class Config {
   enable: boolean;
 
   @configProp({
-    description: 'IM config',
-    type: 'object',
-    classType: SlackConfig,
-    defaultValue: defaultConfig.imTemplates,
+    description: 'Slack config list',
+    type: 'array',
+    arrayType: SlackConfig,
+    defaultValue: defaultConfig.slack,
   })
-  imTemplates: SlackConfig[];
+  slack: SlackConfig[];
+
+  @configProp({
+    description: 'Dingtalk config list',
+    type: 'array',
+    arrayType: DingTalkConfig,
+    defaultValue: defaultConfig.dingTalk,
+  })
+  dingTalk: DingTalkConfig[];
+
+  @configProp({
+    description: 'Mail config list',
+    type: 'array',
+    arrayType: MailConfig,
+    defaultValue: defaultConfig.mail,
+  })
+  mail: MailConfig[];
 
 }

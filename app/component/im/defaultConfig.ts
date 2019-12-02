@@ -12,12 +12,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Config from './config';
-import { defaultConfig as SlackDefaultConfig } from '../../plugin/im-slack/SlackConfig';
+import Config, { DingTalkConfig, SlackConfig, MailConfig } from './config';
+
+const mailDefaultConfig: MailConfig = {
+  name: '',
+  connectOptions: {
+    host: '',
+    port : 465,
+    secure: true,
+    auth: {
+      user: '',
+      pass: '',
+    },
+  },
+};
+
+const dingTalkDefaultConfig: DingTalkConfig = {
+  name: '',
+  webhook: '',
+};
+
+const slackDefaultConfig: SlackConfig = {
+  name: '',
+  webhook: '',
+};
 
 const defaultConfig: Config = {
   enable: false,
-  imTemplates: [ SlackDefaultConfig ],
+  slack: [ ],
+  dingTalk: [ ],
+  mail: [ ],
 };
 
+export { dingTalkDefaultConfig, slackDefaultConfig, mailDefaultConfig };
 export default defaultConfig;

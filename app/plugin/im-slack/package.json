@@ -1,7 +1,0 @@
-{
-  "name": "mentor-bot-slack-client",
-  "description": "Slack plugin for mentor bot",
-  "eggPlugin": {
-    "name": "slack"
-  }
-}
