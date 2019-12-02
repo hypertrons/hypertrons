@@ -108,7 +108,7 @@ export default (ctx: ComponentContext<Config>) => {
             star: repoData.stars.length,
             watch: repoData.watchCount,
             contributor: repoData.contributors.length,
-            fork: repoData.forks.length,
+            fork: repoData.forkCount,
         };
     const deltaData: WeeklyData = {
             star: repoData.stars.filter(star => star.time >= lastWeek).length,
@@ -171,10 +171,13 @@ export default (ctx: ComponentContext<Config>) => {
         }
     });
 
+    // sort by pullRequestCount(desc)
     pullRequestAuthors.sort((a, b) => b.pullRequestCount - a.pullRequestCount);
 
     let pullRequestStrs = '';
     pullRequestAuthors.forEach(pra => {
+        // sort by pr number(asc)
+        pra.pulls.sort((a, b) => a.number - b.number);
         let singlePullRequestStrs = '';
         pra.pulls.forEach(pr => {
           singlePullRequestStrs += renderString(config.weeklyReportTemplate.singlePullRequest, {
