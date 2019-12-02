@@ -20,7 +20,7 @@ import { HostingClientBase } from './HostingClientBase';
 import { waitUntil } from '../Utils';
 import { HostingConfigBase } from './HostingConfigBase';
 import { ConfigLoader } from './ConfigLoader';
-import { RepoConfigLoadedEvent, RepoAddedEvent, CIRunFinishedEvent } from '../../plugin/event-manager/events';
+import { RepoConfigLoadedEvent, RepoAddedEvent, CIRunFinishedEvent, PushEvent } from '../../plugin/event-manager/events';
 
 export abstract class HostingManagerBase<THostingPlatform extends HostingBase<TConfig, TClient, TRawClient>,
   TClient extends HostingClientBase<TRawClient>, TRawClient,
@@ -126,6 +126,34 @@ export abstract class HostingManagerBase<THostingPlatform extends HostingBase<TC
         e.client.createCheckRun(e.ciRunOutput);
       } else {
         this.logger.warn('client is null');
+      }
+    });
+
+    this.app.event.subscribeOne(PushEvent, async e => {
+
+      const hp = this.hpMap.get(e.installationId);
+      if (!hp ||
+          !(hp as any).config ||
+          !(hp as any).config.remote ||
+          !(hp as any).config.remote.filePath ||
+          !e.client) return;
+
+      const filePath = (hp as any).config.remote.filePath;
+
+      if (e.push.commits.some(c => {
+          return c.modified.indexOf(filePath) >= 0 ||
+          c.added.indexOf(filePath) >= 0 ||
+          c.removed.indexOf(filePath) >= 0;
+      })) {
+        const config = await this.configLoader.loadConfig((hp as any).config, e.installationId, e.fullName, e.client);
+        this.app.event.publish('all', HostingPlatformConfigInitedEvent, {
+          id: e.installationId,
+          fullName: e.fullName,
+          config,
+        });
+        this.app.event.publish('all', RepoConfigLoadedEvent, {
+          ...e,
+        });
       }
     });
   }
