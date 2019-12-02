@@ -13,16 +13,16 @@
 // limitations under the License.
 
 import { Application } from 'egg';
-import { SlackManager } from './SlackManager';
+import { DingTalkManager } from './DingTalkManager';
 import { AppPluginBase } from '../../basic/AppPluginBase';
 import { IMType } from '../../basic/IMPlatform/IMDataTypes';
 
 declare module 'egg' {
   interface Application {
-    slack: SlackManager;
+    dingTalk: DingTalkManager;
   }
 }
 
 module.exports = (app: Application) => {
-  AppPluginBase.LoadToApp(IMType.Slack, SlackManager, app);
+  AppPluginBase.LoadToApp(IMType.DingTalk, DingTalkManager, app);
 };
