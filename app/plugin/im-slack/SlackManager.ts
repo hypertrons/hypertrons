@@ -17,12 +17,13 @@ import { SlackConfig } from './SlackConfig';
 import { IMManagerBase } from '../../basic/IMPlatform/IMManagerBase';
 import { SlackClient } from './SlackClient';
 import { IncomingWebhookSendArguments } from '@slack/webhook/dist/IncomingWebhook';
+import { IMType } from '../../basic/IMPlatform/IMDataTypes';
 
 export class SlackManager extends IMManagerBase<IncomingWebhookSendArguments, SlackConfig> {
 
   constructor(config: null, app: Application) {
-    super('slack', config, app);
-    this.client = new SlackClient('slack', app);
+    super(IMType.Slack, config, app);
+    this.client = new SlackClient(IMType.Slack, app);
   }
 
 }

@@ -15,17 +15,16 @@
 import { configProp, configClass } from '../../config-generator/decorators';
 import { IMType } from '../../basic/IMPlatform/IMDataTypes';
 
-const defaultConfig: SlackConfig = {
+const defaultConfig: DingTalkConfig = {
   name: '',
-  platform: IMType.Slack,
+  platform: IMType.DingTalk,
   webhook: '',
 };
 
-// api: https://slack.dev/node-slack-sdk/webhook
 @configClass({
-  description: 'Slack config type',
+  description: 'DingTalk config type',
 })
-export class SlackConfig {
+export class DingTalkConfig {
 
   @configProp({
     description: 'Config unique name',
@@ -35,13 +34,13 @@ export class SlackConfig {
   name: string;
 
   @configProp({
-    description: 'Slack platform type, constant value, must be "slack"',
-    defaultValue: IMType.Slack,
+    description: 'DingTalk platform type, constant value, must be IMType.DingTalk',
+    defaultValue: defaultConfig.platform,
   })
   platform: string;
 
   @configProp({
-    description: 'Slack incoming webhook',
+    description: 'DingTalk webhook',
     type: 'string',
     defaultValue: defaultConfig.webhook,
   })

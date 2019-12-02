@@ -1,0 +1,7 @@
+{
+  "name": "mentor-bot-dingtalk-client",
+  "description": "DingTalk plugin for mentor bot",
+  "eggPlugin": {
+    "name": "dingTalk"
+  }
+}
