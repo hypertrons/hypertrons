@@ -47,9 +47,11 @@ export async function prepareTestApplication(): Promise<{app: Application, agent
 export function testClear(app?: Application, agent?: Agent) {
   if (app) {
     (app.messenger as any).close();
+    app.close();
   }
   if (agent) {
     (agent.messenger as any).close();
+    agent.close();
   }
   mock.restore();
 }

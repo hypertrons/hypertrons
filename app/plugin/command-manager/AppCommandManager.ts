@@ -28,12 +28,12 @@ export class AppCommandManager extends AppPluginBase<null> {
                 commands.map(command => {
                     this.logger.debug(`extract the command is ${command}`);
                     // publish new command event
-                    this.app.event.publish('workers', CommandManagerNewCommandEvent, {
+                    this.app.event.publish('all', CommandManagerNewCommandEvent, {
                         installationId: e.installationId,
                         fullName: e.fullName,
                         login: (e.issue as any).author,
                         from: 'issue',
-                        issueNumber: (e.issue as any).numebr,
+                        issueNumber: (e.issue as any).number,
                         issue: e.issue,
                         comment: undefined,
                         command,
@@ -50,7 +50,7 @@ export class AppCommandManager extends AppPluginBase<null> {
                 commands.map(command => {
                     this.logger.debug(`extract the command is ${command}`);
                     // publish new command event
-                    this.app.event.publish('workers', CommandManagerNewCommandEvent, {
+                    this.app.event.publish('all', CommandManagerNewCommandEvent, {
                         installationId: e.installationId,
                         fullName: e.fullName,
                         login: (e.comment as any).login,
