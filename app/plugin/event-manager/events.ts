@@ -12,7 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Issue, Comment, PullRequest, CheckRun, Push } from '../../basic/DataTypes';
+import {
+  Issue,
+  Comment,
+  PullRequest,
+  CheckRun,
+  Push,
+} from '../../basic/DataTypes';
 import { Command } from '../command-manager/Command';
 import { IClient } from '../installation-manager/IClient';
 
@@ -25,17 +31,17 @@ export class RepoEventBase {
 /**
  * Repo config loaded
  */
-export class RepoConfigLoadedEvent extends RepoEventBase { }
+export class RepoConfigLoadedEvent extends RepoEventBase {}
 
 /**
  * Repo added
  */
-export class RepoAddedEvent extends RepoEventBase { }
+export class RepoAddedEvent extends RepoEventBase {}
 
 /**
  * Repo removed
  */
-export class RepoRemovedEvent extends RepoEventBase { }
+export class RepoRemovedEvent extends RepoEventBase {}
 
 /**
  * When a push to a repo
@@ -53,22 +59,23 @@ export class RepoPushEvent extends RepoEventBase {
  * When update a issue
  */
 export class IssueEvent extends RepoEventBase {
-  action: 'assigned'
-          | 'closed'
-          | 'deleted'
-          | 'demilestoned'
-          | 'edited'
-          | 'labeled'
-          | 'locked'
-          | 'milestoned'
-          | 'opened'
-          | 'pinned'
-          | 'reopened'
-          | 'transferred'
-          | 'unassigned'
-          | 'unlabeled'
-          | 'unlocked'
-          | 'unpinned';
+  action:
+    | 'assigned'
+    | 'closed'
+    | 'deleted'
+    | 'demilestoned'
+    | 'edited'
+    | 'labeled'
+    | 'locked'
+    | 'milestoned'
+    | 'opened'
+    | 'pinned'
+    | 'reopened'
+    | 'transferred'
+    | 'unassigned'
+    | 'unlabeled'
+    | 'unlocked'
+    | 'unpinned';
   issue: Issue | undefined;
   changes: {};
 }
@@ -94,20 +101,21 @@ export class LabelUpdateEvent extends RepoEventBase {
  * When update a pull request
  */
 export class PullRequestEvent extends RepoEventBase {
-  action: 'assigned'
-          | 'closed'
-          | 'edited'
-          | 'labeled'
-          | 'locked'
-          | 'opened'
-          | 'ready_for_review'
-          | 'reopened'
-          | 'review_request_removed'
-          | 'review_requested'
-          | 'unassigned'
-          | 'unlabeled'
-          | 'unlocked'
-          | 'synchronize';
+  action:
+    | 'assigned'
+    | 'closed'
+    | 'edited'
+    | 'labeled'
+    | 'locked'
+    | 'opened'
+    | 'ready_for_review'
+    | 'reopened'
+    | 'review_request_removed'
+    | 'review_requested'
+    | 'unassigned'
+    | 'unlabeled'
+    | 'unlocked'
+    | 'synchronize';
   pullRequest: PullRequest | undefined;
 }
 
@@ -155,9 +163,6 @@ export class PushEvent extends RepoEventBase {
  * When check_run updated
  */
 export class CheckRunEvent extends RepoEventBase {
-  action: 'completed'
-          | 'created'
-          | 'requested_action'
-          | 'rerequested';
+  action: 'completed' | 'created' | 'requested_action' | 'rerequested';
   checkRun: CheckRun;
 }

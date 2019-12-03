@@ -62,7 +62,7 @@ export class GitlabGraphqlClient {
       });
       if (response.ok) {
         this.concurrentReqNumber -= 1;
-        return response.json();
+        return response.text();
       }
       if (
         !this.filterStatusCode.includes(response.status) &&
@@ -73,6 +73,10 @@ export class GitlabGraphqlClient {
     } catch (e) {
       this.concurrentReqNumber -= 1;
       this.logger.error(e.message);
+      this.logger.info('retryTimes =', retryTimes);
+      if (e.message.includes('ETIMEDOUT') || e.message.includes('ECONNRESET')) {
+        return retryTimes < this.maxRetryTimes ? this.internalQuery(_query, _param, retryTimes + 1) : '';
+      }
     }
     return '';
   }

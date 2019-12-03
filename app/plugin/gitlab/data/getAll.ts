@@ -12,15 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Repo } from '../../../basic/DataTypes';
+import { Repo, PullRequest } from '../../../basic/DataTypes';
 import { GitlabGraphqlClient } from '../client/GitlabGraphqlClient';
 import { getRepo } from './getRepo';
 import { getIssues } from './getIssues';
 import { getPullRequests } from './getPullRequests';
 
 export async function getAll(client: GitlabGraphqlClient, fullPath: string): Promise<Repo> {
-    const repo = await getRepo(client, fullPath);
-    repo.issues = await getIssues(client, fullPath);
-    repo.pulls = await getPullRequests(client, fullPath);
-    return repo;
+  const repo = await getRepo(client, fullPath);
+  const myissue = getIssues(client, fullPath, 50);
+  const mypulls = getPullRequests(client, fullPath, 50);
+  const arr = await Promise.all([ myissue, mypulls ]);
+  repo.issues = arr[0];
+  repo.pulls = arr[1] as PullRequest[]; // weird here
+  return repo;
 }
