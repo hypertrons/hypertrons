@@ -61,6 +61,11 @@ const plugin: EggPlugin = {
     path: join(__dirname, '../app/plugin/im-manager'),
   },
 
+  translate: {
+    enable: true,
+    path: join(__dirname, '../app/plugin/translate'),
+  },
+
 };
 
 export default plugin;

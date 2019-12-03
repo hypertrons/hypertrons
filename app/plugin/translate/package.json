@@ -1,0 +1,7 @@
+{
+  "name": "mentor-bot-translate-plugin",
+  "description": "translate plugin for mentor bot",
+  "eggPlugin": {
+    "name": "translate"
+  }
+}
