@@ -39,30 +39,6 @@ function generateTitle(repoName: string): KnownBlock[] {
 
 function generateRepoOverview(basicDataTable: Map<string, string>, issueAndPRsTable: Map<string, string>): KnownBlock[] {
 
-  const basicData: MrkdwnElement[] = [];
-  basicDataTable.forEach((value, key) => {
-    basicData.push({
-      type: 'mrkdwn',
-      text: key,
-    });
-    basicData.push({
-      type: 'mrkdwn',
-      text: value,
-    });
-  });
-
-  const issueAndPRs: MrkdwnElement[] = [];
-  issueAndPRsTable.forEach((value, key) => {
-    issueAndPRs.push({
-      type: 'mrkdwn',
-      text: key,
-    });
-    issueAndPRs.push({
-      type: 'mrkdwn',
-      text: value,
-    });
-  });
-
   const res: KnownBlock[] = [
     {
       type: 'section',
@@ -85,51 +61,73 @@ function generateRepoOverview(basicDataTable: Map<string, string>, issueAndPRsTa
         text: 'Baisc data shows how the watch, star, fork and contributors count changed in the passed week.',
       },
     },
-    {
+  ];
+
+  // push basicData table
+  if (basicDataTable && basicDataTable.size > 0) {
+    const basicData: MrkdwnElement[] = [];
+    basicDataTable.forEach((value, key) => {
+      basicData.push({
+        type: 'mrkdwn',
+        text: key,
+      });
+      basicData.push({
+        type: 'mrkdwn',
+        text: value,
+      });
+    });
+    res.push({
       type: 'section',
       fields: basicData,
+    });
+  }
+
+  // push issueAndPRs
+  res.push({
+    type: 'divider',
+  },
+  {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: '*Issues & PRs*',
     },
-    {
-      type: 'divider',
+  },
+  {
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: 'Issues & PRs show the new/closed issues/pull requests count in the passed week.',
     },
-    {
-      type: 'section',
-      text: {
+  });
+
+  // push issueAndPRs table
+  if (issueAndPRsTable && issueAndPRsTable.size > 0) {
+    const issueAndPRs: MrkdwnElement[] = [];
+    issueAndPRsTable.forEach((value, key) => {
+      issueAndPRs.push({
         type: 'mrkdwn',
-        text: '*Issues & PRs*',
-      },
-    },
-    {
-      type: 'section',
-      text: {
+        text: key,
+      });
+      issueAndPRs.push({
         type: 'mrkdwn',
-        text: 'Issues & PRs show the new/closed issues/pull requests count in the passed week.',
-      },
-    },
-    {
+        text: value,
+      });
+    });
+    res.push({
       type: 'section',
       fields: issueAndPRs,
-    },
-    {
-      type: 'divider',
-    },
-  ];
+    });
+  }
+  // push endline
+  res.push({
+    type: 'divider',
+  });
 
   return res;
 }
 
 function generatePRsOverview(prsTable: Map<string, string>, prsTotal: number): KnownBlock[] {
-  const prs: MrkdwnElement[] = [];
-  prsTable.forEach((value, key) => {
-    prs.push({
-      type: 'mrkdwn',
-      text: key,
-    });
-    prs.push({
-      type: 'mrkdwn',
-      text: value,
-    });
-  });
 
   const res: KnownBlock[] = [
     {
@@ -146,30 +144,37 @@ function generatePRsOverview(prsTable: Map<string, string>, prsTotal: number): K
         text: 'Thanks to contributions from community, ' + prsTotal + ' pull requests was merged in the repository last week. They are:',
       },
     },
-    {
+  ];
+
+  // push PR table
+  if (prsTable && prsTable.size > 0) {
+    const prs: MrkdwnElement[] = [];
+    prsTable.forEach((value, key) => {
+      prs.push({
+        type: 'mrkdwn',
+        text: key,
+      });
+      prs.push({
+        type: 'mrkdwn',
+        text: value,
+      });
+    });
+    res.push({
       type: 'section',
       fields: prs,
-    },
-    {
-      type: 'divider',
-    },
-  ];
+    });
+  }
+
+  // push endline
+  res.push({
+    type: 'divider',
+  });
 
   return res;
 }
 
 function generateCodeReviewsOverview(codeReviewsTable: Map<string, string>, repoName: string): KnownBlock[] {
-  const codeReviews: MrkdwnElement[] = [];
-  codeReviewsTable.forEach((value, key) => {
-    codeReviews.push({
-      type: 'mrkdwn',
-      text: key,
-    });
-    codeReviews.push({
-      type: 'mrkdwn',
-      text: value,
-    });
-  });
+
   const res: KnownBlock[] = [
     {
       type: 'section',
@@ -185,22 +190,36 @@ function generateCodeReviewsOverview(codeReviewsTable: Map<string, string>, repo
         text: repoName + ' encourages everyone to participant in code review, in order to improve software quality. This robot would automatically help to count pull request reviews of single github user as the following every week. So, try to help review code in this project.',
       },
     },
-    {
+  ];
+
+  // push codeReviews table
+  if (codeReviewsTable && codeReviewsTable.size > 0) {
+    const codeReviews: MrkdwnElement[] = [];
+    codeReviewsTable.forEach((value, key) => {
+      codeReviews.push({
+        type: 'mrkdwn',
+        text: key,
+      });
+      codeReviews.push({
+        type: 'mrkdwn',
+        text: value,
+      });
+    });
+    res.push({
       type: 'section',
       fields: codeReviews,
-    },
-    {
+    });
+  }
+
+  // push endline
+  res.push({
       type: 'divider',
-    },
-  ];
+    });
   return res;
 }
 
 function generateContributorsOverview(contributors: string[], repoName: string, contributingLink: string): KnownBlock[] {
-  let contributorStr = '';
-  contributors.forEach(v => {
-    contributorStr += '\n' + v;
-  });
+
   const res: KnownBlock[] = [
     {
       type: 'section',
@@ -213,24 +232,35 @@ function generateContributorsOverview(contributors: string[], repoName: string, 
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: 'It is ' + repoName + ' team\'s great honor to have new contributors from community. We really appreciate your contributions. Feel free to tell us if you have any opinion and please share this open source project with more people if you could. If you hope to be a contributor as well, please start from ' + contributingLink + ' .\n\nHere is the list of new contributors:\n\n',
+        text: 'It is ' + repoName + ' team\'s great honor to have new contributors from community. We really appreciate your contributions. Feel free to tell us if you have any opinion and please share this open source project with more people if you could. If you hope to be a contributor as well, please start from ' + contributingLink + ' .\n\n',
       },
     },
-    {
+
+  ];
+
+  // push contributors
+  if (contributors && contributors.length > 0) {
+    let contributorStr = 'Here is the list of new contributors:\n\n';
+    contributors.forEach(v => {
+      contributorStr += '\n' + v;
+    });
+    res.push({
       type: 'section',
       text: {
         type: 'mrkdwn',
         text: contributorStr,
       },
+    });
+  }
+
+  // push endline
+  res.push({
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: '\n\nThanks to you all.',
     },
-    {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: '\n\nThanks to you all.',
-      },
-    },
-  ];
+  });
 
   return res;
 }
