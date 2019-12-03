@@ -104,26 +104,44 @@ function formatPullRequest(pr: RawPullRequest): PullRequest {
   };
 }
 
-export async function getPullRequests(client: GitlabGraphqlClient, name: string): Promise<PullRequest[]> {
+export async function getPullRequests(client: GitlabGraphqlClient, name: string, pcount?: number): Promise<PullRequest[]> {
   // fetch 5 pull request each time.
-  const icount = 5;
-  const arr: number[] = [ 1, 2, 3, 4, 5 ];
+  const icount = pcount ? pcount : 5;
+  const arr = Array.from(Array(icount + 1).keys()).slice(1);
   let all_prs: PullRequest[] = [];
   let base: number = 0;
   let return_length: number = icount;
-  while (return_length === icount) {
+  const MAX_TOLERANCE = 3;
+  let tolerance = MAX_TOLERANCE; // just in case pr is deleted.
+  let tmp = '';
+  while (return_length === icount || tolerance > 0) {
     const iids = arr.map(a => (a + base).toString());
     base += icount;
-    const res = JSON.parse(
-      await client.query(pullrequest_query, {
+    try {
+      tmp = await client.query(pullrequest_query, {
         fullPath: name,
         iids_list: iids,
-      }),
-    );
-    const raw_prs = res.data.project.mergeRequests.edges;
-    return_length = raw_prs.length;
-    const part_prs = raw_prs.map(x => formatPullRequest(x.node));
-    all_prs = all_prs.concat(part_prs);
+      });
+      const res = JSON.parse(tmp);
+      const raw_prs = res.data.project.mergeRequests.edges;
+      return_length = raw_prs.length;
+      const part_prs = raw_prs.map(x => formatPullRequest(x.node));
+      all_prs = all_prs.concat(part_prs);
+    } catch (e) {
+      console.log(e.message);
+      console.log(tmp);
+    }
+    if (return_length === icount) {
+      tolerance = MAX_TOLERANCE;
+    } else if (return_length < icount && tolerance === MAX_TOLERANCE) {
+      tolerance = MAX_TOLERANCE - 1;
+    } else { // return_length < icount && tolerance < MAX_TOLERANCE
+      if (return_length === 0) {
+        tolerance -= 1;
+      } else {
+        tolerance = MAX_TOLERANCE - 1;
+      }
+    }
   }
   return all_prs;
 }
