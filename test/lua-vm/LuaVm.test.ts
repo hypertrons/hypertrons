@@ -43,6 +43,28 @@ describe('LuaVm', () => {
     assert(result === a + b);
   });
 
+  it('Should support boolean', () => {
+    const c = true;
+    luaVm.set('c', c);
+    const result = luaVm.run(`
+if (c)
+then
+  return true
+end
+return 1
+`);
+    assert(result === true);
+  });
+
+  it('Should support array', () => {
+    luaVm.set('c', [ 1, 2, 3 ]);
+    const result = luaVm.run(`
+c[3] = 5;
+return c
+`);
+    assert(result[2] === 5);
+  });
+
   it('Should exec injected functions', () => {
     const a = 2, b = 3;
     const add = (a: number, b: number): number => {
@@ -111,6 +133,31 @@ function (r)
   return func2(r - c);
 end)`);
     assert(res === ((a - b + c) * b) * ((a + b - c) * b));
+  });
+
+  it('Should get value inside a map', () => {
+    const a = 2, b = 3, c = 4;
+    let res = 0;
+    const func = (m: Map<string, number>, cb: (r: Map<string, any>) => void): void => {
+      const map = new Map<string, number>();
+      const a = m.get('a') || 0;
+      const b = m.get('b') || 0;
+      map.set('num', a - b);
+      cb(map);
+    };
+    const cb = (r: Map<string, number>): void => {
+      res = r.get('num') || 0;
+    };
+
+    const map = new Map<string, number>().set('a', a).set('b', b).set('c', c);
+    luaVm.set('func', func).set('cb', cb).set('map', map);
+    luaVm.run(`
+func(map, function (r)
+  t = {}
+  t['num'] = r.num + map.c
+  cb(t)
+end)`);
+    assert(res === a - b + c);
   });
 
   describe('Integrate test with app', () => {
