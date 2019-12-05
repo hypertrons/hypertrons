@@ -32,11 +32,9 @@
       }
     ]
   },
-  "issue-auto-label": {
-    "enable": true
-  },
   "weekly-report": {
     "enable": true,
     "generateTime": "0 0 12 * * 1"
-  }
+  },
+  "lua": ".github/hypertrons.lua"
 }

@@ -87,7 +87,7 @@ return c
     luaVm.set('func', func).set('cb', cb).set('a', a).set('b', b).set('c', c);
     luaVm.run(`
 func(a, b, function (r)
-    cb(r + c)
+  cb(r + c)
 end)`);
     assert(res === a - b + c);
   });
@@ -154,6 +154,7 @@ end)`);
     luaVm.run(`
 func(map, function (r)
   t = {}
+  t['__Meta__'] = 1   -- set tabel['__Meta__'] = 1 to indicate this is a map
   t['num'] = r.num + map.c
   cb(t)
 end)`);
@@ -191,7 +192,7 @@ end)`);
       luaVm.set('on', on).set('test', test);
       luaVm.run(`
 on('TestEvent', function (e)
-    test(e)
+  test(e)
 end)`);
       agent.event.publish('worker', TestEvent, { num: 5 });
       await waitFor(20);
