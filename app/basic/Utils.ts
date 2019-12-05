@@ -63,7 +63,7 @@ export class AutoCreateMap<K, V> extends Map<K, V> {
 export function customizerMerge(...objs: any[]): any {
 
   if (!objs || objs.length === 0) {
-    return { };
+    return {};
   }
   const errorList: any[] = [];
   try {
@@ -73,9 +73,13 @@ export function customizerMerge(...objs: any[]): any {
           errorList.push(`Invailed typeof ${srcValue} ${typeof srcValue}, ${objValue} require ${typeof objValue}, key=${key}`);
           return objValue ? objValue : {};
         }
-        if (isArray(srcValue) && srcValue[0] && srcValue[0].__merge__ === true) {
+        if (isArray(srcValue)) {
+          if (srcValue[0] && srcValue[0].__merge__ === true) {
             (srcValue as any[]).shift();
             return objValue.concat(srcValue.filter(v => !objValue.includes(v)));
+          } else {
+            return srcValue;
+          }
         }
       });
     }
@@ -93,14 +97,11 @@ export function customizerMerge(...objs: any[]): any {
 }
 
 export function ParseDate(date: string | number | null): Date | null {
-  try {
-    if (date !== null) {
-      return new Date(date);
-    }
-    return null;
-  } catch (error) {
-    return null;
+  if (date !== null) {
+    const res = new Date(date);
+    if (res.toString() !== 'Invalid Date') return res;
   }
+  return null;
 }
 
 export interface BotLogger {
