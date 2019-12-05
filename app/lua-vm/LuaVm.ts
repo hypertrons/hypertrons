@@ -19,12 +19,50 @@ const lua = fengari.lua;
 const lauxlib = fengari.lauxlib;
 const lualib = fengari.lualib;
 
+const luaBuidinCode = `
+local escapeLuaString
+do
+  local matches =
+  {
+    ["^"] = "%^";
+    ["$"] = "%$";
+    ["("] = "%(";
+    [")"] = "%)";
+    ["%"] = "%%";
+    ["."] = "%.";
+    ["["] = "%[";
+    ["]"] = "%]";
+    ["*"] = "%*";
+    ["+"] = "%+";
+    ["-"] = "%-";
+    ["?"] = "%?";
+  }
+
+  escapeLuaString = function(s)
+    return (s:gsub(".", matches))
+  end
+end
+
+local arrayContains = function(arr, predict)
+  for i=1, #arr do
+    if(predict(arr[i])) then
+      return true
+    end
+  end
+  return false
+end
+`;
+
 export class LuaVm {
 
   private L: any;
   private ctx: Map<string, any>;
   private decoder: any;
-  private MAGIC = 29384123;
+  private META_TYPE_KEY = '__Meta__';
+  private MetaType = {
+    MAP: 1,
+    OBJ: 2,
+  };
 
   constructor() {
     this.L = lauxlib.luaL_newstate();
@@ -34,6 +72,7 @@ export class LuaVm {
   }
 
   public run(source: string): any {
+    source = luaBuidinCode + source;
     for (const [ key, value ] of this.ctx) {
       const n = this.pushStackValue(value);
       if (n !== 0) {
@@ -44,15 +83,15 @@ export class LuaVm {
     return this.getStackValue(-1);
   }
 
-  public set(key: string, value: any): this {
+  public set(key: string, value: any, target?: any): this {
     if (typeof value === 'function') {
-      value = this.wrapFunc(value);
+      value = this.wrapFunc(value, target);
     }
     this.ctx.set(key, value);
     return this;
   }
 
-  private wrapFunc(func: (...args: any[]) => any): any {
+  private wrapFunc(func: (...args: any[]) => any, target?: any): any {
     const wrapped = (): any => {
       // call in ts
       const nArgs = lua.lua_gettop(this.L);
@@ -60,7 +99,8 @@ export class LuaVm {
       for (let i = 0 ; i < nArgs; i++) {
         args.push(this.getStackValue(i + 1));
       }
-      const res = func(...args);
+      // use call function to inject this object
+      const res = func.call(target, ...args);
       // set return value
       return this.pushStackValue(res);
     };
@@ -108,18 +148,18 @@ export class LuaVm {
           return ret;
         };
       case 'table':
-        let magic = this.MAGIC + 1;
+        let v: any;
         try {
-          lua.lua_rawgeti(this.L, -1, 0);
-          magic = this.getStackValue(-1);
+          lua.lua_rawgeti(this.L, index, 1);
+          v = this.getStackValue(-1);
           lua.lua_pop(this.L, 1);
         // tslint:disable-next-line: no-empty
         } catch { }
-        if (magic === this.MAGIC) {
+        if (v !== null && v !== undefined) {  // need to check like this
           // array
           const arr: any[] = [];
           for (let i = 1; ; i++) {
-            lua.lua_rawgeti(this.L, -1, i);
+            lua.lua_rawgeti(this.L, index, i);
             const v = this.getStackValue(-1);
             lua.lua_pop(this.L, 1);
             if (!v) break;
@@ -139,7 +179,26 @@ export class LuaVm {
             }
             lua.lua_pop(this.L, 1);
           }
-          return map;
+
+          const type = map.get(this.META_TYPE_KEY);
+          map.delete(this.META_TYPE_KEY);
+          if (type && type === this.MetaType.MAP) {
+            return map;
+          }
+          // default return as obj
+          const mapToObj = (map: Map<string, any>): any => {
+            const ret: any = {};
+            map.forEach((v, k) => {
+              if (v instanceof Map) {
+                ret[k] = mapToObj(v);
+              } else {
+                ret[k] = v;
+              }
+            });
+            return ret;
+          };
+          const obj = mapToObj(map);
+          return obj;
         }
       case 'no value':
         return undefined;
@@ -169,6 +228,9 @@ export class LuaVm {
           // the key must be in string type, the value can be any type
           lua.lua_newtable(this.L);
           for (const [ k, v ] of value) {
+            lua.lua_pushstring(this.L, this.META_TYPE_KEY);
+            lua.lua_pushnumber(this.L, this.MetaType.MAP);
+            lua.lua_settable(this.L, -3);
             if (typeof k === 'string') {
               lua.lua_pushstring(this.L, k);
               const n = this.pushStackValue(v);
@@ -185,8 +247,6 @@ export class LuaVm {
         } else if (Array.isArray(value)) {
           // if pass in an array, push as a table, set index and value
           lua.lua_newtable(this.L);
-          this.pushStackValue(this.MAGIC);
-          lua.lua_rawseti(this.L, -2, 0); // set -1 to MAGIC
           (value as any[]).forEach((v, i) => {
             const n = this.pushStackValue(v);
             if (n !== 0) {
@@ -196,7 +256,24 @@ export class LuaVm {
             }
           });
         } else {
-          lua.lua_pushlightuserdata(this.L, value);
+          lua.lua_newtable(this.L);
+          lua.lua_pushstring(this.L, this.META_TYPE_KEY);
+          lua.lua_pushnumber(this.L, this.MetaType.OBJ);
+          lua.lua_settable(this.L, -3);
+          Object.keys(value).forEach(key => {
+            if (typeof key === 'string') {
+              lua.lua_pushstring(this.L, key);
+              const n = this.pushStackValue(value[key]);
+              if (n === 0) {
+                // not support type or not push into stack
+                // pop out the key
+                lua.lua_pop(this.L, 1);
+              } else {
+                // set table value into table
+                lua.lua_settable(this.L, -3);
+              }
+            }
+          });
         }
         break;
       case 'function':

@@ -23,6 +23,8 @@ import { cloneDeep } from 'lodash';
 import { getConfigMeta } from '../../config-generator/decorators';
 import { IClient } from '../installation-manager/IClient';
 
+export const LUA_SCRIPT_KEY = 'lua';
+
 export class AppComponentManager extends AppPluginBase<Config> {
 
   private componentHelper: ComponentHelper;
@@ -70,6 +72,8 @@ export class AppComponentManager extends AppPluginBase<Config> {
       componentsDir.forEach(path => {
         this.loadComponent(join(basePath, path), path);
       });
+      // set _lua script field
+      this.defaultConfig[LUA_SCRIPT_KEY] = '';
       this.componentLoaded = true;
     } catch (e) {
       this.logger.error(`Error while load components, e=${e}`);

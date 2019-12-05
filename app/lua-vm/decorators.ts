@@ -12,10 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Config from './config';
+import 'reflect-metadata';
 
-const defaultConfig: Config = {
-  enable: false,
-};
-
-export default defaultConfig;
+export function luaMethod(): MethodDecorator {
+  return (target, property, descriptor) => {
+    const obj = target as any;
+    const key = String(property);
+    if (typeof obj.setInjectFunction === 'function' && String(key).startsWith('lua_')) {
+      obj.setInjectFunction(key.substring(4), descriptor.value);
+    }
+  };
+}

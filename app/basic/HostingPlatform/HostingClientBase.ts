@@ -12,25 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { BotLogger, loggerWrapper } from '../Utils';
+import { BotLogger, loggerWrapper, waitUntil } from '../Utils';
 import { Application } from 'egg';
 import { IClient } from '../../plugin/installation-manager/IClient';
 import { Repo, CheckRun } from '../DataTypes';
+import { LuaVm } from '../../lua-vm/LuaVm';
+import { luaMethod } from '../../lua-vm/decorators';
+import { IssueEvent } from '../../plugin/event-manager/events';
+import { getClassName } from '../../plugin/event-manager/Helper';
+import { LUA_SCRIPT_KEY } from '../../plugin/component-manager/AppComponentManager';
 
 export abstract class HostingClientBase<TRawClient> implements IClient {
 
   public hostId: number;
   public rawClient: TRawClient;
   public name: string;
+  private app: Application;
   protected logger: BotLogger;
   protected config: any;
   protected repoData: Repo;
+  protected luaVm: LuaVm;
+  public luaInjectMethods: Map<string, any>;
 
   constructor(name: string, hostId: number, app: Application) {
     this.name = name;
     this.hostId = hostId;
     this.config = null;
+    this.app = app;
     this.logger = loggerWrapper(app.logger, `[host-client-${this.hostId}-${this.name}]`);
+    this.runLuaScript();
   }
 
   public abstract async getFileContent(path: string): Promise<string | undefined>;
@@ -58,6 +68,71 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
       return this.config[comp] as TConfig;
     }
     return undefined;
+  }
+
+  public setInjectFunction(key: string, value: any): void {
+    if (!this.luaInjectMethods) {
+      this.luaInjectMethods = new Map<string, any>();
+    }
+    this.luaInjectMethods.set(key, value);
+  }
+
+  @luaMethod()
+  protected lua_on(eventType: string, cb: (e: any) => void) {
+    switch (eventType) {
+      case getClassName(IssueEvent):
+        this.app.event.subscribeOne(IssueEvent, async e => {
+          if (!e.issue) return;
+          cb({
+            action: e.action,
+            number: e.issue.number,
+            title: e.issue.title,
+            body: e.issue.body,
+            author: e.issue.author,
+          });
+        });
+        break;
+      default:
+        return;
+    }
+  }
+
+  @luaMethod()
+  protected lua_addLabels(num: number, labels: string[]): void {
+    this.addLabels(num, labels);
+  }
+
+  @luaMethod()
+  protected lua_log(...msg: string[]): void {
+    this.logger.info('From lua:', ...msg);
+  }
+
+  private async runLuaScript(): Promise<void> {
+    await waitUntil(() => this.config !== null);
+    const luaPath = this.getCompConfig<string>(LUA_SCRIPT_KEY);
+    if (!luaPath || luaPath === '') {
+      // do not init if no lua script in config
+      return;
+    }
+    const luaContent = await this.getFileContent(luaPath);
+    if (!luaContent || luaContent === '') {
+      // do not init if no lua script content found
+      return;
+    }
+
+    this.luaVm = new LuaVm();
+    // set methods
+    if (this.luaInjectMethods) {
+      this.luaInjectMethods.forEach((v, k) => {
+        this.luaVm.set(k, v, this);
+      });
+    }
+    // set configs
+    this.luaVm.set('config', this.config);
+
+    // run script
+    const res = this.luaVm.run(luaContent);
+    this.logger.info('Lua exec result,', res);
   }
 
 }

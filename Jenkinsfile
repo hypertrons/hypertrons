@@ -11,6 +11,7 @@ pipeline {
     stages {
         stage('Install') {
             steps{
+                sh 'npm config set registry=http://registry.npm.taobao.org'
                 sh 'npm install'
                 sh 'npm install typescript@latest -g'
             }
