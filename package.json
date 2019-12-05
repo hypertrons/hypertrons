@@ -39,6 +39,7 @@
     "github-data-cat": "^1.0.1",
     "gitlab": "^12.0.0",
     "http2": "^3.3.7",
+    "google-translate": "^3.0.0",
     "license-check": "^1.1.5",
     "lodash": "^4.17.15",
     "node-fetch": "^2.6.0",
