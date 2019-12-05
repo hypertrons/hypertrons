@@ -14,7 +14,7 @@
 
 'use strict';
 
-import assert from 'assert';
+import assert, { deepEqual } from 'assert';
 import * as Utils from '../../../app/basic/Utils';
 
 describe('Utils', () => {
@@ -70,11 +70,167 @@ describe('Utils', () => {
   });
 
   describe('customizerMerge', () => {
+    it('should be {} if pass 0 param', async () => {
+      const res = Utils.customizerMerge();
+      deepEqual({}, res);
+    });
+
+    it('should be raw value if pass 1 param', async () => {
+      const a = {};
+      const res = Utils.customizerMerge(a);
+      deepEqual(res.config, a);
+      assert(res.error.length === 0);
+    });
+
+    it('should be {} if attr not exist', async () => {
+      const a = { a: 1 };
+      const b = { a: 2, b: 3 };
+      const res = Utils.customizerMerge(a, b);
+      deepEqual(res.config, { a: 2, b: {} });
+    });
+
+    it('should be {} if attr not exist multi', async () => {
+      const a = { a: 1 };
+      const b = { a: 2, b: 3 };
+      const c = { a: 2, b: 'c' };
+      const res = Utils.customizerMerge(a, b, c);
+      deepEqual(res.config, { a: 2, b: {} });
+    });
+
+    it('should be {} if attr not exist multi', async () => {
+      const a = { a: 1 };
+      const b = { a: 2, b: 3 };
+      const c = { a: 2, b: { c: 'c' } };
+      const res = Utils.customizerMerge(a, b, c);
+      deepEqual(res.config, { a: 2, b: { c : {} } });
+    });
+
+    it('should not overwrite if type not match', async () => {
+      const a = { a: 1, b: 2 };
+      const b = { a: 2, b: '2' };
+      const res = Utils.customizerMerge(a, b);
+      deepEqual(res.config, { a: 2, b: 2 });
+    });
+
+    it('array overwrite 1', async () => {
+      const a = { a: 1, b: [ 1 ] };
+      const b = { a: 2, b: [] };
+      const res = Utils.customizerMerge(a, b);
+      deepEqual(res.config, { a: 2, b: [] });
+    });
+
+    it('array overwrite 2', async () => {
+      const a = { a: 1, b: [ 2 ] };
+      const b = { a: 2, b: [ 1 ] };
+      const res = Utils.customizerMerge(a, b);
+      deepEqual(res.config, { a: 2, b: [ 1 ] });
+    });
+
+    it('array overwrite 3', async () => {
+      const a = { a: 1, b: [ 1, 2 ] };
+      const b = { a: 2, b: [ 1 ] };
+      const res = Utils.customizerMerge(a, b);
+      deepEqual(res.config, { a: 2, b: [ 1 ] });
+    });
+
+    it('multi array overwrite 1', async () => {
+      const a = { a: 1, b: [ 1 ] };
+      const b = { a: 2, b: [ 2 ] };
+      const c = { a: 2, b: [] };
+      const res = Utils.customizerMerge(a, b, c);
+      deepEqual(res.config, { a: 2, b: [] });
+    });
+
+    it('multi array overwrite 2', async () => {
+      const a = { a: 1, b: [ 1 ] };
+      const b = { a: 2, b: [ 2, 3 ] };
+      const c = { a: 2, b: [ 4, 5 ] };
+      const res = Utils.customizerMerge(a, b, c);
+      deepEqual(res.config, { a: 2, b: [ 4, 5 ] });
+    });
+
+    it('multi array overwrite 3', async () => {
+      const a = { a: 1, b: [ 1, 2 ] };
+      const b = { a: 2, b: [] };
+      const c = { a: 2, b: [ 4, 5 ] };
+      const res = Utils.customizerMerge(a, b, c);
+      deepEqual(res.config, { a: 2, b: [ 4, 5 ] });
+    });
+
+    it('array merge 1', async () => {
+      const a = { a: 1, b: [ 1 ] };
+      const b = { a: 2, b: [{ __merge__: true }, 1 ] };
+      const res = Utils.customizerMerge(a, b);
+      deepEqual(res.config, { a: 2, b: [ 1 ] });
+    });
+
+    it('array merge 2', async () => {
+      const a = { a: 1, b: [ 1, 2 ] };
+      const b = { a: 2, b: [{ __merge__: true }, 1, 2, 3 ] };
+      const res = Utils.customizerMerge(a, b);
+      deepEqual(res.config, { a: 2, b: [ 1, 2, 3 ] });
+    });
+
+    it('array merge 3', async () => {
+      const a = { a: 1, b: [ 1, 2 ] };
+      const b = { a: 2, b: [{ __merge__: true }, 3, 4 ] };
+      const res = Utils.customizerMerge(a, b);
+      deepEqual(res.config, { a: 2, b: [ 1, 2, 3, 4 ] });
+    });
+
+    it('multi array merge', async () => {
+      const a = { a: 1, b: [ 1, 2 ] };
+      const b = { a: 2, b: [{ __merge__: true }, 3, 4 ] };
+      const c = { a: 2, b: [{ __merge__: true }, 5, 6 ] };
+      const res = Utils.customizerMerge(a, b, c);
+      deepEqual(res.config, { a: 2, b: [ 1, 2, 3, 4, 5, 6 ] });
+    });
+
+    it('multi array merge and overwrite 1', async () => {
+      const a = { a: 1, b: [ 1, 2 ] };
+      const b = { a: 2, b: [ 3, 4 ] };
+      const c = { a: 2, b: [{ __merge__: true }, 5, 6 ] };
+      const res = Utils.customizerMerge(a, b, c);
+      deepEqual(res.config, { a: 2, b: [ 3, 4, 5, 6 ] });
+    });
+
+    it('multi array merge and overwrite 2', async () => {
+      const a = { a: 1, b: [ 1, 2 ] };
+      const b = { a: 2, b: [{ __merge__: true }, 3, 4 ] };
+      const c = { a: 2, b: [ 3, 4 ] };
+      const res = Utils.customizerMerge(a, b, c);
+      deepEqual(res.config, { a: 2, b: [ 3, 4 ] });
+    });
 
   });
 
   describe('parseDate', () => {
+    it('should return null if pass null', async () => {
+      let res = Utils.ParseDate(null);
+      assert(res === null);
 
+      res = Utils.ParseDate('');
+      assert(res === null);
+    });
+
+    it('should return null if pass error format value', async () => {
+      const res = Utils.ParseDate('enkanfd');
+      assert(res === null);
+    });
+
+    it('should return null if pass error format value', async () => {
+      const res = Utils.ParseDate('0.123');
+      assert(res === null);
+    });
+
+    it('should return currect value if pass currect value', async () => {
+      const res = Utils.ParseDate('2019-12-05T15:54:17.000Z');
+      if (res !== null) {
+        assert(res.toDateString() === 'Thu Dec 05 2019');
+      } else {
+        assert(false);
+      }
+    });
   });
 
   describe('waitUntil', () => {
