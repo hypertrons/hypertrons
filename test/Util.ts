@@ -25,10 +25,15 @@ export function waitFor(milliseconds: number): Promise<void> {
 }
 
 // simulate ipc so that agent and app can communicate with each other
-export function initIpc(app: MockApplication, milliseconds: number = 10) {
-  process.env.SENDMESSAGE_ONE_PROCESS = 'true';
-  app.messenger.sendTo(process.pid, 'egg-pids', [ process.pid ]);
-  return waitFor(milliseconds);
+export function initIpc(app: MockApplication) {
+  const appMessenger: any = app.messenger;
+  const agentMessenger: any = (app as any).agent.messenger;
+  appMessenger.sendRandom = ((action, data) => {
+    appMessenger.sendToAgent(action, data);
+  });
+  agentMessenger.sendRandom = ((action, data) => {
+    agentMessenger.sendToApp(action, data);
+  });
 }
 
 // prepare application for unit test
@@ -37,7 +42,7 @@ export async function prepareTestApplication(): Promise<{app: Application, agent
     cache: false,
   });
   await app.ready();
-  await initIpc(app);
+  initIpc(app);
   return {
     app,
     agent: (app as any).agent,
@@ -46,11 +51,9 @@ export async function prepareTestApplication(): Promise<{app: Application, agent
 
 export function testClear(app?: Application, agent?: Agent) {
   if (app) {
-    (app.messenger as any).close();
     app.close();
   }
   if (agent) {
-    (agent.messenger as any).close();
     agent.close();
   }
   mock.restore();
