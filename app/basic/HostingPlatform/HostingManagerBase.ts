@@ -20,7 +20,7 @@ import { HostingClientBase } from './HostingClientBase';
 import { waitUntil } from '../Utils';
 import { HostingConfigBase } from './HostingConfigBase';
 import { ConfigLoader } from './ConfigLoader';
-import { RepoConfigLoadedEvent, RepoAddedEvent, CIRunFinishedEvent, PushEvent } from '../../plugin/event-manager/events';
+import { RepoConfigLoadedEvent, RepoAddedEvent, PushEvent } from '../../plugin/event-manager/events';
 
 export abstract class HostingManagerBase<THostingPlatform extends HostingBase<TConfig, TClient, TRawClient>,
   TClient extends HostingClientBase<TRawClient>, TRawClient,
@@ -118,14 +118,6 @@ export abstract class HostingManagerBase<THostingPlatform extends HostingBase<TC
           this.logger.info(`Start to update config for ${hp.getName()}, repo=${e.fullName}`);
           (client as any).config = e.config;
         }
-      }
-    });
-
-    this.app.event.subscribeOne(CIRunFinishedEvent, async e => {
-      if (e.client) {
-        e.client.createCheckRun(e.ciRunOutput);
-      } else {
-        this.logger.warn('client is null');
       }
     });
 

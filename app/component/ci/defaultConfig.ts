@@ -12,13 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Config from './config';
-import { defaultConfig as JenkinsDefaultConfig } from '../../plugin/ci-jenkins/JenkinsConfig';
+import Config, { JenkinsConfig } from './config';
+import { CIPlatform } from '../../basic/DataTypes';
+
+export const jenkinsDefaultConfig: JenkinsConfig = {
+  name: '',
+  platform: CIPlatform.Jenkins,
+  endpoint: '',
+  user: '',
+  token: '',
+  repoToJobMap: [ ],
+};
 
 const defaultConfig: Config = {
   enable: false,
-  ciName: 'jenkins',
-  ciConfig: JenkinsDefaultConfig,
+  configs: [ ],
 };
 
 export default defaultConfig;

@@ -12,13 +12,76 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/**
- * Warnning: extend ciConfig when add new ci platform, for example, JenkinsConfig | TravisConfig
- */
-import { JenkinsConfig } from '../../plugin/ci-jenkins/JenkinsConfig';
 import { configClass, configProp } from '../../config-generator/decorators';
-import defaultConfig from './defaultConfig';
+import defaultConfig, { jenkinsDefaultConfig } from './defaultConfig';
+import { CIPlatform } from '../../basic/DataTypes';
 
+@configClass({
+  description: 'Repo to job map',
+})
+export class RepoJobMap {
+  @configProp({
+    description: 'Repo name',
+    defaultValue: jenkinsDefaultConfig.name,
+  })
+  repo: string;
+
+  @configProp({
+    description: 'Job name',
+    defaultValue: jenkinsDefaultConfig.name,
+  })
+  job: string;
+}
+
+@configClass({
+  description: 'Jenkins config type',
+})
+export class JenkinsConfig {
+
+  @configProp({
+    description: 'Jenkins platform name',
+    defaultValue: jenkinsDefaultConfig.name,
+  })
+  name: string;
+
+  @configProp({
+    description: 'Platform name, must be CIPlatform.Jenkins',
+    defaultValue: jenkinsDefaultConfig.platform,
+  })
+  platform: CIPlatform.Jenkins;
+
+  @configProp({
+    description: 'Jenkins platform endpoint',
+    defaultValue: jenkinsDefaultConfig.endpoint,
+  })
+  endpoint: string;
+
+  @configProp({
+    description: 'Jenkins platform user',
+    defaultValue: jenkinsDefaultConfig.user,
+  })
+  user: string;
+
+  @configProp({
+    description: 'Jenkins platform token',
+    defaultValue: jenkinsDefaultConfig.token,
+  })
+  token: string;
+
+  @configProp({
+    description: 'Jenkins platform job map',
+    type: 'array',
+    arrayType: RepoJobMap,
+    defaultValue: jenkinsDefaultConfig.repoToJobMap,
+  })
+  repoToJobMap: RepoJobMap[];
+}
+
+/**
+ * Warnning: extend configs and arrayType when add new ci platform,
+ * for example, configs: (JenkinsConfig | TravisConfig)[]
+ * arrayType: JenkinsConfig | TravisConfig,
+ */
 @configClass({
    description: 'CI platform config',
  })
@@ -31,18 +94,10 @@ export default class Config {
   enable: boolean;
 
   @configProp({
-    description: 'CI platform type',
-    type: 'enum',
-    enumValues: [ 'jenkins' ],
-    defaultValue: defaultConfig.ciName,
+    description: 'CI Platform configs',
+    type: 'array',
+    arrayType: JenkinsConfig,
+    defaultValue: defaultConfig.configs,
   })
-  ciName: string;
-
-  @configProp({
-    description: 'Jenkins config',
-    type: 'object',
-    classType: JenkinsConfig,
-    defaultValue: defaultConfig.ciConfig,
-  })
-  ciConfig: JenkinsConfig;
+  configs: JenkinsConfig[];
 }

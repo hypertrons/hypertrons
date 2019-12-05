@@ -38,6 +38,7 @@
     "fengari": "^0.1.4",
     "github-data-cat": "^1.0.1",
     "gitlab": "^12.0.0",
+    "http2": "^3.3.7",
     "license-check": "^1.1.5",
     "lodash": "^4.17.15",
     "node-fetch": "^2.6.0",
@@ -46,12 +47,13 @@
     "p-wait-for": "^3.1.0",
     "pope": "^2.0.2",
     "reflect-metadata": "^0.1.13",
-    "smee-client": "^1.1.0"
+    "smee-client": "^1.1.0",
+    "xml2js": "^0.4.19"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.149",
     "@types/mocha": "^2.2.40",
-    "@types/node": "^7.0.12",
+    "@types/node": "^12.12.14",
     "@types/node-schedule": "^1.2.4",
     "@types/supertest": "^2.0.0",
     "autod": "^3.0.1",

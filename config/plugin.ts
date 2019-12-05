@@ -51,9 +51,9 @@ const plugin: EggPlugin = {
     path: join(__dirname, '../app/plugin/component-manager'),
   },
 
-  jenkins: {
+  ciManager: {
     enable: true,
-    path: join(__dirname, '../app/plugin/ci-jenkins'),
+    path: join(__dirname, '../app/plugin/ci-manager'),
   },
 
   imManager: {

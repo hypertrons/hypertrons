@@ -1,0 +1,7 @@
+{
+  "name": "mentor-bot-ci-manager",
+  "description": "CI plugin for mentor bot",
+  "eggPlugin": {
+    "name": "ciManager"
+  }
+}
