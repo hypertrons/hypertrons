@@ -114,13 +114,13 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
     // setup router
     const path = join(this.id.toString(), config.webhook.path);
     this.logger.info(`Goona add webhook to "installation/${path}" for hosting ${this.name}`);
-    this.app.installation.get(path, async (ctx: Context, next: any) => {
+    this.app.installation.post(path, async (ctx: Context, next: any) => {
       // pass to webhooks
       this.webhooks.verifyAndReceive({
-        id: ctx.headers['x-request-id'],
+        id: ctx.headers['x-github-delivery'],
         name: ctx.headers['x-github-event'],
         signature: ctx.headers['x-hub-signature'],
-        payload: ctx.body,
+        payload: ctx.request.body,
       }).catch(this.logger.error);
       ctx.body = 'ok';
       await next();
