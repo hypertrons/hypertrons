@@ -13,22 +13,47 @@
 // limitations under the License.
 
 import { ComponentContext } from '../../basic/ComponentHelper';
-import Config from './config';
-import { CIRunEvent, PullRequestEvent } from '../../plugin/event-manager/events';
+import Config, { JenkinsConfig } from './config';
+import { CIRunEvent } from '../../plugin/event-manager/events';
+import { CIPlatform } from '../../basic/DataTypes';
+import { parseRepoName } from '../../basic/Utils';
 
 export default async (ctx: ComponentContext<Config>) => {
-  ctx.logger.info('Start to load ci component');
+  ctx.app.event.subscribeOne(CIRunEvent, async e => {
 
-  ctx.app.event.subscribeOne(PullRequestEvent, async e => {
-    if (e.client) {
-      const config = e.client.getCompConfig<Config>('ci');
-      if (config !== undefined && config.enable && config.ciName === 'jenkins' && e.pullRequest) {
-        ctx.app.event.publish('all', CIRunEvent, {
-          ciName: config.ciName,
-          ciConfig: config.ciConfig,
-          pullRequest: e.pullRequest,
-        });
-      }
+    if (!e.client || !e.pullNumber) return;
+
+    const ciConfigs = e.client.getCompConfig<Config>('ci');
+    if (!ciConfigs ||
+        !ciConfigs.enable || ciConfigs.enable !== true ||
+        !ciConfigs.configs || ciConfigs.configs.length === 0) return;
+
+    const repoName = parseRepoName(e.fullName).repo;
+    if (e.ciName) { // exact match
+      ciConfigs.configs.forEach(c => {
+        if (c.name === e.ciName && c.repoToJobMap && c.repoToJobMap.length > 0) {
+          doCIRun(ctx, repoName, e.pullNumber, c);
+          return;
+        }
+      });
+    } else {  // first match
+      ciConfigs.configs.forEach(c => {
+        if (c.repoToJobMap && c.repoToJobMap.length > 0) {
+          doCIRun(ctx, repoName, e.pullNumber, c);
+          return;
+        }
+      });
     }
   });
 };
+
+function doCIRun(ctx: ComponentContext<Config>, repo: string, pullNum: number, config: JenkinsConfig) {
+  config.repoToJobMap.forEach(r2j => {
+    if (r2j.repo === repo && r2j.job) {
+      if (config.platform === CIPlatform.Jenkins) {
+        ctx.app.ciManager.runJenkins(r2j.job, pullNum.toString(), config);
+        return;
+      }
+    }
+  });
+}

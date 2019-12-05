@@ -12,16 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Application } from 'egg';
-import { JenkinsManager } from './JenkinsManager';
-import { AppPluginBase } from '../../basic/AppPluginBase';
-
-declare module 'egg' {
-  interface Application {
-    jenkins: JenkinsManager;
-  }
-}
-
-module.exports = (app: Application) => {
-  AppPluginBase.LoadToApp('jenkins', JenkinsManager, app);
+export default {
+  ciManager: {
+    client: { },
+  },
 };

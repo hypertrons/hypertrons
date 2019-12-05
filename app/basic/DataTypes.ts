@@ -173,3 +173,7 @@ export interface Pusher {
   name: string;
   email: string;
 }
+
+export enum CIPlatform {
+  Jenkins = 'jenkins',
+}
