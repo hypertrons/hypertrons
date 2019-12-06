@@ -13,11 +13,14 @@
 // limitations under the License.
 
 import fengari from 'fengari';
+import { luaopen_base } from 'fengari/src/lbaselib';
+import { luaopen_math } from 'fengari/src/lmathlib';
+import { luaopen_string } from 'fengari/src/lstrlib';
+import { luaopen_table } from 'fengari/src/ltablib';
 import { TextDecoder } from 'text-encoding';
 
 const lua = fengari.lua;
 const lauxlib = fengari.lauxlib;
-const lualib = fengari.lualib;
 
 const luaBuidinCode = `
 local escapeLuaString
@@ -66,7 +69,13 @@ export class LuaVm {
 
   constructor() {
     this.L = lauxlib.luaL_newstate();
-    lualib.luaL_openlibs(this.L);
+    // only load basic apis to vm
+    const map = new Map<string, any>();
+    map.set('_G', luaopen_base).set('string', luaopen_string).set('table', luaopen_table).set('math', luaopen_math);
+    map.forEach((lib, name) => {
+      lauxlib.luaL_requiref(this.L, fengari.to_luastring(name), lib, 1);
+      lua.lua_pop(this.L, 1);
+    });
     this.ctx = new Map<string, any>();
     this.decoder = new TextDecoder('utf-8');
   }

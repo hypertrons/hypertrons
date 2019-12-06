@@ -15,6 +15,9 @@
 import { Issue, Comment, PullRequest, CheckRun, Push } from '../../basic/DataTypes';
 import { Command } from '../command-manager/Command';
 import { IClient } from '../installation-manager/IClient';
+import { luaEvent } from '../../lua-vm/decorators';
+
+export const luaEvents: Map<string, {toLuaEvent: (e: any) => any}> = new Map<string, {toLuaEvent: (e: any) => any}>();
 
 export class RepoEventBase {
   installationId: number;
@@ -38,20 +41,21 @@ export class RepoAddedEvent extends RepoEventBase {}
 export class RepoRemovedEvent extends RepoEventBase {}
 
 /**
- * When a push to a repo
- */
-export class RepoPushEvent extends RepoEventBase {
-  ref: string;
-  commits: Array<{
-    added: string[];
-    removed: string[];
-    modified: string[];
-  }>;
-}
-
-/**
  * When update a issue
  */
+class LuaIssueEvent {
+  action: string;
+  author: string;
+  number: number;
+  title: string;
+  body: string;
+  labels: string[];
+}
+
+@luaEvent({
+  description: 'Issue events for a repo',
+  luaEventType: LuaIssueEvent,
+})
 export class IssueEvent extends RepoEventBase {
   action:
     | 'assigned'
@@ -72,6 +76,18 @@ export class IssueEvent extends RepoEventBase {
     | 'unpinned';
   issue: Issue | undefined;
   changes: {};
+
+  public toLuaEvent(e: IssueEvent): LuaIssueEvent | undefined {
+    if (!e.issue) return undefined;
+    return {
+      action: e.action,
+      author: e.issue.author,
+      number: e.issue.number,
+      title: e.issue.title,
+      body: e.issue.body,
+      labels: e.issue.labels,
+    };
+  }
 }
 
 /**
@@ -94,6 +110,20 @@ export class LabelUpdateEvent extends RepoEventBase {
 /**
  * When update a pull request
  */
+
+class LuaPullRequestEvent {
+  action: string;
+  number: number;
+  author: string;
+  title: string;
+  body: string;
+  labels: string[];
+}
+
+@luaEvent({
+  description: 'Pull request event for a repo',
+  luaEventType: LuaPullRequestEvent,
+})
 export class PullRequestEvent extends RepoEventBase {
   action:
     | 'assigned'
@@ -111,11 +141,35 @@ export class PullRequestEvent extends RepoEventBase {
     | 'unlocked'
     | 'synchronize';
   pullRequest: PullRequest | undefined;
+  public toLuaEvent(e: PullRequestEvent): LuaPullRequestEvent | undefined {
+    if (!e.pullRequest) return undefined;
+    return {
+      action: e.action,
+      author: e.pullRequest.author,
+      number: e.pullRequest.number,
+      title: e.pullRequest.title,
+      body: e.pullRequest.body,
+      labels: e.pullRequest.labels,
+    };
+  }
 }
 
 /**
  * When Command Manager publish a event
  */
+
+class LuaCommandEvent {
+  command: string;
+  number: number;
+  login: string;
+  params: string[];
+}
+
+@luaEvent({
+  description: 'Command event for a repo',
+  luaEventType: LuaCommandEvent,
+  name: 'CommandEvent',
+})
 export class CommandManagerNewCommandEvent extends RepoEventBase {
   login: string;
   from: 'issue' | 'comment';
@@ -123,6 +177,15 @@ export class CommandManagerNewCommandEvent extends RepoEventBase {
   comment: Comment | undefined;
   issue: Issue | undefined;
   command: Command;
+  public toLuaEvent(e: CommandManagerNewCommandEvent): LuaCommandEvent | undefined {
+    if (!e.command) return undefined;
+    return {
+      command: e.command.exec,
+      params: e.command.param,
+      login: e.login,
+      number: e.issueNumber,
+    };
+  }
 }
 
 /**

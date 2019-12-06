@@ -1,6 +1,6 @@
--- Auto label on issue open
-on('IssueEvent', function (e)
-  if(e.action == 'opened') then
+-- Auto label on issue/pull open/edit
+local autoLabel = function (e)
+  if(e.action == 'opened' or e.action == 'edited') then
     local l = {}
     local labels = config['label-setup'].labels
     local title = string.lower(e.title)
@@ -12,8 +12,10 @@ on('IssueEvent', function (e)
       end
     end
     if(#l > 0) then
-      log('Gonna add', #l, 'label(s) to', e.number)
+      log('Gonna add', #l, 'labels to', e.number)
       addLabels(e.number, l)
     end
   end
-end)
+end
+on('IssueEvent', autoLabel)
+on('PullRequestEvent', autoLabel)
