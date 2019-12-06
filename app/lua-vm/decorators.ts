@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import 'reflect-metadata';
+import { luaEvents } from '../../app/plugin/event-manager/events';
 
 export function luaMethod(): MethodDecorator {
   return (target, property, descriptor) => {
@@ -21,5 +22,23 @@ export function luaMethod(): MethodDecorator {
     if (typeof obj.setInjectFunction === 'function' && String(key).startsWith('lua_')) {
       obj.setInjectFunction(key.substring(4), descriptor.value);
     }
+  };
+}
+
+interface LuaEventParam {
+  description: string;
+  luaEventType: any;
+  name?: string;
+}
+
+export function luaEvent(p: LuaEventParam): ClassDecorator {
+  return target => {
+    const c = new (target as any)();
+    c.name = target.name;
+    c.returnType = p;
+    if (!c.toLuaEvent) {
+      console.log('Need to have toLuaEvent function');
+    }
+    luaEvents.set(p.name ? p.name : target.name, c);
   };
 }

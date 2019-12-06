@@ -40,7 +40,7 @@ export class AgentEventManager extends AgentPluginBase<null> {
     this.handlerMap.add(className, func);
   }
 
-  public publish<T>(type: 'worker' | 'workers' | 'agent' | 'all', constructor: new (...args: any) => T, param: T): void {
+  public publish<T>(type: 'worker' | 'workers' | 'agent' | 'all', constructor: new (...args: any) => T, param: Partial<T>): void {
     const className = getClassName(constructor);
     const p: IpcEventType = {
       type,

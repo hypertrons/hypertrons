@@ -112,10 +112,22 @@ export class GitLabApp extends HostingBase<GitLabConfig, GitLabClient, Gitlab> {
     switch (event) {
       case 'Issue Hook':
         const { project: { path_with_namespace: fullName }, object_attributes: issue } = payload;
-        const e: IssueEvent = {
+        const parseAction = (o: string): 'opened' | 'reopened' | 'closed' | undefined => {
+          switch (o) {
+            case 'open':
+               return 'opened';
+            case 'reopen':
+              return 'reopened';
+            case 'close':
+              return 'closed';
+            default:
+              return undefined;
+          }
+        };
+        const e = {
           installationId: this.id,
           fullName,
-          action: 'opened',
+          action: parseAction(issue.action),
           issue: {
             id: issue.id,
             author: issue.author_id,
@@ -130,8 +142,6 @@ export class GitLabApp extends HostingBase<GitLabConfig, GitLabClient, Gitlab> {
           },
           changes: {},
         };
-        if (issue.action === 'reopen') e.action = 'reopened';
-        if (issue.action === 'close') e.action = 'closed';
         this.app.event.publish('all', IssueEvent, e);
         break;
       default:

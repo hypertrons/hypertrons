@@ -18,8 +18,7 @@ import { IClient } from '../../plugin/installation-manager/IClient';
 import { Repo, CheckRun } from '../DataTypes';
 import { LuaVm } from '../../lua-vm/LuaVm';
 import { luaMethod } from '../../lua-vm/decorators';
-import { IssueEvent } from '../../plugin/event-manager/events';
-import { getClassName } from '../../plugin/event-manager/Helper';
+import { luaEvents } from '../../plugin/event-manager/events';
 import { LUA_SCRIPT_KEY } from '../../plugin/component-manager/AppComponentManager';
 
 export abstract class HostingClientBase<TRawClient> implements IClient {
@@ -79,22 +78,17 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
 
   @luaMethod()
   protected lua_on(eventType: string, cb: (e: any) => void) {
-    switch (eventType) {
-      case getClassName(IssueEvent):
-        this.app.event.subscribeOne(IssueEvent, async e => {
-          if (!e.issue) return;
-          cb({
-            action: e.action,
-            number: e.issue.number,
-            title: e.issue.title,
-            body: e.issue.body,
-            author: e.issue.author,
-          });
-        });
-        break;
-      default:
+    const eventClass = luaEvents.get(eventType);
+    if (!eventClass) return;  // only registered event can be used
+    this.app.event.subscribeOne<any>(eventClass as any, async e => {
+      if (e.fullName !== this.name || e.installationId !== this.hostId) {
+        // lua only consume self repo event
         return;
-    }
+      }
+      const luaE = eventClass.toLuaEvent(e);
+      if (!luaE) return;
+      cb(luaE);
+    });
   }
 
   @luaMethod()

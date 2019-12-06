@@ -47,7 +47,7 @@ export class AppEventManager extends AppPluginBase<null> {
     this.allHandlerMap.add(className, func);
   }
 
-  public publish<T>(type: 'worker' | 'workers' | 'agent' | 'all', constructor: new (...args: any) => T, param: T): void {
+  public publish<T>(type: 'worker' | 'workers' | 'agent' | 'all', constructor: new (...args: any) => T, param: Partial<T>): void {
     const p: IpcEventType = {
       type,
       className: getClassName(constructor),
