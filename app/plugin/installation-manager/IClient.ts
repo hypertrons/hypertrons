@@ -22,6 +22,8 @@ export interface IClient {
 
   getCompConfig<TConfig>(comp: string): TConfig | undefined;
 
+  checkAuth(login: string, commands: Array<{exec: string, param: string[]}>): Array<{exec: string, param: string[]}>;
+
   getFileContent(filePath: string): Promise<string | undefined>;
 
   addIssue(title: string, body: string, labels?: string[]): Promise<void>;

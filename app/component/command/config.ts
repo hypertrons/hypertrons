@@ -18,7 +18,7 @@ import defaultConfig from './defaultConfig';
 @configClass({
   description: 'every label type',
 })
-class Auth {
+export class Auth {
 
   @configProp({
     description: 'Role name',

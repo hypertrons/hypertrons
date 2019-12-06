@@ -20,6 +20,9 @@ import { LuaVm } from '../../lua-vm/LuaVm';
 import { luaMethod } from '../../lua-vm/decorators';
 import { luaEvents } from '../../plugin/event-manager/events';
 import { LUA_SCRIPT_KEY } from '../../plugin/component-manager/AppComponentManager';
+import { Command } from '../../plugin/command-manager/Command';
+import RoleConfig from '../../component/role/config';
+import CommandConfig from '../../component/command/config';
 
 export abstract class HostingClientBase<TRawClient> implements IClient {
 
@@ -46,15 +49,15 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
 
   public abstract async addIssue(title: string, body: string, labels?: string[] | undefined): Promise<void>;
 
-  public abstract async listLabels(): Promise<Array<{name: string, description: string, color: string}>>;
+  public abstract async listLabels(): Promise<Array<{ name: string, description: string, color: string }>>;
 
-  public abstract async updateIssue(number: number, update: {title?: string, body?: string, state?: 'open' | 'closed'}): Promise<void>;
+  public abstract async updateIssue(number: number, update: { title?: string, body?: string, state?: 'open' | 'closed' }): Promise<void>;
 
   public abstract async addLabels(number: number, labels: string[]): Promise<void>;
 
   public abstract async updateLabels(labels: Array<{ current_name: string; name?: string; description?: string; color?: string; }>): Promise<void>;
 
-  public abstract async createLabels(labels: Array<{name: string, description: string, color: string}>): Promise<void>;
+  public abstract async createLabels(labels: Array<{ name: string, description: string, color: string }>): Promise<void>;
 
   public abstract async createCheckRun(check: CheckRun): Promise<void>;
 
@@ -74,6 +77,23 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
       this.luaInjectMethods = new Map<string, any>();
     }
     this.luaInjectMethods.set(key, value);
+  }
+
+  public checkAuth(login: string, commands: Command[]): Command[] {
+    // config check
+    const commandConfig: CommandConfig | undefined = this.getCompConfig<CommandConfig>('command');
+    const roleConfig: RoleConfig | undefined = this.getCompConfig<RoleConfig>('role');
+    if (!roleConfig || !commandConfig) return [];
+
+    // roles that user has
+    const userRoles = roleConfig.roles.filter(role => role.name.includes(login)).map(r => r.name).concat('anyone');
+    // return the commands that user can exec
+    return commands.filter(command => {
+      // roles that can exec the current command
+      const requiredRoles = commandConfig.auth.filter(auth => auth.command.includes(command.exec)).map(r => r.role);
+      // check if user can exec current command
+      return requiredRoles.some(r => userRoles.includes(r));
+    });
   }
 
   @luaMethod()
