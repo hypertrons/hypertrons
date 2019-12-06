@@ -41,8 +41,12 @@ describe('AppCommandManager', () => {
     } as any;
     issueNumber = 1;
     changes: {};
+    client = {
+      checkAuth: (_1, _2, _3) => _2,
+    } as any;
 
     constructor() {
+      app.installation.getClient = () => this.client;
       app.event.subscribeOne(CommandManagerNewCommandEvent, async p => this.commandEvent.push(p));
       (app.command as any).getCommandsFromBody = () => this.commands;
     }
@@ -53,6 +57,7 @@ describe('AppCommandManager', () => {
     setAction(action) {
       this.action = action;
     }
+    toLuaEvent(): any {}
   }
 
   beforeEach(async () => {
