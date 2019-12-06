@@ -29,12 +29,12 @@ export default (ctx: ComponentContext<Config>) => {
     if (!e.client) {
       return;
     }
-    const config = e.client.getCompConfig<Config>('weekly-report');
-    if (!config || !config.enable) return;
+    const config = e.client.getCompConfig<Config>(ctx.name);
     if (jobHandlerMap.has(`${e.installationId}-${e.fullName}`)) {
-      ctx.logger.info(`repo config changed , cancle the old job for repo ${e.fullName}, installationId = ${e.installationId}`);
+      ctx.logger.info(`cancle the job for repo ${e.fullName}, installationId = ${e.installationId}`);
       cancleJobForRepo(e.installationId, e.fullName, jobHandlerMap);
     }
+    if (!config || !config.enable) return;
     ctx.logger.info(`start to generate job for repo ${e.fullName}, installationId = ${e.installationId}`);
     genJobForRepo(e.installationId, e.fullName, e.client, config, jobHandlerMap);
   });
