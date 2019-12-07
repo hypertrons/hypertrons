@@ -19,7 +19,7 @@ import { Gitlab } from 'gitlab';
 import { Application, Context } from 'egg';
 import SmeeClient from 'smee-client';
 import { resolve } from 'url';
-import { IssueEvent } from '../event-manager/events';
+import { IssueEvent, PushEvent, CommentUpdateEvent, PullRequestEvent } from '../event-manager/events';
 
 export class GitLabApp extends HostingBase<GitLabConfig, GitLabClient, Gitlab> {
 
@@ -108,14 +108,23 @@ export class GitLabApp extends HostingBase<GitLabConfig, GitLabClient, Gitlab> {
   }
 
   private triggerWebhook(event: string, payload: any): void {
-    // IssueEvent
+    // Four types of WebHook is handled here.
+    //  1. Issue Hook <gitlab think `label, assignee..` as update action>
+    //  2. Push Hook
+    //  3. Note Hook
+    //  4. Merge Request Hook
     switch (event) {
       case 'Issue Hook':
-        const { project: { path_with_namespace: fullName }, object_attributes: issue } = payload;
-        const parseAction = (o: string): 'opened' | 'reopened' | 'closed' | undefined => {
+        const {
+          project: { path_with_namespace: fullName },
+          object_attributes: issue,
+        } = payload;
+        const parseAction = (
+          o: string,
+        ): 'opened' | 'reopened' | 'closed' | undefined => {
           switch (o) {
             case 'open':
-               return 'opened';
+              return 'opened';
             case 'reopen':
               return 'reopened';
             case 'close':
@@ -141,12 +150,135 @@ export class GitLabApp extends HostingBase<GitLabConfig, GitLabClient, Gitlab> {
             comments: [],
           },
           changes: {},
-        };
+        } as any;
         this.app.event.publish('all', IssueEvent, e);
+        break;
+      case 'Push Hook':
+        const {
+          ref,
+          before,
+          after,
+          user_username,
+          user_email,
+          project: { path_with_namespace: push_path },
+          commits,
+        } = payload;
+        const re = {
+          installationId: this.id,
+          fullName: push_path,
+          push: {
+            ref,
+            before,
+            after,
+            created: true,
+            deleted: false,
+            forced: false,
+            base_ref: null,
+            compare: '',
+            head_commit: null,
+            repository: undefined,
+            pusher: {
+              name: user_username,
+              email: user_email,
+            },
+            commits: commits.map(c => {
+              return {
+                added: c.added,
+                removed: c.removed,
+                modified: c.modified,
+              };
+            }),
+          },
+        };
+        this.app.event.publish('all', PushEvent, re);
+        break;
+      case 'Note Hook':
+        // Comment on merge request
+        // Comment on issue
+        const {
+          project: { path_with_namespace: note_path },
+          object_attributes: {
+            id: pr_issue_id,
+            noteable_id,
+            author_id,
+            note,
+            url,
+            created_at,
+          },
+        } = payload;
+
+        const ce: CommentUpdateEvent = {
+          installationId: this.id,
+          fullName: note_path,
+          issueNumber: pr_issue_id,
+          // gitlab won't send any notification when editing or deleting a comment...
+          // We only get notification when create a new comment.
+          action: 'created',
+          comment: {
+            id: String(noteable_id),
+            login: author_id,
+            body: note,
+            url,
+            createdAt: created_at,
+          },
+        };
+        this.app.event.publish('all', CommentUpdateEvent, ce);
+        break;
+      case 'Merge Request Hook':
+        const {
+          project: { path_with_namespace: mr_path },
+          object_attributes: {
+            iid: mr_id, // iid here, not id
+            author_id: mr_author_id,
+            created_at: mr_created_at,
+            updated_at: mr_updated_at,
+            title: mr_title,
+            description: mr_description,
+            action: mr_action,
+          },
+          labels: mr_labels,
+        } = payload;
+        const parsePullRequest = (
+          o: string,
+        ): 'opened' | 'reopened' | 'closed' | undefined => {
+          switch (o) {
+            case 'open':
+              return 'opened';
+            case 'reopen':
+              return 'reopened';
+            case 'close':
+              return 'closed';
+            case 'merge':
+              return 'closed';
+            default:
+              return undefined;
+          }
+        };
+        const mre = {
+          installationId: this.id,
+          fullName: mr_path,
+          action: parsePullRequest(mr_action), // least used.
+          pullRequest: {
+            id: String(mr_id),
+            author: mr_author_id,
+            number: 0,
+            createdAt: new Date(mr_created_at),
+            updatedAt: new Date(mr_updated_at),
+            closedAt: null,
+            mergedAt: null,
+            title: mr_title,
+            body: mr_description,
+            labels: mr_labels.map(x => x.title), // `labels: string[];`
+            comments: [],
+            reviewComments: [],
+            additions: 0,
+            deletions: 0,
+          },
+        } as any;
+        this.app.event.publish('all', PullRequestEvent, mre);
         break;
       default:
         break;
     }
   }
-
 }
