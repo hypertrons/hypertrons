@@ -18,43 +18,13 @@ import { luaopen_math } from 'fengari/src/lmathlib';
 import { luaopen_string } from 'fengari/src/lstrlib';
 import { luaopen_table } from 'fengari/src/ltablib';
 import { TextDecoder } from 'text-encoding';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
 const lua = fengari.lua;
 const lauxlib = fengari.lauxlib;
 
-const luaBuidinCode = `
-local escapeLuaString
-do
-  local matches =
-  {
-    ["^"] = "%^";
-    ["$"] = "%$";
-    ["("] = "%(";
-    [")"] = "%)";
-    ["%"] = "%%";
-    ["."] = "%.";
-    ["["] = "%[";
-    ["]"] = "%]";
-    ["*"] = "%*";
-    ["+"] = "%+";
-    ["-"] = "%-";
-    ["?"] = "%?";
-  }
-
-  escapeLuaString = function(s)
-    return (s:gsub(".", matches))
-  end
-end
-
-local arrayContains = function(arr, predict)
-  for i=1, #arr do
-    if(predict(arr[i])) then
-      return true
-    end
-  end
-  return false
-end
-`;
+const luaBuidinCode = readFileSync(join(__dirname, 'helpers.lua')).toString();
 
 export class LuaVm {
 
