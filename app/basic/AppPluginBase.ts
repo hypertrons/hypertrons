@@ -108,7 +108,12 @@ export abstract class AppPluginBase<TConfig> {
 
   // generate router path, use plugin name as prefix
   private getRouterPath(path: string): string {
-    return join('/', this.name, path);
+    let x = join('/', this.name, path);
+    // fix windows bugs
+    while (x !== x.replace('\\', '/')) {
+      x = x.replace('\\', '/');
+    }
+    return x;
   }
 
   // assert fields that should exists on the config
