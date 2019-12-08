@@ -14,7 +14,7 @@
 
 import { Application } from 'egg';
 import { scheduleJob } from 'node-schedule';
-import { BasicJobHanlder } from './BasicJobHandler';
+import { BasicJobHandler } from './BasicJobHandler';
 import { SchedulerAgentScheduleEvent, AgentWorkerJobHandler } from './AgentWorkerJobHandler';
 import { AppPluginBase } from '../../basic/AppPluginBase';
 import { ISchedulerJobCallback, ISchedulerJobHandler } from './types';
@@ -47,7 +47,7 @@ export class AppSchedulerManager extends AppPluginBase<null> {
       case 'workers':
         // register on self
         const j = scheduleJob(name, time, func);
-        return new BasicJobHanlder(j);
+        return new BasicJobHandler(j);
       default:
         throw new Error(`Not supported type ${type}.`);
     }
