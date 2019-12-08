@@ -15,7 +15,7 @@
 import { ISchedulerJobHandler } from './types';
 import { Job } from 'node-schedule';
 
-export class BasicJobHanlder implements ISchedulerJobHandler {
+export class BasicJobHandler implements ISchedulerJobHandler {
 
   private job: Job;
 

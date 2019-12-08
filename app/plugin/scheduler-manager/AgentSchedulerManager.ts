@@ -14,7 +14,7 @@
 
 import { Agent } from 'egg';
 import { scheduleJob, Job } from 'node-schedule';
-import { BasicJobHanlder } from './BasicJobHandler';
+import { BasicJobHandler } from './BasicJobHandler';
 import { SchedulerWorkerRegisterEvent, SchedulerWorkerUpdateEvent, SchedulerAgentScheduleEvent } from './AgentWorkerJobHandler';
 import { AgentPluginBase } from '../../basic/AgentPluginBase';
 import { ISchedulerJobCallback, ISchedulerJobHandler } from './types';
@@ -64,7 +64,7 @@ export class AgentSchedulerManager extends AgentPluginBase<null> {
 
   register(name: string, time: string, func: ISchedulerJobCallback): ISchedulerJobHandler {
     const schedJob = scheduleJob(name, time, func);
-    const job = new BasicJobHanlder(schedJob);
+    const job = new BasicJobHandler(schedJob);
     return job;
   }
 
