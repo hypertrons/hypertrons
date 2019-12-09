@@ -82,27 +82,27 @@ describe('Utils', () => {
       assert(res.error.length === 0);
     });
 
-    it('should be {} if attr not exist', async () => {
+    it('should be srcValue if attr not exist', async () => {
       const a = { a: 1 };
       const b = { a: 2, b: 3 };
       const res = Utils.customizerMerge(a, b);
-      deepEqual(res.config, { a: 2, b: {} });
+      deepEqual(res.config, { a: 2, b: 3 });
     });
 
-    it('should be {} if attr not exist multi', async () => {
+    it('should be srcValue if attr not exist multi', async () => {
       const a = { a: 1 };
       const b = { a: 2, b: 3 };
       const c = { a: 2, b: 'c' };
       const res = Utils.customizerMerge(a, b, c);
-      deepEqual(res.config, { a: 2, b: {} });
+      deepEqual(res.config, { a: 2, b: 3 });
     });
 
-    it('should be {} if attr not exist multi', async () => {
+    it('should be srcValue if attr not exist multi', async () => {
       const a = { a: 1 };
       const b = { a: 2, b: 3 };
       const c = { a: 2, b: { c: 'c' } };
       const res = Utils.customizerMerge(a, b, c);
-      deepEqual(res.config, { a: 2, b: { c : {} } });
+      deepEqual(res.config, { a: 2, b: 3 });
     });
 
     it('should not overwrite if type not match', async () => {
