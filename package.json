@@ -30,6 +30,7 @@
     "@slack/web-api": "^5.6.0",
     "@slack/webhook": "^5.0.2",
     "@types/dingtalk-robot-sender": "^1.1.0",
+    "@types/jest": "^24.0.23",
     "@types/nodemailer": "^6.2.2",
     "dingtalk-robot-sender": "^1.2.0",
     "egg": "^2.6.1",
@@ -54,7 +55,7 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.149",
-    "@types/mocha": "^2.2.40",
+    "@types/mocha": "^2.2.48",
     "@types/node": "^12.12.14",
     "@types/node-schedule": "^1.2.4",
     "@types/supertest": "^2.0.0",

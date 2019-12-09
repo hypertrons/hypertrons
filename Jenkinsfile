@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'node:10'
+            image 'shaoling/node:10-cache'
             args '-v /data:/data:ro -u root'
         }
     }
@@ -12,7 +12,7 @@ pipeline {
         stage('Install') {
             steps{
                 sh 'npm config set registry=http://registry.npm.taobao.org'
-                sh 'npm install'
+                sh 'npm install -g'
                 sh 'npm install typescript@latest -g'
             }
         }
