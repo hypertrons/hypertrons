@@ -17,8 +17,7 @@ import { Application } from 'egg';
 import { IClient } from '../../plugin/installation-manager/IClient';
 import { Repo, CheckRun } from '../DataTypes';
 import { LuaVm } from '../../lua-vm/LuaVm';
-import { luaMethod } from '../../lua-vm/decorators';
-import { luaEvents } from '../../plugin/event-manager/events';
+import { luaMethod, luaEvents } from '../../lua-vm/decorators';
 import { LUA_SCRIPT_KEY } from '../../plugin/component-manager/AppComponentManager';
 import RoleConfig from '../../component/role/config';
 
