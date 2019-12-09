@@ -16,6 +16,7 @@ import { HostingBase } from '../../basic/HostingPlatform/HostingBase';
 import { GitHubConfig } from './GitHubConfig';
 import { GitHubClient } from './GitHubClient';
 import Octokit = require('@octokit/rest');
+import retry = require('@octokit/plugin-retry');
 import { Application, Context } from 'egg';
 import { App } from '@octokit/app';
 import { join } from 'path';
@@ -25,6 +26,9 @@ import { GithubWrapper } from '../../basic/DataWrapper';
 import { IssueEvent, CommentUpdateEvent, LabelUpdateEvent, PullRequestEvent, RepoRemovedEvent, RepoAddedEvent, PushEvent } from '../event-manager/events';
 import { DataCat } from 'github-data-cat';
 import EventSource from 'eventsource';
+
+// add retry plugin into octokit
+Octokit.plugin(retry);
 
 export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> {
 
@@ -81,15 +85,18 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
 
   protected async addRepo(name: string, payload: any): Promise<void> {
     const client = new GitHubClient(name, this.id, this.app, this.dataCat);
-    this.clientMap.set(name, async () => {
+    client.rawClient = new Octokit();
+    // set token before any request
+    client.rawClient.hook.before('request', async () => {
       const token = await this.githubApp.getInstallationAccessToken({
         installationId: payload,
       });
-      client.rawClient = new Octokit({
-        auth: `token ${token}`,
+      client.rawClient.authenticate({
+        type: 'token',
+        token,
       });
-      return client;
     });
+    this.clientMap.set(name, async () => client);
   }
 
   protected async initWebhook(config: GitHubConfig): Promise<void> {
