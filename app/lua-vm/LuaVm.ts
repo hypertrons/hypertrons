@@ -202,7 +202,9 @@ export class LuaVm {
         lua.lua_pushboolean(this.L, value);
         break;
       case 'object':
-        if (value instanceof Map) {
+        if (value === null) {
+          return 0;
+        } else if (value instanceof Map) {
           // if pass in a Map, push as a table, so can use it in lua
           // the key must be in string type, the value can be any type
           lua.lua_newtable(this.L);
@@ -234,6 +236,9 @@ export class LuaVm {
               lua.lua_pop(this.L, 1);
             }
           });
+        } else if (value instanceof Date) {
+          lua.lua_pushstring(this.L, value.toDateString());
+          break;
         } else {
           lua.lua_newtable(this.L);
           lua.lua_pushstring(this.L, this.META_TYPE_KEY);

@@ -14,7 +14,7 @@
 
 'use strict';
 
-import assert from 'assert';
+import assert from 'power-assert';
 import { LuaVm } from '../../app/lua-vm/LuaVm';
 import { prepareTestApplication, testClear, waitFor } from '../Util';
 import { Application, Agent } from 'egg';
@@ -133,6 +133,21 @@ function (r)
   return func2(r - c);
 end)`);
     assert(res === ((a - b + c) * b) * ((a + b - c) * b));
+  });
+
+  it('Should support function execution within param call', () => {
+    const a = 2, b = 3, c = 4, d = 5;
+    const func = (a: number, b: number, c: number): number => {
+      return a - b - c;
+    };
+    const add = (a: number, b: number): number => {
+      return a + b;
+    };
+    luaVm.set('func', func).set('add', add).set('a', a).set('b', b).set('c', c).set('d', d);
+    const res = luaVm.run(`
+return func(a, add(b, c), d)
+`);
+    assert(res === a - b - c - d);
   });
 
   it('Should get value inside a map', () => {

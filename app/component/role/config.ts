@@ -33,11 +33,18 @@ export class Role {
   description: string;
 
   @configProp({
-    description: 'Users of the current role.',
-    defaultValue: [],
+    description: 'Users of the current role',
     arrayType: 'string',
+    defaultValue: [],
   })
   users: string[];
+
+  @configProp({
+    description: 'Commands that this role can use',
+    arrayType: 'string',
+    defaultValue: [],
+  })
+  commands: string[];
 
 }
 
@@ -45,12 +52,6 @@ export class Role {
   description: 'Manage roles. List users of the different roles.',
 })
 export default class Config {
-
-  @configProp({
-    description: 'Enable this component or not',
-    defaultValue: defaultConfig.enable,
-  })
-  enable: boolean;
 
   @configProp({
     description: 'Roles and the users of it',

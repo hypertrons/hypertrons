@@ -22,10 +22,13 @@ export class AppCommandManager extends AppPluginBase<null> {
     // handle issue event
     this.app.event.subscribeOne(IssueEvent, async e => {
       this.logger.debug(`Start to resolve the issue event for ${e.installationId} and repo ${e.fullName}`);
-      if ((e.action === 'edited' || e.action === 'opened') && e.issue !== undefined && e.client !== undefined) {
+      if (!e.issue || !e.client) return;
+      if (e.action === 'edited' || e.action === 'opened') {
         this.logger.debug(`the issue's body is ${e.issue.body}`);
-        let commands = this.getCommandsFromBody(e.issue.body);
-        commands = e.client.checkAuth(e.issue.author, commands);
+        const commands = this.getCommandsFromBody(e.issue.body).filter(c => {
+          if (!e.client || !e.issue) return false;
+          return e.client.checkAuth(e.issue.author, c.exec);
+        });
         commands.map(command => {
           this.logger.debug(`extract the command is ${command}`);
           // publish new command event
@@ -45,10 +48,13 @@ export class AppCommandManager extends AppPluginBase<null> {
     // handle comment event
     this.app.event.subscribeOne(CommentUpdateEvent, async e => {
       this.logger.debug(`Start to resolve the comment event for ${e.installationId} and repo ${e.fullName}`);
-      if ((e.action === 'created' || e.action === 'edited') && e.comment !== undefined && e.client !== undefined) {
+      if (!e.client || !e.comment) return;
+      if (e.action === 'created' || e.action === 'edited') {
         this.logger.debug(`the comment's body is ${e.comment.body}`);
-        let commands = this.getCommandsFromBody(e.comment.body);
-        commands = e.client.checkAuth(e.comment.login, commands);
+        const commands = this.getCommandsFromBody(e.comment.body).filter(c => {
+          if (!e.client || !e.comment) return false;
+          return e.client.checkAuth(e.comment.login, c.exec);
+        });
         commands.map(command => {
           this.logger.debug(`extract the command is ${command}`);
           // publish new command event

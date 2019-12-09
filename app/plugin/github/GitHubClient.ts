@@ -31,10 +31,9 @@ export class GitHubClient extends HostingClientBase<Octokit> {
     this.repoName = parseRepoName(name);
     ({ owner: this.owner, repo: this.repo } = this.repoName);
     this.dataCat = dataCat;
-    this.updateData();
   }
 
-  private async updateData(): Promise<void> {
+  protected async updateData(): Promise<void> {
     this.logger.info(`Start to update data for ${this.name}`);
 
     const dataCat = this.dataCat;
@@ -147,6 +146,14 @@ export class GitHubClient extends HostingClientBase<Octokit> {
       ...this.repoName,
       issue_number: number,
       ...update,
+    });
+  }
+
+  public async addIssueComment(number: number, body: string): Promise<void> {
+    await this.rawClient.issues.createComment({
+      ...this.repoName,
+      issue_number: number,
+      body,
     });
   }
 

@@ -27,6 +27,10 @@ export class GitLabClient extends HostingClientBase<Gitlab> {
     this.rawClient = client;
   }
 
+  protected async updateData(): Promise<void> {
+
+  }
+
   public async getFileContent(path: string): Promise<string | undefined> {
     const res = await this.rawClient.RepositoryFiles.showRaw(this.id, path, 'master');
     return res as any;
@@ -72,6 +76,10 @@ export class GitLabClient extends HostingClientBase<Gitlab> {
       description: update.body,
       state_event,
     });
+  }
+
+  public async addIssueComment(number: number, body: string): Promise<void> {
+    await this.rawClient.IssueNotes.create(this.id, number, body);
   }
 
   public async updateLabels(labels: Array<{ current_name: string; description?: string | undefined; color?: string | undefined }>): Promise<void> {

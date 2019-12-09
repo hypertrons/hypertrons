@@ -105,32 +105,38 @@ export class AppComponentManager extends AppPluginBase<Config> {
           }
         }
       } catch (e) {
+        if (e.code === 'MODULE_NOT_FOUND') return;
         this.logger.warn(`Error loading config of ${name}, e=`, e);
       }
 
-      // components can be empty and only have configs
-      const component = await import(join(path, this.config.entryModule));
-      if (!component.default || typeof(component.default) !== 'function') {
-        this.logger.info(`Component ${name} not export a function`);
-        return;
-      }
+      try {
+        // components can be empty and only have configs
+        const component = await import(join(path, this.config.entryModule));
+        if (!component.default || typeof(component.default) !== 'function') {
+          this.logger.info(`Component ${name} not export a function`);
+          return;
+        }
 
-      const logPrefix = `[component-${name}]`;
-      const ctx: ComponentContext<any> = {
-        helper: this.componentHelper,
-        logger: {
-          debug: (msg, ...args) => this.app.logger.debug(logPrefix, msg, ...args),
-          info: (msg, ...args) => this.app.logger.info(logPrefix, msg, ...args),
-          warn: (msg, ...args) => this.app.logger.warn(logPrefix, msg, ...args),
-          error: (msg, ...args) => this.app.logger.error(logPrefix, msg, ...args),
-        },
-        app: this.app,
-        name,
-        getConfig: (client: IClient): any => {
-          return client.getCompConfig<any>(name);
-        },
-      };
-      await component.default(ctx);
+        const logPrefix = `[component-${name}]`;
+        const ctx: ComponentContext<any> = {
+          helper: this.componentHelper,
+          logger: {
+            debug: (msg, ...args) => this.app.logger.debug(logPrefix, msg, ...args),
+            info: (msg, ...args) => this.app.logger.info(logPrefix, msg, ...args),
+            warn: (msg, ...args) => this.app.logger.warn(logPrefix, msg, ...args),
+            error: (msg, ...args) => this.app.logger.error(logPrefix, msg, ...args),
+          },
+          app: this.app,
+          name,
+          getConfig: (client: IClient): any => {
+            return client.getCompConfig<any>(name);
+          },
+        };
+        await component.default(ctx);
+      } catch (e) {
+        if (e.code === 'MODULE_NOT_FOUND') return;
+        this.logger.warn(`Error loading component of ${name}, e=`, e.code);
+      }
     } catch (e) {
       this.logger.error(`Error while load component ${name}, e=${e}`);
     }
