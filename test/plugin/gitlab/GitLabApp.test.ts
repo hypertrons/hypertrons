@@ -15,10 +15,11 @@
 'use strict';
 import assert from 'assert';
 import { Agent } from 'egg';
-import { prepareTestApplication, testClear, waitFor } from '../../Util';
+import { prepareTestApplication, testClear } from '../../Util';
 import { HostingPlatformInitEvent } from '../../../app/basic/HostingPlatform/event';
 import { MockApplication } from 'egg-mock';
 import { IssueEvent, CommentUpdateEvent, PushEvent, PullRequestEvent } from '../../../app/plugin/event-manager/events';
+import { waitUntil } from '../../../app/basic/Utils';
 
 describe('GitLabApp', () => {
   let app: MockApplication;
@@ -47,14 +48,13 @@ describe('GitLabApp', () => {
     } as HostingPlatformInitEvent;
 
     agent.event.publish('all', HostingPlatformInitEvent, gitlab_config);
-    await waitFor(1000);
+    await waitUntil(() => (app.gitlab as any).hpMap.size > 0, { interval: 10 });
 
     // Issue Hook Test
     app.event.subscribeAll(IssueEvent, async e => {
       assert(e.action === 'closed');
     });
 
-    await waitFor(1000);
     await app
       .httpRequest()
       .post('/installation/1/')
@@ -98,7 +98,6 @@ describe('GitLabApp', () => {
     app.event.subscribeAll(PushEvent, async e => {
       assert(e.push.commits[0].added.length === 5);
     });
-    await waitFor(1000);
     await app
       .httpRequest()
       .post('/installation/1/')
@@ -136,7 +135,6 @@ describe('GitLabApp', () => {
     app.event.subscribeAll(CommentUpdateEvent, async e => {
       assert(e.issueNumber === 2246);
     });
-    await waitFor(1000);
     await app
       .httpRequest()
       .post('/installation/1/')
@@ -177,7 +175,6 @@ describe('GitLabApp', () => {
     app.event.subscribeAll(PullRequestEvent, async e => {
       assert(e.action === 'closed');
     });
-    await waitFor(1000);
     await app
       .httpRequest()
       .post('/installation/1/')

@@ -26,10 +26,32 @@ local autoLabel = function (e)
       end
     end
     if(#l > 0) then
-      log('Gonna add', #l, 'labels to', e.number)
+      log('Gonna add', #l, 'label(s) to', e.number)
       addLabels(e.number, l)
     end
   end
 end
 on('IssueEvent', autoLabel)
 on('PullRequestEvent', autoLabel)
+
+-- Issue reminder
+sched('Issue reminder', '0 0 9 * * *', function ()
+  local data = getData()
+  if (data == nil) then -- data not ready yet
+    return
+  end
+  local users = getRoles('replier')
+  if (#users == 0) then
+    return
+  end
+  local msg = 'This issue has not been replied for 24 hours, please pay attention to this issue: '
+  for i= 1, #users do
+    msg = msg .. '@' .. users[i] .. ' '
+  end
+  for i= 1, #data.issues do
+    local issue = data.issues[i]
+    if (#issue.comments == 0 and toNow(issue.createdAt) > 24 * 60 * 60 * 1000) then
+      addIssueComment(issue.number, msg)
+    end
+  end
+end)

@@ -22,7 +22,7 @@ export interface IClient {
 
   getCompConfig<TConfig>(comp: string): TConfig | undefined;
 
-  checkAuth(login: string, commands: Array<{exec: string, param: string[]}>): Array<{exec: string, param: string[]}>;
+  checkAuth(login: string, command: string): boolean;
 
   getFileContent(filePath: string): Promise<string | undefined>;
 

@@ -20,9 +20,7 @@ import { LuaVm } from '../../lua-vm/LuaVm';
 import { luaMethod } from '../../lua-vm/decorators';
 import { luaEvents } from '../../plugin/event-manager/events';
 import { LUA_SCRIPT_KEY } from '../../plugin/component-manager/AppComponentManager';
-import { Command } from '../../plugin/command-manager/Command';
 import RoleConfig from '../../component/role/config';
-import CommandConfig from '../../component/command/config';
 
 export abstract class HostingClientBase<TRawClient> implements IClient {
 
@@ -42,12 +40,25 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
     this.config = null;
     this.app = app;
     this.logger = loggerWrapper(app.logger, `[host-client-${this.hostId}-${this.name}]`);
-    this.runLuaScript();
+    process.nextTick(() => {
+      // put in next tick to make sure construction finished
+      this.runLuaScript();
+      this.updateData();
+      // update data every morning at 8 o'clock
+      // TODO need to support event update
+      this.app.sched.register(`${this.name}_Update_Repo_Data`, '0 0 8 * * *', 'workers', () => {
+        this.updateData();
+      });
+    });
   }
+
+  protected abstract async updateData(): Promise<void>;
 
   public abstract async getFileContent(path: string): Promise<string | undefined>;
 
   public abstract async addIssue(title: string, body: string, labels?: string[] | undefined): Promise<void>;
+
+  public abstract async addIssueComment(number: number, body: string): Promise<void>;
 
   public abstract async listLabels(): Promise<Array<{ name: string, description: string, color: string }>>;
 
@@ -79,21 +90,13 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
     this.luaInjectMethods.set(key, value);
   }
 
-  public checkAuth(login: string, commands: Command[]): Command[] {
+  public checkAuth(login: string, command: string): boolean {
     // config check
-    const commandConfig: CommandConfig | undefined = this.getCompConfig<CommandConfig>('command');
     const roleConfig: RoleConfig | undefined = this.getCompConfig<RoleConfig>('role');
-    if (!roleConfig || !commandConfig) return [];
+    if (!roleConfig || !roleConfig.roles) return false;
 
-    // roles that user has
-    const userRoles = roleConfig.roles.filter(role => role.name.includes(login)).map(r => r.name).concat('anyone');
-    // return the commands that user can exec
-    return commands.filter(command => {
-      // roles that can exec the current command
-      const requiredRoles = commandConfig.auth.filter(auth => auth.command.includes(command.exec)).map(r => r.role);
-      // check if user can exec current command
-      return requiredRoles.some(r => userRoles.includes(r));
-    });
+    return roleConfig.roles.find(r =>
+      r.users && r.users.includes(login) && r.commands && r.commands.includes(command)) !== undefined;
   }
 
   @luaMethod()
@@ -112,8 +115,38 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
   }
 
   @luaMethod()
+  protected lua_sched(name: string, time: string, cb: () => void) {
+    const jobName = `${this.name}_${name}`;
+    this.app.sched.register(jobName, time, 'worker', cb);
+  }
+
+  @luaMethod()
+  protected lua_getData(): Repo {
+    return this.repoData;
+  }
+
+  @luaMethod()
+  protected lua_getRoles(role: string): string[] {
+    const roleConfig: RoleConfig | undefined = this.getCompConfig<RoleConfig>('role');
+    if (!roleConfig || !roleConfig.roles) return [];
+    const roleDetail = roleConfig.roles.find(r => r.name === role);
+    if (!roleDetail || !roleDetail.users) return [];
+    return roleDetail.users;
+  }
+
+  @luaMethod()
+  protected lua_addIssueComment(num: number, body: string): void {
+    this.addIssueComment(num, body);
+  }
+
+  @luaMethod()
   protected lua_addLabels(num: number, labels: string[]): void {
     this.addLabels(num, labels);
+  }
+
+  @luaMethod()
+  protected lua_toNow(time: string): number {
+    return new Date().getTime() - new Date(time).getTime();
   }
 
   @luaMethod()

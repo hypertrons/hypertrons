@@ -15,37 +15,12 @@
 import Config from './config';
 
 const defaultConfig: Config = {
-  enable: false,
   roles: [
     {
-      name: 'owner',
-      description: 'Repo owner, hold all power.',
-      users: [],
-    },
-    {
-      name: 'maintainer',
-      description: 'The people who maintain the repo.',
-      users: [],
-    },
-    {
-      name: 'developer',
-      description: 'Developer.',
-      users: [],
-    },
-    {
-      name: 'reporter',
-      description: 'Reporter.',
-      users: [],
-    },
-    {
       name: 'author',
-      description: 'The author of a issue/comment',
+      description: 'Author of issue or pull',
       users: [],
-    },
-    {
-      name: 'anyone',
-      description: 'If a user does not have any role, He/She/It will get this default role.',
-      users: [],
+      commands: [],
     },
   ],
 };
