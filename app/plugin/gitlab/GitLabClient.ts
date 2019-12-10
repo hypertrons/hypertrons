@@ -105,6 +105,12 @@ export class GitLabClient extends HostingClientBase<Gitlab> {
     }));
   }
 
+  public async merge(num: number): Promise<void> {
+    await this.rawClient.MergeRequests.accept(this.id, num, {
+      squash: true,
+    });
+  }
+
   private parseColor<T>(color: T): T {
     if (!color) return color;
     if (!(color as any).startsWith('#')) {
