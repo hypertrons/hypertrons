@@ -39,9 +39,16 @@
   "role": {
     "roles": [
       {
-        "committer": [ "Frankzhaopku", "WuShaoling", "GoodMeowing", "heming6666", "liwen-tj" ],
-        "approver": [ "Frankzhaopku", "WuShaoling", "GoodMeowing", "heming6666", "liwen-tj" ],
-        "replier": [ "Frankzhaopku", "WuShaoling", "GoodMeowing" ]
+        "name": "committer",
+        "description": "Committer of the project",
+        "users": [ "Frankzhaopku", "WuShaoling", "GoodMeowing", "heming6666", "liwen-tj" ],
+        "commands": [ "difficulty" ]
+      },
+      {
+        "name": "replier",
+        "description": "Replier is responsible for reply issues in time",
+        "users": [ "Frankzhaopku", "WuShaoling", "GoodMeowing" ],
+        "commands": []
       }
     ]
   },
