@@ -20,17 +20,27 @@ import { Application, Context } from 'egg';
 import SmeeClient from 'smee-client';
 import { resolve } from 'url';
 import { IssueEvent, PushEvent, CommentUpdateEvent, PullRequestEvent } from '../event-manager/events';
+import { GitlabGraphqlClient } from './client/GitlabGraphqlClient';
 
 export class GitLabApp extends HostingBase<GitLabConfig, GitLabClient, Gitlab> {
 
   private client: Gitlab;
   private webhooksPath: string;
-
+  private gitlabGraphqlClient: GitlabGraphqlClient;
   constructor(id: number, config: GitLabConfig, app: Application) {
     super(id, config, app);
     this.client = new Gitlab({
       host: this.config.host,
       token: this.config.primaryToken,
+    });
+    this.gitlabGraphqlClient = new GitlabGraphqlClient({
+      host: this.config.host,
+      token: this.config.primaryToken,
+      logger: {
+        error: console.log,
+        info: console.log,
+      } as any,
+      maxConcurrentReqNumber: 20,
     });
   }
 
@@ -55,7 +65,7 @@ export class GitLabApp extends HostingBase<GitLabConfig, GitLabClient, Gitlab> {
   }
 
   protected async addRepo(name: string, payload: any): Promise<void> {
-    const client = new GitLabClient(name, this.id, this.app, payload, this.client);
+    const client = new GitLabClient(name, this.id, this.app, payload, this.client, this.gitlabGraphqlClient);
     this.clientMap.set(name, async () => client);
     this.initWebhooksForRepo(name, payload, this.webhooksPath);
   }

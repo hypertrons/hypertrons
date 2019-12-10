@@ -86,10 +86,10 @@ function formatPullRequest(pr: RawPullRequest): PullRequest {
       createdAt: new Date(info.createdAt),
     };
   });
-  return{
+  return {
     id: pr.id,
     author: '',
-    number: 0,
+    number: parseInt(pr.id), // equal to id,
     createdAt: new Date(pr.createdAt),
     updatedAt: new Date(pr.updatedAt),
     closedAt: null,
@@ -105,7 +105,7 @@ function formatPullRequest(pr: RawPullRequest): PullRequest {
 }
 
 export async function getPullRequests(client: GitlabGraphqlClient, name: string, pcount?: number): Promise<PullRequest[]> {
-  // fetch 5 pull request each time.
+  // fetch 5 pull request each time in default.
   const icount = pcount ? pcount : 5;
   const arr = Array.from(Array(icount + 1).keys()).slice(1);
   let all_prs: PullRequest[] = [];
