@@ -16,19 +16,23 @@ import { HostingClientBase } from '../../basic/HostingPlatform/HostingClientBase
 import { Gitlab } from 'gitlab';
 import { Application } from 'egg';
 import { CheckRun } from '../../basic/DataTypes';
+import { getAll } from './data/getAll';
+import { GitlabGraphqlClient } from './client/GitlabGraphqlClient';
 
 export class GitLabClient extends HostingClientBase<Gitlab> {
 
   private id: number;
+  private gitlabGraphqlClient: GitlabGraphqlClient;
 
-  constructor(name: string, hostId: number, app: Application, id: number, client: Gitlab) {
+  constructor(name: string, hostId: number, app: Application, id: number, client: Gitlab, gitlabGraphqlClient: GitlabGraphqlClient) {
     super(name, hostId, app);
     this.id = id;
     this.rawClient = client;
+    this.gitlabGraphqlClient = gitlabGraphqlClient;
   }
 
   protected async updateData(): Promise<void> {
-
+    this.repoData = await getAll(this.gitlabGraphqlClient, this.name);
   }
 
   public async getFileContent(path: string): Promise<string | undefined> {

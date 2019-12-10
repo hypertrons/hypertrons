@@ -141,20 +141,24 @@ interface PageInfo {
 
 export async function getIssues(client: GitlabGraphqlClient, name: string, icount?: number, updatedAfter?: Date): Promise<Issue[]> {
   let all_issues: Issue[] = [];
-  let pageInfo: PageInfo = { endCursor: '', hasNextPage: true };
-  do {
-    const res = JSON.parse(
-      await client.query(issue_query, {
-        fullPath: name,
-        issueCount: icount ? icount : 5,
-        cursor: pageInfo.endCursor === '' ? null : pageInfo.endCursor,
-        updatedAfter: updatedAfter ? updatedAfter : null,
-      }),
-    );
-    const raw_issues = res.data.project.issues;
-    pageInfo = raw_issues.pageInfo;
-    const part_issues = raw_issues.edges.map(x => formatIssue(x.node, name));
-    all_issues = all_issues.concat(part_issues);
-  } while (pageInfo.hasNextPage);
+  try {
+    let pageInfo: PageInfo = { endCursor: '', hasNextPage: true };
+    do {
+      const res = JSON.parse(
+        await client.query(issue_query, {
+          fullPath: name,
+          issueCount: icount ? icount : 5,
+          cursor: pageInfo.endCursor === '' ? null : pageInfo.endCursor,
+          updatedAfter: updatedAfter ? updatedAfter : null,
+        }),
+      );
+      const raw_issues = res.data.project.issues;
+      pageInfo = raw_issues.pageInfo;
+      const part_issues = raw_issues.edges.map(x => formatIssue(x.node, name));
+      all_issues = all_issues.concat(part_issues);
+    } while (pageInfo.hasNextPage);
+  } catch (e) {
+    console.log(e);
+  }
   return all_issues;
 }

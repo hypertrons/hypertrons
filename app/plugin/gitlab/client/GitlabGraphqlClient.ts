@@ -85,13 +85,18 @@ export class GitlabGraphqlClient {
         return this.internalQuery(_query, _param, retryTimes + 1);
       }
     } catch (e) {
-      this.concurrentReqNumber -= 1;
       this.logger.error(e.message);
       this.logger.info('retryTimes =', retryTimes);
       if (e.message.includes('ETIMEDOUT') || e.message.includes('ECONNRESET')) {
-        return retryTimes < this.maxRetryTimes ? this.internalQuery(_query, _param, retryTimes + 1) : '';
+        if (retryTimes < this.maxRetryTimes) {
+          return this.internalQuery(_query, _param, retryTimes + 1);
+        } else {
+          this.concurrentReqNumber -= 1;
+          return '{}';
+        }
       }
     }
-    return '';
+    this.concurrentReqNumber -= 1;
+    return '{}';
   }
 }
