@@ -13,7 +13,8 @@
 // limitations under the License.
 
 import 'reflect-metadata';
-import { luaEvents } from '../../app/plugin/event-manager/events';
+
+export const luaEvents: Map<string, {toLuaEvent: (e: any) => any}> = new Map<string, {toLuaEvent: (e: any) => any}>();
 
 export function luaMethod(): MethodDecorator {
   return (target, property, descriptor) => {

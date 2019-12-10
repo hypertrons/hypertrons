@@ -17,8 +17,6 @@ import { Command } from '../command-manager/Command';
 import { IClient } from '../installation-manager/IClient';
 import { luaEvent } from '../../lua-vm/decorators';
 
-export const luaEvents: Map<string, {toLuaEvent: (e: any) => any}> = new Map<string, {toLuaEvent: (e: any) => any}>();
-
 export class RepoEventBase {
   installationId: number;
   fullName: string;
