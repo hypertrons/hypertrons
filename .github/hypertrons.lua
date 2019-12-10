@@ -26,7 +26,6 @@ local autoLabel = function (e)
       end
     end
     if(#l > 0) then
-      log('Gonna add', #l, 'label(s) to', e.number)
       addLabels(e.number, l)
     end
   end
@@ -52,6 +51,20 @@ sched('Issue reminder', '0 0 9 * * *', function ()
     local issue = data.issues[i]
     if (#issue.comments == 0 and toNow(issue.createdAt) > 24 * 60 * 60 * 1000) then
       addIssueComment(issue.number, msg)
+    end
+  end
+end)
+
+on('CommandEvent', function (e)
+  -- Difficuty command
+  if (e.command == '/difficulty') then
+    local level = e.params[1]
+    local label = 'difficulty/' .. level
+    local labels = config['label-setup'].labels
+    if (arrayContains(labels, function (l)
+      return l.name == label
+    end)) then
+      addLabels(e.number, { label })
     end
   end
 end)

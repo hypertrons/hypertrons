@@ -136,11 +136,13 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
 
   @luaMethod()
   protected lua_addIssueComment(num: number, body: string): void {
+    this.logger.info('Gonna add issue comment from lua, number=', num, ',body=', body);
     this.addIssueComment(num, body);
   }
 
   @luaMethod()
   protected lua_addLabels(num: number, labels: string[]): void {
+    this.logger.info('Goona add label from lua, number=', num, ',labels=', labels);
     this.addLabels(num, labels);
   }
 
