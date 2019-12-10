@@ -197,6 +197,14 @@ export class GitHubClient extends HostingClientBase<Octokit> {
     this.logger.info(`new check result ${res.status}`);
   }
 
+  public async merge(num: number): Promise<void> {
+    await this.rawClient.pulls.merge({
+      ...this.repoName,
+      pull_number: num,
+      merge_method: 'squash',
+    });
+  }
+
   public getData(): Repo {
     return this.repoData;
   }

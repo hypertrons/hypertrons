@@ -52,6 +52,9 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
     });
   }
 
+  //region
+  // abstract functions
+
   protected abstract async updateData(): Promise<void>;
 
   public abstract async getFileContent(path: string): Promise<string | undefined>;
@@ -71,6 +74,13 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
   public abstract async createLabels(labels: Array<{ name: string, description: string, color: string }>): Promise<void>;
 
   public abstract async createCheckRun(check: CheckRun): Promise<void>;
+
+  public abstract async merge(num: number): Promise<void>;
+
+  //endregion
+
+  //region
+  // common functions
 
   public getRepoData(): Repo {
     return this.repoData;
@@ -98,6 +108,39 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
     return roleConfig.roles.find(r =>
       r.users && r.users.includes(login) && r.commands && r.commands.includes(command)) !== undefined;
   }
+
+  private async runLuaScript(): Promise<void> {
+    await waitUntil(() => this.config !== null);
+    const luaPath = this.getCompConfig<string>(LUA_SCRIPT_KEY);
+    if (!luaPath || luaPath === '') {
+      // do not init if no lua script in config
+      return;
+    }
+    const luaContent = await this.getFileContent(luaPath);
+    if (!luaContent || luaContent === '') {
+      // do not init if no lua script content found
+      return;
+    }
+
+    this.luaVm = new LuaVm();
+    // set methods
+    if (this.luaInjectMethods) {
+      this.luaInjectMethods.forEach((v, k) => {
+        this.luaVm.set(k, v, this);
+      });
+    }
+    // set configs
+    this.luaVm.set('config', this.config);
+
+    // run script
+    const res = this.luaVm.run(luaContent);
+    this.logger.info('Lua exec result,', res);
+  }
+
+  //endregion
+
+  //region
+  // lua functions
 
   @luaMethod()
   protected lua_on(eventType: string, cb: (e: any) => void) {
@@ -156,32 +199,16 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
     this.logger.info('From lua:', ...msg);
   }
 
-  private async runLuaScript(): Promise<void> {
-    await waitUntil(() => this.config !== null);
-    const luaPath = this.getCompConfig<string>(LUA_SCRIPT_KEY);
-    if (!luaPath || luaPath === '') {
-      // do not init if no lua script in config
-      return;
-    }
-    const luaContent = await this.getFileContent(luaPath);
-    if (!luaContent || luaContent === '') {
-      // do not init if no lua script content found
-      return;
-    }
-
-    this.luaVm = new LuaVm();
-    // set methods
-    if (this.luaInjectMethods) {
-      this.luaInjectMethods.forEach((v, k) => {
-        this.luaVm.set(k, v, this);
-      });
-    }
-    // set configs
-    this.luaVm.set('config', this.config);
-
-    // run script
-    const res = this.luaVm.run(luaContent);
-    this.logger.info('Lua exec result,', res);
+  @luaMethod()
+  protected lua_checkAuth(login: string, command: string): boolean {
+    return this.checkAuth(login, command);
   }
 
+  @luaMethod()
+  protected lua_merge(num: number): void {
+    this.logger.info('Gonna merge pull from lua, number=', num);
+    this.merge(num);
+  }
+
+  //endregion
 }

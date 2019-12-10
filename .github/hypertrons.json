@@ -29,6 +29,11 @@
         "name": "difficulty/8",
         "description": "Difficulty score for issue or pull, 8 score, should split the issue",
         "color": "e11d21"
+      },
+      {
+        "name": "pull/approved",
+        "description": "If a pull is approved, it will be automatically merged",
+        "color": "008672"
       }
     ]
   },
@@ -42,13 +47,19 @@
         "name": "committer",
         "description": "Committer of the project",
         "users": [ "Frankzhaopku", "WuShaoling", "GoodMeowing", "heming6666", "liwen-tj" ],
-        "commands": [ "difficulty" ]
+        "commands": [ "/difficulty" ]
       },
       {
         "name": "replier",
         "description": "Replier is responsible for reply issues in time",
         "users": [ "Frankzhaopku", "WuShaoling", "GoodMeowing" ],
         "commands": []
+      },
+      {
+        "name": "approver",
+        "description": "After approvers' approve, pulls should be merged automatically",
+        "users": [ "Frankzhaopku", "WuShaoling", "GoodMeowing", "heming6666", "liwen-tj" ],
+        "commands": [ "/approve" ]
       }
     ]
   },
