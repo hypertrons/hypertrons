@@ -204,12 +204,15 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
       this.app.event.publish('all', CommentUpdateEvent, ice);
     });
     webhooks.on([ 'label.created', 'label.deleted' , 'label.edited' ], e => {
-      const le = {
-        installationId: this.id,
+      const le: LabelUpdateEvent = {
+        installationId:  this.id,
         fullName: e.payload.repository.full_name,
         action: e.payload.action,
         labelName: e.payload.label.name,
       };
+      if (e.payload.changes && e.payload.changes.name && e.payload.changes.name.from) {
+        le.from = e.payload.changes.name.from;
+      }
       this.app.event.publish('all', LabelUpdateEvent, le);
     });
     webhooks.on([ 'pull_request.assigned',

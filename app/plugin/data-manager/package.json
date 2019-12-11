@@ -1,0 +1,7 @@
+{
+  "name": "mentor-bot-data-manager",
+  "description": "Data manager for mentor bot",
+  "eggPlugin": {
+    "name": "dataManager"
+  }
+}

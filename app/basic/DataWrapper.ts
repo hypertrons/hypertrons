@@ -40,7 +40,7 @@ export class GithubWrapper implements DataWrapper {
     try {
       return {
         // basic
-        id: repo.id.toString(),
+        id: repo.id,
         owner: repo.owner.login,
         ownerInfo: {
           login: repo.owner.login,
@@ -98,7 +98,7 @@ export class GithubWrapper implements DataWrapper {
   public issueWrapper(issue: WebhookPayloadIssuesIssue): Issue | undefined {
     try {
       return {
-        id: issue.id.toString(),
+        id: issue.id,
         author: issue.user.login,
         number: issue.number,
         createdAt: new Date(issue.created_at),
@@ -117,7 +117,7 @@ export class GithubWrapper implements DataWrapper {
   public commentWrapper(comment: WebhookPayloadIssueCommentComment): Comment | undefined {
     try {
       return {
-        id: comment.id.toString(),
+        id: comment.id,
         login: comment.user.login,
         body: comment.body,
         url: comment.url,
@@ -131,7 +131,7 @@ export class GithubWrapper implements DataWrapper {
   public pullRequestWrapper(pullRequest: WebhookPayloadPullRequestPullRequest): PullRequest | undefined {
     try {
       return {
-        id: pullRequest.id.toString(),
+        id: pullRequest.id,
         author: pullRequest.user.login,
         number: pullRequest.number,
         createdAt: new Date(pullRequest.created_at),

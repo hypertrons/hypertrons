@@ -15,9 +15,10 @@
 import { HostingClientBase } from '../../basic/HostingPlatform/HostingClientBase';
 import { parseRepoName, ParseDate, waitUntil } from '../../basic/Utils';
 import Octokit = require('@octokit/rest');
-import { Repo, CheckRun } from '../../basic/DataTypes';
+import { CheckRun } from '../../basic/DataTypes';
 import { Application } from 'egg';
 import { DataCat } from 'github-data-cat';
+import { RepoData } from '../../basic/HostingPlatform/RepoData';
 
 export class GitHubClient extends HostingClientBase<Octokit> {
 
@@ -47,7 +48,7 @@ export class GitHubClient extends HostingClientBase<Octokit> {
         pulls: true,
       });
 
-    this.repoData = {
+    this.repoData.setRepoData({
       ...full,
       stars: full.stars.map(star => {
         return {
@@ -102,7 +103,7 @@ export class GitHubClient extends HostingClientBase<Octokit> {
           time: new Date(c.time),
         };
       }),
-    };
+    });
   }
 
   public async getFileContent(path: string): Promise<string | undefined> {
@@ -205,7 +206,7 @@ export class GitHubClient extends HostingClientBase<Octokit> {
     });
   }
 
-  public getData(): Repo {
+  public getData(): RepoData {
     return this.repoData;
   }
 

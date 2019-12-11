@@ -225,7 +225,7 @@ export class GitLabApp extends HostingBase<GitLabConfig, GitLabClient, Gitlab> {
           // We only get notification when create a new comment.
           action: 'created',
           comment: {
-            id: String(noteable_id),
+            id: noteable_id,
             login: author_id,
             body: note,
             url,

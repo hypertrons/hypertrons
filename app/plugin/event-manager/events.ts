@@ -103,6 +103,7 @@ export class CommentUpdateEvent extends RepoEventBase {
 export class LabelUpdateEvent extends RepoEventBase {
   action: 'created' | 'deleted' | 'edited';
   labelName: string;
+  from?: string;
 }
 
 /**

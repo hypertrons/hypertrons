@@ -66,6 +66,11 @@ const plugin: EggPlugin = {
     path: join(__dirname, '../app/plugin/translate'),
   },
 
+  dataManager: {
+    enable: true,
+    path: join(__dirname, '../app/plugin/data-manager'),
+  },
+
 };
 
 export default plugin;
