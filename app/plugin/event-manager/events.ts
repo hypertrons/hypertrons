@@ -187,14 +187,6 @@ export class CommandManagerNewCommandEvent extends RepoEventBase {
 }
 
 /**
- * Run a CI pipeline
- */
-export class CIRunEvent extends RepoEventBase {
-  ciName?: string;
-  pullNumber: number;
-}
-
-/**
  * When receive a push event
  */
 export class PushEvent extends RepoEventBase {

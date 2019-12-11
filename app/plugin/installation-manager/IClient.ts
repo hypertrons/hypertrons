@@ -41,4 +41,6 @@ export interface IClient {
   updateLabels(labels: Array<{current_name: string, name?: string; description?: string, color?: string}>): Promise<void>;
 
   createCheckRun(check: CheckRun): Promise<void>;
+
+  runCI(configName: string, pullNumber: number): Promise<void>;
 }

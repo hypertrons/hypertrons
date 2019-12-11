@@ -15,7 +15,8 @@
 import { BotLogger, loggerWrapper, waitUntil } from '../Utils';
 import { Application } from 'egg';
 import { IClient } from '../../plugin/installation-manager/IClient';
-import { Repo, CheckRun } from '../DataTypes';
+import { Repo, CheckRun, CIPlatform } from '../DataTypes';
+import CIConfig from '../../component/ci/config';
 import { LuaVm } from '../../lua-vm/LuaVm';
 import { luaMethod, luaEvents } from '../../lua-vm/decorators';
 import { LUA_SCRIPT_KEY } from '../../plugin/component-manager/AppComponentManager';
@@ -25,7 +26,7 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
 
   public hostId: number;
   public rawClient: TRawClient;
-  public name: string;
+  public name: string; // fullName
   private app: Application;
   protected logger: BotLogger;
   protected config: any;
@@ -75,6 +76,31 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
   public abstract async createCheckRun(check: CheckRun): Promise<void>;
 
   public abstract async merge(num: number): Promise<void>;
+
+  public async runCI(configName: string, pullNumber: number): Promise<void> {
+    if (!configName || !pullNumber) return;
+
+    const ciConfigs = this.getCompConfig<CIConfig>('ci');
+    if (!ciConfigs ||
+      !ciConfigs.enable || ciConfigs.enable !== true ||
+      !ciConfigs.configs || ciConfigs.configs.length === 0) return;
+
+    ciConfigs.configs.forEach(config => {
+      if (config.name === configName) { // match configName
+        config.repoToJobMap.forEach(r2j => {
+          if (r2j.repo === this.name) { // match repoName
+            // Warnning: only support Jenkins now.
+            // Extend { if else } when extend CIPlatform
+            if (config.platform === CIPlatform.Jenkins) {
+              this.app.ciManager.runJenkins(r2j.job, pullNumber.toString(), config);
+            }
+            return;
+          }
+        });
+        return;
+      }
+    });
+  }
 
   //endregion
 
@@ -209,5 +235,11 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
     this.merge(num);
   }
 
+  @luaMethod()
+  protected lua_runCI(configName: string, pullNumber: number): void {
+    this.logger.info('Gonna run CI from lua, ',
+      'configName=', configName, ',pullNumber=', pullNumber, ', fullName=', this.name);
+    this.runCI(configName, pullNumber);
+  }
   //endregion
 }
