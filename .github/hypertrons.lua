@@ -58,6 +58,9 @@ end)
 on('CommandEvent', function (e)
   -- Difficuty command
   if (e.command == '/difficulty') then
+    if (#e.params ~= 1) then
+      return
+    end
     local level = e.params[1]
     local label = 'difficulty/' .. level
     local labels = config['label-setup'].labels
@@ -74,6 +77,16 @@ local approveLabel = 'pull/approved'
 on('CommandEvent', function (e)
   if (e.command == '/approve') then
     addLabels(e.number, { approveLabel })
+  end
+end)
+
+-- Run CI pipeline
+on('CommandEvent', function (e)
+  if (e.command == '/rerun') then
+    if (#e.params ~= 1) then
+      return
+    end
+    runCI(e.params[1], e.number)
   end
 end)
 
