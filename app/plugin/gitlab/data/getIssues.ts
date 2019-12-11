@@ -71,7 +71,7 @@ interface PageInfo {
 }
 
 interface RawIssue {
-  id: string; // begin from 1
+  id: number; // begin from 1
   author: {
     username: string;
   };
@@ -109,7 +109,7 @@ function formatIssue(i: RawIssue, fullPath: string): Issue {
     const info = x.node.notes.edges[0].node;
     const comment_id = (() => {
       const x = info.id.split('/'); // info.id === gid://gitlab/Note/1763
-      return x[x.length - 1];
+      return Number(x[x.length - 1]);
     })();
     return {
       id: comment_id,
@@ -123,7 +123,7 @@ function formatIssue(i: RawIssue, fullPath: string): Issue {
   return {
     id: i.id,
     author: i.author.username,
-    number: parseInt(i.id), // equal to id
+    number: i.id, // equal to id
     createdAt: new Date(i.createdAt),
     updatedAt: new Date(i.updatedAt),
     closedAt: i.closedAt ? new Date(i.closedAt) : null,

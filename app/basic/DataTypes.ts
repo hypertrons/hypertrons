@@ -14,7 +14,7 @@
 
 export interface Repo {
   // basic
-  id: string;
+  id: number;
   owner: string;
   ownerInfo: {
       login: string;
@@ -66,7 +66,7 @@ export interface Repo {
 }
 
 export interface Issue {
-  id: string;
+  id: number;
   author: string;
   number: number;
   createdAt: Date;
@@ -79,7 +79,7 @@ export interface Issue {
 }
 
 export interface PullRequest {
-  id: string;
+  id: number;
   author: string;
   number: number;
   createdAt: Date;
@@ -96,7 +96,7 @@ export interface PullRequest {
 }
 
 export interface Comment {
-  id: string;
+  id: number;
   login: string;
   body: string;
   url: string;

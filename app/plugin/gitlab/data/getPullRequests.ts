@@ -49,7 +49,7 @@ const pullrequest_query = `query pullrequest_query($fullPath: ID!, $iids_list: [
 `;
 
 interface RawPullRequest {
-  id: string;
+  id: number;
   createdAt: string;
   updatedAt: string;
   title: string;
@@ -76,7 +76,7 @@ function formatPullRequest(pr: RawPullRequest): PullRequest {
     const info = x.node;
     const comment_id = (() => {
       const x = info.id.split('/');
-      return x[x.length - 1];
+      return Number(x[x.length - 1]);
     })();
     return {
       id: comment_id,
@@ -89,7 +89,7 @@ function formatPullRequest(pr: RawPullRequest): PullRequest {
   return {
     id: pr.id,
     author: '',
-    number: parseInt(pr.id), // equal to id,
+    number: pr.id, // equal to id,
     createdAt: new Date(pr.createdAt),
     updatedAt: new Date(pr.updatedAt),
     closedAt: null,

@@ -15,12 +15,13 @@
 import { BotLogger, loggerWrapper, waitUntil } from '../Utils';
 import { Application } from 'egg';
 import { IClient } from '../../plugin/installation-manager/IClient';
-import { Repo, CheckRun, CIPlatform } from '../DataTypes';
+import { CheckRun, CIPlatform, Repo } from '../DataTypes';
 import CIConfig from '../../component/ci/config';
 import { LuaVm } from '../../lua-vm/LuaVm';
 import { luaMethod, luaEvents } from '../../lua-vm/decorators';
 import { LUA_SCRIPT_KEY } from '../../plugin/component-manager/AppComponentManager';
 import RoleConfig from '../../component/role/config';
+import { RepoData } from './RepoData';
 
 export abstract class HostingClientBase<TRawClient> implements IClient {
 
@@ -30,7 +31,7 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
   private app: Application;
   protected logger: BotLogger;
   protected config: any;
-  protected repoData: Repo;
+  protected repoData: RepoData;
   protected luaVm: LuaVm;
   public luaInjectMethods: Map<string, any>;
 
@@ -40,6 +41,7 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
     this.config = null;
     this.app = app;
     this.logger = loggerWrapper(app.logger, `[host-client-${this.hostId}-${this.name}]`);
+    this.repoData = new RepoData();
     process.nextTick(() => {
       // put in next tick to make sure construction finished
       this.runLuaScript();
@@ -107,7 +109,7 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
   //region
   // common functions
 
-  public getRepoData(): Repo {
+  public getRepoData(): RepoData {
     return this.repoData;
   }
 
@@ -190,7 +192,7 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
 
   @luaMethod()
   protected lua_getData(): Repo {
-    return this.repoData;
+    return this.repoData.getRepoData();
   }
 
   @luaMethod()

@@ -311,7 +311,7 @@ describe('GitHubClient', () => {
 
   describe('getData', () => {
     it('getData', async () => {
-      assert.notStrictEqual(client.getData(), undefined);
+      assert(client.getData() !== undefined);
     });
   });
 
