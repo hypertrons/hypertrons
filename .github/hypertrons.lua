@@ -49,7 +49,8 @@ sched('Issue reminder', '0 0 9 * * *', function ()
   end
   for i= 1, #data.issues do
     local issue = data.issues[i]
-    if (#issue.comments == 0 and toNow(issue.createdAt) > 24 * 60 * 60 * 1000) then
+    -- filter rule: 1. still open 2. has no comments 3. opened before 24 hours
+    if (issue.closedAt == nil and #issue.comments == 0 and toNow(issue.createdAt) > 24 * 60 * 60 * 1000) then
       addIssueComment(issue.number, msg)
     end
   end
