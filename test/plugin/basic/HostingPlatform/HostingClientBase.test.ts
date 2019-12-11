@@ -20,24 +20,50 @@ import { Application, Agent } from 'egg';
 import { CIPlatform } from '../../../../app/basic/DataTypes';
 import { JenkinsConfig } from '../../../../app/component/ci/config';
 import { GitHubClient } from '../../../../app/plugin/github/GitHubClient';
+import { SlackConfig, MailConfig, DingTalkConfig } from '../../../../app/component/im/config';
+import { IncomingWebhookSendArguments } from '@slack/webhook/dist/IncomingWebhook';
+import * as Nodemailer from 'nodemailer';
+import { DingTalkMessageType } from '../../../../app/basic/IMDataTypes';
 
 describe('HostingClientBase', () => {
   let app: Application;
   let agent: Agent;
 
-  let mockNum = 0;
-  let mockJobName = '';
-  let mockPullNumber = '';
-  let mockConfig: any = null;
+  let ciNumber = 0;
+  let ciJobName = '';
+  let ciPullNumber = '';
+  let ciConfig: any = null;
+
+  let imNumber = 0;
+  let imMessage: any = null;
+  let imConfig: any = null;
 
   beforeEach(async () => {
     ({ app, agent } = await prepareTestApplication());
 
     app.ciManager.runJenkins = (async (jobName: string, pullNum: string, config: JenkinsConfig) => {
-      mockNum++;
-      mockJobName = jobName;
-      mockPullNumber = pullNum;
-      mockConfig = config;
+      ciNumber++;
+      ciJobName = jobName;
+      ciPullNumber = pullNum;
+      ciConfig = config;
+    }) as any;
+
+    app.imManager.sendToSlack = (async (message: IncomingWebhookSendArguments, config: SlackConfig) => {
+      imNumber++;
+      imMessage = message;
+      imConfig = config;
+    }) as any;
+
+    app.imManager.sendToMail = (async (message: Nodemailer.SendMailOptions, config: MailConfig) => {
+      imNumber++;
+      imMessage = message;
+      imConfig = config;
+    }) as any;
+
+    app.imManager.sendToDingTalk = (async (message: DingTalkMessageType, config: DingTalkConfig) => {
+      imNumber++;
+      imMessage = message;
+      imConfig = config;
     }) as any;
   });
 
@@ -45,26 +71,199 @@ describe('HostingClientBase', () => {
     testClear(app, agent);
   });
 
-  describe('lua_runCI', () => {
+  describe('lua_sendToSlack', () => {
+    it('should not trigger if configName or message is empty', async () => {
+      imNumber = 0;
+      imMessage = null;
+      imConfig = null;
 
+      const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
+      client.getCompConfig = (<T>(_: string): T => undefined as any) as any;
+      client.lua_sendToSlack(null as any, null as any);
+      assert(imNumber === 0);
+    });
+
+    it('should not trigger if compConfig is empty', async () => {
+      const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
+      client.getCompConfig = (<T>(_: string): T => undefined as any) as any;
+      client.lua_sendToSlack('test', 1);
+      assert(imNumber === 0);
+
+      client.getCompConfig = (<T>(_: string): T => {
+        return {} as any;
+      }) as any;
+      client.lua_sendToSlack('test', {});
+      assert(imNumber === 0);
+    });
+
+    it('should not trigger if enable is false', async () => {
+      const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
+      const config = { enable: false };
+      client.getCompConfig = (<T>(_: string): T => config as any) as any;
+      client.lua_sendToSlack('test', {});
+      assert(imNumber === 0);
+    });
+
+    it('should not trigger if configName not exist', async () => {
+      const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
+      const config = {
+        enable: true,
+        slack: [],
+      };
+      client.getCompConfig = (<T>(_: string): T => config as any) as any;
+      client.lua_sendToSlack('test', {});
+      assert(imNumber === 0);
+    });
+
+    it('right case', async () => {
+      const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
+      const config = {
+        enable: true,
+        slack: [{ name: 'test' }],
+      };
+      client.getCompConfig = (<T>(_: string): T => config as any) as any;
+      client.lua_sendToSlack('test', {});
+      assert(imNumber === 1);
+      deepEqual(imMessage, {});
+      deepEqual(imConfig, config.slack[0]);
+    });
+  });
+
+  describe('lua_sendToMail', () => {
+    it('should not trigger if configName or message is empty', async () => {
+      imNumber = 0;
+      imMessage = null;
+      imConfig = null;
+
+      const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
+      client.getCompConfig = (<T>(_: string): T => undefined as any) as any;
+      client.lua_sendToMail(null as any, null as any);
+      assert(imNumber === 0);
+    });
+
+    it('should not trigger if compConfig is empty', async () => {
+      const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
+      client.getCompConfig = (<T>(_: string): T => undefined as any) as any;
+      client.lua_sendToMail('test', {});
+      assert(imNumber === 0);
+
+      client.getCompConfig = (<T>(_: string): T => {
+        return {} as any;
+      }) as any;
+      client.lua_sendToMail('test', {});
+      assert(imNumber === 0);
+    });
+
+    it('should not trigger if enable is false', async () => {
+      const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
+      const config = { enable: false };
+      client.getCompConfig = (<T>(_: string): T => config as any) as any;
+      client.lua_sendToMail('test', {});
+      assert(imNumber === 0);
+    });
+
+    it('should not trigger if configName not exist', async () => {
+      const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
+      const config = {
+        enable: true,
+        mail: [],
+      };
+      client.getCompConfig = (<T>(_: string): T => config as any) as any;
+      client.lua_sendToMail('test', {});
+      assert(imNumber === 0);
+    });
+
+    it('right case', async () => {
+      const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
+      const config = {
+        enable: true,
+        mail: [{ name: 'test' }],
+      };
+      client.getCompConfig = (<T>(_: string): T => config as any) as any;
+      client.lua_sendToMail('test', {});
+      assert(imNumber === 1);
+      deepEqual(imMessage, {});
+      deepEqual(imConfig, config.mail[0]);
+    });
+  });
+
+  describe('lua_sendToDingTalk', () => {
+    it('should not trigger if configName or message is empty', async () => {
+      imNumber = 0;
+      imMessage = null;
+      imConfig = null;
+
+      const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
+      client.getCompConfig = (<T>(_: string): T => undefined as any) as any;
+      client.lua_sendToDingTalk(null as any, null as any);
+      assert(imNumber === 0);
+    });
+
+    it('should not trigger if compConfig is empty', async () => {
+      const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
+      client.getCompConfig = (<T>(_: string): T => undefined as any) as any;
+      client.lua_sendToDingTalk('test', {});
+      assert(imNumber === 0);
+
+      client.getCompConfig = (<T>(_: string): T => {
+        return {} as any;
+      }) as any;
+      client.lua_sendToDingTalk('test', {});
+      assert(imNumber === 0);
+    });
+
+    it('should not trigger if enable is false', async () => {
+      const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
+      const config = { enable: false };
+      client.getCompConfig = (<T>(_: string): T => config as any) as any;
+      client.lua_sendToDingTalk('test', {});
+      assert(imNumber === 0);
+    });
+
+    it('should not trigger if configName not exist', async () => {
+      const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
+      const config = {
+        enable: true,
+        dingTalk: [],
+      };
+      client.getCompConfig = (<T>(_: string): T => config as any) as any;
+      client.lua_sendToDingTalk('test', {});
+      assert(imNumber === 0);
+    });
+
+    it('right case', async () => {
+      const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
+      const config = {
+        enable: true,
+        dingTalk: [{ name: 'test1' }],
+      };
+      client.getCompConfig = (<T>(_: string): T => config as any) as any;
+      client.lua_sendToDingTalk('test1', {});
+      assert(imNumber === 1);
+      deepEqual(imMessage, {});
+      deepEqual(imConfig, config.dingTalk[0]);
+    });
+  });
+
+  describe('lua_runCI', () => {
     it('should not trigger if configName or pullNumber is empty', async () => {
       const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
       client.getCompConfig = (<T>(_: string): T => undefined as any) as any;
       client.lua_runCI(null as any, null as any);
-      assert(mockNum === 0);
+      assert(ciNumber === 0);
     });
 
     it('should not trigger if compConfig is empty', async () => {
       const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
       client.getCompConfig = (<T>(_: string): T => undefined as any) as any;
       client.lua_runCI('test', 1);
-      assert(mockNum === 0);
+      assert(ciNumber === 0);
 
       client.getCompConfig = (<T>(_: string): T => {
         return {} as any;
       }) as any;
       client.lua_runCI('test', 1);
-      assert(mockNum === 0);
+      assert(ciNumber === 0);
     });
 
     it('should not trigger if compConfig.enable is false', async () => {
@@ -73,7 +272,7 @@ describe('HostingClientBase', () => {
         return { enable: false } as any;
       }) as any;
       client.lua_runCI('test', 1);
-      assert(mockNum === 0);
+      assert(ciNumber === 0);
     });
 
     it('should not trigger if compConfig.configs is empty', async () => {
@@ -82,7 +281,7 @@ describe('HostingClientBase', () => {
         return { enable: true, configs: [] } as any;
       }) as any;
       client.lua_runCI('test', 1);
-      assert(mockNum === 0);
+      assert(ciNumber === 0);
     });
 
     it('should not trigger if configName is not in compConfig.configs', async () => {
@@ -103,7 +302,7 @@ describe('HostingClientBase', () => {
         } as any;
       }) as any;
       client.lua_runCI('test', 1);
-      assert(mockNum === 0);
+      assert(ciNumber === 0);
     });
 
     it('should not trigger if fullName.repo is not in compConfig.configs.repoToJobMap', async () => {
@@ -124,7 +323,7 @@ describe('HostingClientBase', () => {
         } as any;
       }) as any;
       client.lua_runCI('jenkins1', 1);
-      assert(mockNum === 0);
+      assert(ciNumber === 0);
     });
 
     it('should not trigger if platform not exist', async () => {
@@ -144,7 +343,7 @@ describe('HostingClientBase', () => {
         } as any;
       }) as any;
       client.lua_runCI('jenkins1', 1);
-      assert(mockNum === 0);
+      assert(ciNumber === 0);
     });
 
     it('right case', async () => {
@@ -164,8 +363,8 @@ describe('HostingClientBase', () => {
       } as any;
       client.getCompConfig = (<T>(_: string): T => config) as any;
       client.lua_runCI('jenkins1', 1);
-      assert(mockNum === 1 && mockJobName === 'test' && mockPullNumber === '1');
-      deepEqual(mockConfig, config.configs[0]);
+      assert(ciNumber === 1 && ciJobName === 'test' && ciPullNumber === '1');
+      deepEqual(ciConfig, config.configs[0]);
     });
   });
 

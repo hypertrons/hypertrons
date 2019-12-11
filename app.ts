@@ -19,6 +19,7 @@ export default class AppBootHook {
   private app: Application;
   constructor(app: Application) {
     this.app = app;
+    app.messenger.setMaxListeners(20);
   }
 
   async willReady() {
