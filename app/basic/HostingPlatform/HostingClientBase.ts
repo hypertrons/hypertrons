@@ -22,6 +22,10 @@ import { luaMethod, luaEvents } from '../../lua-vm/decorators';
 import { LUA_SCRIPT_KEY } from '../../plugin/component-manager/AppComponentManager';
 import RoleConfig from '../../component/role/config';
 import { RepoData } from './RepoData';
+import { IncomingWebhookSendArguments } from '@slack/webhook/dist/IncomingWebhook';
+import IMConfig from '../../component/im/config';
+import * as Nodemailer from 'nodemailer';
+import { DingTalkMessageType } from '../IMDataTypes';
 
 export abstract class HostingClientBase<TRawClient> implements IClient {
 
@@ -242,6 +246,54 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
     this.logger.info('Gonna run CI from lua, ',
       'configName=', configName, ',pullNumber=', pullNumber, ', fullName=', this.name);
     this.runCI(configName, pullNumber);
+  }
+
+  @luaMethod()
+  protected lua_sendToSlack(configName: string, message: IncomingWebhookSendArguments): void {
+    this.logger.info('Gonna run sendToSlack from lua, configName=', configName);
+    if (!configName || !message) return;
+
+    const config = this.getCompConfig<IMConfig>('im');
+    if (!config || !config.enable || config.enable !== true || !config.slack) return;
+
+    config.slack.forEach(c => {
+      if (c.name === configName) {
+        this.app.imManager.sendToSlack(message, c);
+        return;
+      }
+    });
+  }
+
+  @luaMethod()
+  protected lua_sendToMail(configName: string, message: Nodemailer.SendMailOptions): void {
+    this.logger.info('Gonna run sendToMail from lua, configName=', configName);
+    if (!configName || !message) return;
+
+    const config = this.getCompConfig<IMConfig>('im');
+    if (!config || !config.enable || config.enable !== true || !config.mail) return;
+
+    config.mail.forEach(c => {
+      if (c.name === configName) {
+        this.app.imManager.sendToMail(message, c);
+        return;
+      }
+    });
+  }
+
+  @luaMethod()
+  protected lua_sendToDingTalk(configName: string, message: DingTalkMessageType): void {
+    this.logger.info('Gonna run sendToDingTalk from lua, configName=', configName);
+    if (!configName || !message) return;
+
+    const config = this.getCompConfig<IMConfig>('im');
+    if (!config || !config.enable || config.enable !== true || !config.dingTalk) return;
+
+    config.dingTalk.forEach(c => {
+      if (c.name === configName) {
+        this.app.imManager.sendToDingTalk(message, c);
+        return;
+      }
+    });
   }
   //endregion
 }
