@@ -17,7 +17,7 @@
 import assert from 'assert';
 import { waitFor, prepareTestApplication, testClear } from '../../Util';
 import { Application, Agent } from 'egg';
-import { CommandManagerNewCommandEvent, IssueEvent, CommentUpdateEvent } from '../../../app/plugin/event-manager/events';
+import { CommandManagerNewCommandEvent, IssueEvent, CommentUpdateEvent, ReviewCommentEvent } from '../../../app/plugin/event-manager/events';
 
 describe('AppCommandManager', () => {
   let app: Application;
@@ -28,6 +28,8 @@ describe('AppCommandManager', () => {
     commandEvent = [] as any;
     // generic param
     commands = [] as any;
+    issues = [] as any;
+    pulls = [] as any;
     action = '' as any;
     installationId: number = 42;
     fullName: string = 'testEvent';
@@ -40,9 +42,15 @@ describe('AppCommandManager', () => {
       login: 'testAuthor',
     } as any;
     issueNumber = 1;
+    prNumber = 1;
     changes: {};
     client = {
-      checkAuth: (_1, _2, _3) => _2,
+      checkAuth: () => true,
+      checkField: () => true,
+      getRepoData: () => ({
+        issues: this.issues,
+        pulls: this.pulls,
+      }),
     } as any;
 
     constructor() {
@@ -51,12 +59,6 @@ describe('AppCommandManager', () => {
       (app.command as any).getCommandsFromBody = () => this.commands;
     }
 
-    setCommands(commands) {
-      this.commands = commands;
-    }
-    setAction(action) {
-      this.action = action;
-    }
     toLuaEvent(): any {}
   }
 
@@ -110,10 +112,10 @@ describe('AppCommandManager', () => {
   describe('onReady()', () => {
     it('analyse issue', async () => {
       const e = new MockEvent();
-      e.setAction('opened');
-      e.setCommands([
+      e.action = 'opened';
+      e.commands = [
         { exec: '/assign', param: [ 'me' ] },
-      ]);
+      ];
       agent.event.publish('worker', IssueEvent, e);
       await waitFor(5);
       assert.equal(e.commandEvent[0].from, 'issue');
@@ -123,13 +125,32 @@ describe('AppCommandManager', () => {
 
     it('analyse comment', async () => {
       const e = new MockEvent();
-      e.setAction('edited');
-      e.setCommands([
+      e.action = 'edited';
+      e.commands = [
         { exec: '/assign', param: [ 'me' ] },
-      ]);
+      ];
+      e.issues = [
+        { number: 1, author: 'hi' },
+      ];
       agent.event.publish('worker', CommentUpdateEvent, e);
       await waitFor(5);
       assert.equal(e.commandEvent[0].from, 'comment');
+      assert.equal(e.commandEvent[0].issue, undefined);
+      assert.deepEqual(e.commandEvent[0].command, { exec: '/assign', param: [ 'me' ] });
+    });
+
+    it('analyse review comment', async () => {
+      const e = new MockEvent();
+      e.action = 'edited';
+      e.commands = [
+        { exec: '/assign', param: [ 'me' ] },
+      ];
+      e.pulls = [
+        { number: 1, author: 'hi' },
+      ];
+      agent.event.publish('worker', ReviewCommentEvent, e);
+      await waitFor(5);
+      assert.equal(e.commandEvent[0].from, 'reviewComment');
       assert.equal(e.commandEvent[0].issue, undefined);
       assert.deepEqual(e.commandEvent[0].command, { exec: '/assign', param: [ 'me' ] });
     });

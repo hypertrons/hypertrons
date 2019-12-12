@@ -24,6 +24,7 @@ import { SlackConfig, MailConfig, DingTalkConfig } from '../../../../app/compone
 import { IncomingWebhookSendArguments } from '@slack/webhook/dist/IncomingWebhook';
 import * as Nodemailer from 'nodemailer';
 import { DingTalkMessageType } from '../../../../app/basic/IMDataTypes';
+import { HostingClientBase } from '../../../../app/basic/HostingPlatform/HostingClientBase';
 
 describe('HostingClientBase', () => {
   let app: Application;
@@ -366,6 +367,102 @@ describe('HostingClientBase', () => {
       assert(ciNumber === 1 && ciJobName === 'test' && ciPullNumber === '1');
       deepEqual(ciConfig, config.configs[0]);
     });
+  });
+
+  describe('command check', () => {
+    let client: HostingClientBase<object>;
+
+    class MockClient extends (HostingClientBase as any)<object> {
+      constructor(name: string, hostId: number, app: Application) {
+        super(name, hostId, app);
+        this.repoData = {
+          getRepoData: () => {
+            return {
+              pulls: [
+                {
+                  number: 42,
+                },
+              ],
+              issues: [
+                {
+                  number: 42,
+                },
+              ],
+            };
+          },
+        };
+        this.config = {
+          roles: [
+            {
+              name: 'owner',
+              description: 'Owner',
+              users: [ 'GoodMeowing' ],
+              commands: [ '/biubiubiu' ],
+            },
+            {
+              name: 'anyone',
+              description: 'Anyone',
+              commands: [ '/666' ],
+            },
+            {
+              name: 'author',
+              description: 'Author',
+              commands: [ '/assign' ],
+            },
+            {
+              name: 'notauthor',
+              description: 'NotAuthor',
+              commands: [ '/approve' ],
+            },
+          ],
+        };
+      }
+      updateData() { }
+      getCompConfig() { return this.config; }
+    }
+
+    beforeEach(async () => {
+      client = new MockClient('owner/repo', 42, app) as any;
+    });
+
+    describe('checkAuth', () => {
+      it('directly return false when config is undefined', async () => {
+        (client as any).config = {};
+        assert.strictEqual(client.checkAuth('GoodMeowing', '/666', 'author'), false);
+      });
+
+      it('return true if everyone can exec command', async () => {
+        assert.strictEqual(client.checkAuth('GoodMeowing', '/666', 'author'), true);
+      });
+
+      it('return false if author exec not-author command', async () => {
+        assert.strictEqual(client.checkAuth('GoodMeowing', '/approve', 'GoodMeowing'), false);
+      });
+
+      it('return true if author exec author command', async () => {
+        assert.strictEqual(client.checkAuth('GoodMeowing', '/assign', 'GoodMeowing'), true);
+      });
+
+      it('check user auth', async () => {
+        assert.strictEqual(client.checkAuth('GoodMeowing', '/biubiubiu', 'author'), true);
+      });
+    });
+
+    describe('checkField', () => {
+      it('command has no field limit should return true', async () => {
+        assert.strictEqual(client.checkField('issue', '/madeInHeaven'), true);
+      });
+
+      it('check reviewComment-only command', async () => {
+        assert.strictEqual(client.checkField('reviewComment', '/approve'), true);
+      });
+
+      it('check issue-only command', async () => {
+        assert.strictEqual(client.checkField('issue', '/+1'), true);
+        assert.strictEqual(client.checkField('comment', '/+1'), true);
+      });
+    });
+
   });
 
 });

@@ -95,6 +95,14 @@ export interface PullRequest {
   deletions: number;
 }
 
+export interface Review {
+  id: number;
+  login: string;
+  body: string;
+  url: string;
+  createdAt: Date;
+}
+
 export interface Comment {
   id: number;
   login: string;

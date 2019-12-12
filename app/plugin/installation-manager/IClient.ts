@@ -24,7 +24,9 @@ export interface IClient {
 
   getCompConfig<TConfig>(comp: string): TConfig | undefined;
 
-  checkAuth(login: string, command: string): boolean;
+  checkAuth(login: string, command: string, author: string): boolean;
+
+  checkField(from: 'issue' | 'comment' | 'reviewComment', command: string): boolean;
 
   getFileContent(filePath: string): Promise<string | undefined>;
 

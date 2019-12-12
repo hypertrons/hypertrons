@@ -131,13 +131,45 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
     this.luaInjectMethods.set(key, value);
   }
 
-  public checkAuth(login: string, command: string): boolean {
+  public checkAuth(login: string, command: string, author: string): boolean {
     // config check
     const roleConfig: RoleConfig | undefined = this.getCompConfig<RoleConfig>('role');
     if (!roleConfig || !roleConfig.roles) return false;
-
+    // 1. Can anyone use the command?
+    const anyoneAuth = roleConfig.roles.find(role => role.name === 'anyone');
+    if (anyoneAuth && anyoneAuth.commands.includes(command)) return true;
+    // 2. Can author use the command?
+    if (login === author) {
+      const notAuthorAuth = roleConfig.roles.find(role => role.name === 'notauthor');
+      const authorAuth = roleConfig.roles.find(role => role.name === 'author');
+      if (notAuthorAuth && notAuthorAuth.commands.includes(command)) {
+        // The command must be exec with not author role
+        return false;
+      }
+      if (authorAuth && authorAuth.commands.includes(command)) {
+        // The command is allowed to be exec by author
+        return true;
+      }
+    }
+    // 3. Can user use the command?
     return roleConfig.roles.find(r =>
       r.users && r.users.includes(login) && r.commands && r.commands.includes(command)) !== undefined;
+  }
+
+  // Judge whether command can be exec in the current number issue/pr.
+  public checkField(from: 'issue' | 'comment' | 'reviewComment', command: string): boolean {
+    const reviewCommentCommand: string[] = [ '/approve' ];
+    const issueCommand: string[] = [ '/+1' ];
+    if (reviewCommentCommand.includes(command)) {
+      // only can be exec in review comment
+      return from === 'reviewComment';
+    } else if (issueCommand.includes(command)) {
+      // only can be exec in issue or issue comment
+      return (from === 'issue' || from === 'comment');
+    } else {
+      // commmand has no field limit
+      return true;
+    }
   }
 
   private async runLuaScript(): Promise<void> {
@@ -231,8 +263,8 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
   }
 
   @luaMethod()
-  protected lua_checkAuth(login: string, command: string): boolean {
-    return this.checkAuth(login, command);
+  protected lua_checkAuth(login: string, command: string, author: string): boolean {
+    return this.checkAuth(login, command, author);
   }
 
   @luaMethod()

@@ -119,6 +119,15 @@ class LuaPullRequestEvent {
   labels: string[];
 }
 
+/**
+ * When update a pull request comment
+ */
+export class ReviewCommentEvent extends RepoEventBase {
+  prNumber: number;
+  action: 'created' | 'deleted' | 'edited';
+  comment: Comment | undefined;
+}
+
 @luaEvent({
   description: 'Pull request event for a repo',
   luaEventType: LuaPullRequestEvent,
@@ -171,8 +180,8 @@ class LuaCommandEvent {
 })
 export class CommandManagerNewCommandEvent extends RepoEventBase {
   login: string;
-  from: 'issue' | 'comment';
-  issueNumber: number;
+  from: 'issue' | 'comment' | 'reviewComment';
+  number: number;
   comment: Comment | undefined;
   issue: Issue | undefined;
   command: Command;
@@ -182,7 +191,7 @@ export class CommandManagerNewCommandEvent extends RepoEventBase {
       command: e.command.exec,
       params: e.command.param,
       login: e.login,
-      number: e.issueNumber,
+      number: e.number,
     };
   }
 }

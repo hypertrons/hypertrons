@@ -23,7 +23,7 @@ import { join } from 'path';
 import { existsSync, readFileSync } from 'fs';
 import Webhooks = require('@octokit/webhooks');
 import { GithubWrapper } from '../../basic/DataWrapper';
-import { IssueEvent, CommentUpdateEvent, LabelUpdateEvent, PullRequestEvent, RepoRemovedEvent, RepoAddedEvent, PushEvent } from '../event-manager/events';
+import { IssueEvent, CommentUpdateEvent, LabelUpdateEvent, PullRequestEvent, ReviewCommentEvent, RepoRemovedEvent, RepoAddedEvent, PushEvent } from '../event-manager/events';
 import { DataCat } from 'github-data-cat';
 import EventSource from 'eventsource';
 
@@ -237,6 +237,18 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
       };
       this.app.event.publish('all', PullRequestEvent, pre);
     });
+    webhooks.on([ 'pull_request_review_comment.created',
+                  'pull_request_review_comment.edited',
+                  'pull_request_review_comment.deleted' ], e => {
+      const rce = {
+          installationId: this.id,
+          fullName: e.payload.repository.full_name,
+          action: e.payload.action,
+          prNumber: e.payload.pull_request.number,
+          comment: githubWrapper.reviewCommentWrapper(e.payload.comment),
+        };
+      this.app.event.publish('all', ReviewCommentEvent, rce);
+      });
     webhooks.on('push', e => {
       const pe = {
         installationId: this.id,
