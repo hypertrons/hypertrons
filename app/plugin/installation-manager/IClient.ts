@@ -12,14 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { CheckRun } from '../../basic/DataTypes';
+import { CheckRun, Repo } from '../../basic/DataTypes';
 import { RepoData } from '../../basic/HostingPlatform/RepoData';
 
 export interface IClient {
   name: string;
   rawClient: any;
+  repoData: RepoData;
 
-  getRepoData(): RepoData;
+  getRepoData(): Repo;
 
   getCompConfig<TConfig>(comp: string): TConfig | undefined;
 

@@ -26,22 +26,22 @@ export class AppDataManager extends AppPluginBase<null> {
 
     this.app.event.subscribeAll(PullRequestEvent, async e => {
       if (!e.client || !e.pullRequest) return;
-      e.client.getRepoData().updatePull(e.action, e.pullRequest);
+      e.client.repoData.updatePull(e.action, e.pullRequest);
     });
 
     this.app.event.subscribeAll(LabelUpdateEvent, async e => {
       if (!e.client || !e.labelName) return;
-      e.client.getRepoData().updateLabel(e.action, e.labelName, e.from);
+      e.client.repoData.updateLabel(e.action, e.labelName, e.from);
     });
 
     this.app.event.subscribeAll(CommentUpdateEvent, async e => {
       if (!e.client || !e.comment) return;
-      e.client.getRepoData().updateComment(e.action, e.issueNumber, e.comment);
+      e.client.repoData.updateComment(e.action, e.issueNumber, e.comment);
     });
 
     this.app.event.subscribeAll(IssueEvent, async e => {
       if (!e.client || !e.issue) return;
-      e.client.getRepoData().updateIssue(e.action, e.issue);
+      e.client.repoData.updateIssue(e.action, e.issue);
     });
 
   }

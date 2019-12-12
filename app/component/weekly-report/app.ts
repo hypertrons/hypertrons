@@ -84,7 +84,7 @@ export default (ctx: ComponentContext<Config>) => {
   }
 
   function removeOldWeeklyReports(client: IClient): void {
-    const removeIssues = client.getRepoData().getRepoData().issues.filter(
+    const removeIssues = client.getRepoData().issues.filter(
         issue => issue.labels.some(l => l === 'weekly-report'));
     if (removeIssues.length === 0) return;
     removeIssues.forEach(issue => {
@@ -103,7 +103,7 @@ export default (ctx: ComponentContext<Config>) => {
       watch: number;
     }
     const lastWeek = getLastWeek();
-    const repoData = client.getRepoData().getRepoData();
+    const repoData = client.getRepoData();
     const currentData: WeeklyData = {
             star: repoData.stars.length,
             watch: repoData.watchCount,
@@ -149,7 +149,7 @@ export default (ctx: ComponentContext<Config>) => {
   function generatePullRequestOverview(config: Config, client: IClient): string {
     const lastWeek = getLastWeek();
     // prs : all pull requests in last week
-    const prs = client.getRepoData().getRepoData().pulls.filter(pr =>
+    const prs = client.getRepoData().pulls.filter(pr =>
       pr.mergedAt && pr.mergedAt >= lastWeek);
       // group by author
     const pullRequestAuthors = new Array<{
@@ -201,7 +201,7 @@ export default (ctx: ComponentContext<Config>) => {
   async function generateCodeReviewOverview(config: Config, fullName: string, client: IClient): Promise<string> {
     const lastWeek = getLastWeek();
     // get prs merged last week or still in open state
-    const mergedOrOpenPrs = client.getRepoData().getRepoData().pulls
+    const mergedOrOpenPrs = client.getRepoData().pulls
         .filter(pr => (pr.mergedAt && pr.mergedAt >= lastWeek) || !pr.closedAt);
     const reviewers = new Array<{
         login: string,
@@ -229,7 +229,7 @@ export default (ctx: ComponentContext<Config>) => {
   }
   function generateContributorOverview(config: Config, fullName: string, client: IClient): string {
     const lastWeek = getLastWeek();
-    const contributors = client.getRepoData().getRepoData().contributors.filter(c => c.time >= lastWeek);
+    const contributors = client.getRepoData().contributors.filter(c => c.time >= lastWeek);
     contributors.reverse();
     if (contributors.length > 0) {
         return renderString(config.weeklyReportTemplate.newContributors, {

@@ -35,7 +35,7 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
   private app: Application;
   protected logger: BotLogger;
   protected config: any;
-  protected repoData: RepoData;
+  public repoData: RepoData;
   protected luaVm: LuaVm;
   public luaInjectMethods: Map<string, any>;
 
@@ -113,8 +113,8 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
   //region
   // common functions
 
-  public getRepoData(): RepoData {
-    return this.repoData;
+  public getRepoData(): Repo {
+    return this.repoData.getRepoData();
   }
 
   public getCompConfig<TConfig>(comp: string): TConfig | undefined {
