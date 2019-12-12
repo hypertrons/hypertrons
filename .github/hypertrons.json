@@ -47,7 +47,7 @@
         "name": "committer",
         "description": "Committer of the project",
         "users": [ "Frankzhaopku", "WuShaoling", "GoodMeowing", "heming6666", "liwen-tj" ],
-        "commands": [ "/difficulty" ]
+        "commands": [ "/difficulty", "/rerun" ]
       },
       {
         "name": "replier",
@@ -60,6 +60,24 @@
         "description": "After approvers' approve, pulls should be merged automatically",
         "users": [ "Frankzhaopku", "WuShaoling", "GoodMeowing", "heming6666", "liwen-tj" ],
         "commands": [ "/approve" ]
+      },
+      {
+        "name": "author",
+        "description": "Author of the issue or pull",
+        "users": [],
+        "commands": [ "/rerun" ]
+      },
+      {
+        "name": "notauthor",
+        "description": "Not author of the issue or pull",
+        "users": [],
+        "commands": [ "/approve" ]
+      },
+      {
+        "name": "anyone",
+        "description": "Anyone",
+        "users": [],
+        "commands": [ "/self-assign" ]
       }
     ]
   },
