@@ -76,19 +76,43 @@ export class RepoData {
     }
   }
 
-  public updateComment(action: 'created' | 'deleted' | 'edited', issueNumber: number, comment: Comment): void {
+  public updateIssueComment(action: 'created' | 'deleted' | 'edited', issueNumber: number, comment: Comment): void {
     if (!this.repoData) return;
 
-    let issue: Issue | PullRequest | undefined = this.repoData.issues.find(v => v.number === issueNumber);
-    if (!issue) issue = this.repoData.pulls.find(v => v.number === issueNumber);
+    const issue = this.repoData.issues.find(v => v.number === issueNumber);
     if (!issue) return;
 
     if (action === 'created') {
       issue.comments.push(comment);
     } else {
-      const index = issue.comments.findIndex(v => v.id = comment.id);
-      if (action === 'deleted') issue.comments.slice(index, 1);
-      else issue.comments[index] = comment;
+      const index = issue.comments.findIndex(v => v.id === comment.id);
+      if (index !== -1) {
+        if (action === 'deleted') {
+          issue.comments.splice(index, 1);
+        } else {
+          issue.comments[index] = comment;
+        }
+      }
+    }
+  }
+
+  public updatePullComment(action: 'created' | 'deleted' | 'edited', pullNumber: number, comment: Comment): void {
+    if (!this.repoData) return;
+
+    const pull = this.repoData.pulls.find(v => v.number === pullNumber);
+    if (!pull) return;
+
+    if (action === 'created') {
+      pull.comments.push(comment);
+    } else {
+      const index = pull.comments.findIndex(v => v.id === comment.id);
+      if (index !== -1) {
+        if (action === 'deleted') {
+          pull.comments.splice(index, 1);
+        } else {
+          pull.comments[index] = comment;
+        }
+      }
     }
   }
 

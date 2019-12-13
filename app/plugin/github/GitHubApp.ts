@@ -193,13 +193,24 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
       };
       this.app.event.publish('all', IssueEvent, ie);
     });
-    webhooks.on([ 'issue_comment.created', 'issue_comment.deleted', 'issue_comment.edited' ], e => {
+    webhooks.on([ 'issue_comment.created', 'issue_comment.deleted', 'issue_comment.edited' ], async e => {
+      const client = await this.getClient(e.payload.repository.full_name);
+      if (!client) return;
+
+      let isIssue = false;
+      const repoData = client.getRepoData();
+      if (repoData && repoData.issues &&
+        repoData.issues.find(issue => issue.id === e.payload.issue.id)) {
+          isIssue = true;
+      }
+
       const ice = {
         installationId: this.id,
         fullName: e.payload.repository.full_name,
         issueNumber: e.payload.issue.number,
         action: e.payload.action,
         comment: githubWrapper.commentWrapper(e.payload.comment),
+        isIssue,
       };
       this.app.event.publish('all', CommentUpdateEvent, ice);
     });
