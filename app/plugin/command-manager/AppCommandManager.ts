@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import { AppPluginBase } from '../../basic/AppPluginBase';
-import { CommentUpdateEvent, CommandManagerNewCommandEvent, IssueEvent } from '../event-manager/events';
+import { CommentUpdateEvent, CommandManagerNewCommandEvent, IssueEvent, ReviewCommentEvent } from '../event-manager/events';
 import { Command } from './Command';
 
 export class AppCommandManager extends AppPluginBase<null> {
@@ -27,7 +27,7 @@ export class AppCommandManager extends AppPluginBase<null> {
         this.logger.info(`the issue's body is ${e.issue.body}`);
         const commands = this.getCommandsFromBody(e.issue.body).filter(c => {
           if (!e.client || !e.issue) return false;
-          return e.client.checkAuth(e.issue.author, c.exec);
+          return e.client.checkAuth(e.issue.author, c.exec, e.issue.author) && e.client.checkField('issue', c.exec);
         });
         commands.map(command => {
           this.logger.info(`extract the command is ${command}`);
@@ -45,15 +45,18 @@ export class AppCommandManager extends AppPluginBase<null> {
         });
       }
     });
+
     // handle comment event
     this.app.event.subscribeOne(CommentUpdateEvent, async e => {
       this.logger.info(`Start to resolve the comment event for ${e.installationId} and repo ${e.fullName}`);
       if (!e.client || !e.comment) return;
+      const issue = e.client.getRepoData().issues.find(issue => issue.number === e.issueNumber);
+      if (!issue) return;
       if (e.action === 'created' || e.action === 'edited') {
         this.logger.info(`the comment's body is ${e.comment.body}`);
         const commands = this.getCommandsFromBody(e.comment.body).filter(c => {
           if (!e.client || !e.comment) return false;
-          return e.client.checkAuth(e.comment.login, c.exec);
+          return e.client.checkAuth(e.comment.login, c.exec, issue.author) && e.client.checkField('comment', c.exec);
         });
         commands.map(command => {
           this.logger.info(`extract the command is ${command}`);
@@ -64,6 +67,35 @@ export class AppCommandManager extends AppPluginBase<null> {
             login: (e.comment as any).login,
             from: 'comment',
             issueNumber: e.issueNumber,
+            issue: undefined,
+            comment: e.comment,
+            command,
+          }));
+        });
+      }
+    });
+
+    // handle review comment event
+    this.app.event.subscribeOne(ReviewCommentEvent, async e => {
+      this.logger.info(`Start to resolve the review comment event for ${e.installationId} and repo ${e.fullName}`);
+      if (!e.client || !e.comment) return;
+      const pull = e.client.getRepoData().pulls.find(pull => pull.number === e.prNumber);
+      if (!pull) return;
+      if (e.action === 'created' || e.action === 'edited') {
+        this.logger.info(`the comment's body is ${e.comment.body}`);
+        const commands = this.getCommandsFromBody(e.comment.body).filter(c => {
+          if (!e.client || !e.comment) return false;
+          return e.client.checkAuth(e.comment.login, c.exec, pull.author) && e.client.checkField('comment', c.exec);
+        });
+        commands.map(command => {
+          this.logger.info(`extract the command is ${command}`);
+          // publish new command event
+          this.app.event.publish('all', CommandManagerNewCommandEvent, Object.assign(new CommandManagerNewCommandEvent(), {
+            installationId: e.installationId,
+            fullName: e.fullName,
+            login: (e.comment as any).login,
+            from: 'reviewComment',
+            number: e.prNumber,
             issue: undefined,
             comment: e.comment,
             command,

@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Issue, Comment, PullRequest, Repo, Push } from './DataTypes';
+import { Issue, Comment, PullRequest, Review, Repo, Push } from './DataTypes';
 import {
   PayloadRepository,
   WebhookPayloadIssuesIssue,
   WebhookPayloadIssueCommentComment,
   WebhookPayloadPullRequestPullRequest,
+  WebhookPayloadPullRequestReviewCommentComment,
   WebhookPayloadPush,
 } from '@octokit/webhooks';
 import { ParseDate } from './Utils';
@@ -145,6 +146,20 @@ export class GithubWrapper implements DataWrapper {
         reviewComments: [ ],
         additions: pullRequest.additions,
         deletions: pullRequest.deletions,
+      };
+    } catch (error) {
+      return undefined;
+    }
+  }
+
+  public reviewCommentWrapper(reviewComment: WebhookPayloadPullRequestReviewCommentComment): Review | undefined {
+    try {
+      return {
+        id: reviewComment.id,
+        login: reviewComment.user.login,
+        body: reviewComment.body,
+        url: reviewComment.url,
+        createdAt: new Date(reviewComment.created_at),
       };
     } catch (error) {
       return undefined;
