@@ -45,7 +45,7 @@ export class GithubWrapper implements DataWrapper {
         ownerInfo: {
           login: repo.owner.login,
           __typename: repo.owner.type,
-          name: repo.owner.name === undefined ? '' : repo.owner.name,
+          name: (!repo.owner.name) ? '' : repo.owner.name,
           bio: '',
           description: '',
           createdAt: null,
@@ -152,14 +152,19 @@ export class GithubWrapper implements DataWrapper {
   }
 
   public pushWrapper(push: WebhookPayloadPush): Push | undefined {
-    try {
-      return {
-        ...push,
-        repository: this.repoWrapper(push.repository),
-        pusher: push.pusher,
-      };
-    } catch {
-      return undefined;
-    }
+    return {
+      ref: push.ref,
+      before: push.before,
+      after: push.after,
+      created: push.created,
+      deleted: push.deleted,
+      forced: push.forced,
+      base_ref: push.base_ref,
+      compare: push.compare,
+      commits: push.commits,
+      head_commit: push.head_commit,
+      repository: this.repoWrapper(push.repository),
+      pusher: push.pusher,
+    };
   }
 }
