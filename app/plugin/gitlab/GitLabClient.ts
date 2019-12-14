@@ -18,8 +18,9 @@ import { Application } from 'egg';
 import { CheckRun } from '../../basic/DataTypes';
 import { getAll } from './data/getAll';
 import { GitlabGraphqlClient } from './client/GitlabGraphqlClient';
+import { GitLabConfig } from './GitLabConfig';
 
-export class GitLabClient extends HostingClientBase<Gitlab> {
+export class GitLabClient extends HostingClientBase<GitLabConfig, Gitlab> {
 
   private id: number;
   private gitlabGraphqlClient: GitlabGraphqlClient;

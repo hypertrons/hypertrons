@@ -18,12 +18,12 @@ import { HostingConfigBase } from './HostingConfigBase';
 import { Application } from 'egg';
 import { join } from 'path';
 
-export abstract class HostingBase<TConfig extends HostingConfigBase, TClient extends HostingClientBase<TRawClient>, TRawClient> {
+export abstract class HostingBase<TConfig extends HostingConfigBase, TClient extends HostingClientBase<TConfig, TRawClient>, TRawClient> {
 
   protected id: number;
   protected name: string;
   protected clientMap: Map<string, () => Promise<TClient>>;
-  protected config: TConfig;
+  public config: TConfig;
   protected logger: BotLogger;
   protected app: Application;
 

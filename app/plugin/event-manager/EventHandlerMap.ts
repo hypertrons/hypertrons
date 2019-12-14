@@ -32,6 +32,16 @@ export class EventHandlerMap {
     }
   }
 
+  remove(key: string, func: any): void {
+    const arr = this.map.get(key);
+    if (arr) {
+      const id = arr.indexOf(func);
+      if (id > -1) {
+        arr.splice(id, 1);
+      }
+    }
+  }
+
   async exec(key: string, param: any): Promise<void> {
     const arr = this.map.get(key);
     if (arr) {
