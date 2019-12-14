@@ -33,7 +33,7 @@ describe('Utils', () => {
       );
       assert(res.blocks !== undefined);
       if (res.blocks) {
-        assert(res.blocks.length === 19);
+        assert(res.blocks.length === 18);
       }
     });
 
@@ -49,7 +49,7 @@ describe('Utils', () => {
       );
       assert(res.blocks !== undefined);
       if (res.blocks) {
-        assert(res.blocks.length === 19);
+      assert(res.blocks.length === 18);
       }
     });
 
@@ -70,7 +70,7 @@ describe('Utils', () => {
       );
       assert(res.blocks !== undefined);
       if (res.blocks) {
-        assert(res.blocks.length === 19);
+      assert(res.blocks.length === 18);
       }
     });
 
