@@ -42,6 +42,11 @@ export class AppEventManager extends AppPluginBase<null> {
     this.oneHandlerMap.add(className, func);
   }
 
+  public unsubscribeOne<T>(constructor: new (...args: any) => T, func: EventHandler<T>): void {
+    const className = getClassName(constructor);
+    this.oneHandlerMap.remove(className, func);
+  }
+
   public subscribeAll<T>(constructor: new (...args: any) => T, func: EventHandler<T>): void {
     const className = getClassName(constructor);
     this.allHandlerMap.add(className, func);

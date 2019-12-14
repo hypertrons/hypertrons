@@ -19,8 +19,9 @@ import { CheckRun } from '../../basic/DataTypes';
 import { Application } from 'egg';
 import { DataCat } from 'github-data-cat';
 import { RepoData } from '../../basic/HostingPlatform/RepoData';
+import { GitHubConfig } from './GitHubConfig';
 
-export class GitHubClient extends HostingClientBase<Octokit> {
+export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
 
   private owner: string;
   private repo: string;

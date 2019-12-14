@@ -170,7 +170,11 @@ export interface Push {
   forced: boolean;
   base_ref: null;
   compare: string;
-  commits: any[];
+  commits: Array<{
+    added: string[];
+    removed: string[];
+    modified: string[];
+  }>;
   head_commit: null;
   repository: Repo | undefined;
   pusher: Pusher;
