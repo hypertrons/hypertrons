@@ -60,6 +60,7 @@ export abstract class HostingClientBase<TConfig extends HostingConfigBase, TRawC
         this.updateData();
       });
     });
+    this.luaClient = new LuaClient(app, name);
   }
 
   // region

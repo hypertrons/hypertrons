@@ -74,6 +74,7 @@ export abstract class HostingManagerBase<THostingPlatform extends HostingBase<TC
           this.app.event.publish('all', RepoConfigLoadedEvent, {
             installationId: e.id,
             fullName,
+            client,
           });
         });
       }
