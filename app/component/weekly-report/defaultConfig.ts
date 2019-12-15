@@ -46,13 +46,13 @@ Thanks to contributions from community, **{{mergedPrCount}}** pull requests was 
 |:--------------:|:-----:|:-------------|
 {{pullRequestStrs}}
 `,
-  singleAuthorPullRequest: `| @{{name}} | {{count}} | {{singlePullRequestStrs}} |,
+  singleAuthorPullRequest: `| @{{name}} | {{count}} | {{singlePullRequestStrs}} |
 `,
-  singlePullRequest: '#{{number}} {{title}} <br>',
+  singlePullRequest: '#{{number}} {{title}} {{linebreaker}}',
   review: `## Code Review Statistics
 
-{{alias}} encourages everyone to participant in code review, in order to improve software quality. ` +
-                `This robot would automatically help to count pull request reviews of single github user as the following every week. So, try to help review code in this project.
+{{alias}} encourages everyone to participant in code review, in order to improve software quality.
+This robot would automatically help to count pull request reviews of single github user as the following every week. So, try to help review code in this project.
 
 | Contributor ID | Pull Request Reviews |
 |:--------------:|:--------------------:|
@@ -64,7 +64,7 @@ Thanks to contributions from community, **{{mergedPrCount}}** pull requests was 
 
 It is {{alias}} team's great honor to have new contributors from community. We really appreciate your contributions. ` +
                 'Feel free to tell us if you have any opinion and please share this open source project with more people if you could. ' +
-                `If you hope to be a contributor as well, please start from https://github.com/{{owner}}/{{repo}}/blob/{{branch}}/CONTRIBUTING.md .
+                `If you hope to be a contributor as well, please start from {{contributingLink}} .
 Here is the list of new contributors:
 
 {{contributorStrs}}
@@ -77,14 +77,14 @@ Thanks to you all.
 
 We have no new contributors in this project this week.
 {{alias}} team encourages everything about contribution from community.
-For more details, please refer to https://github.com/{{owner}}/{{repo}}/blob/master/CONTRIBUTING.md .
+For more details, please refer to {{contributingLink}} .
 `,
 };
 
 const defaultConfig: Config = {
   enable: false,
   jobName: 'WeeklyReport',
-  generateTime: '0 0 15 * * 7',
+  generateTime: '0 0 12 * * 1',
   weeklyReportTemplate: templateDefaultConfig,
 };
 

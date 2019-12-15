@@ -228,18 +228,16 @@ function generateContributorsOverview(contributors: string[], repoName: string, 
         text: '*4. Contributors Overview*',
       },
     },
-    {
+  ];
+
+  if (contributors && contributors.length > 0) {
+    res.push({
       type: 'section',
       text: {
         type: 'mrkdwn',
         text: 'It is ' + repoName + ' team\'s great honor to have new contributors from community. We really appreciate your contributions. Feel free to tell us if you have any opinion and please share this open source project with more people if you could. If you hope to be a contributor as well, please start from ' + contributingLink + ' .\n\n',
       },
-    },
-
-  ];
-
-  // push contributors
-  if (contributors && contributors.length > 0) {
+    });
     let contributorStr = 'Here is the list of new contributors:\n\n';
     contributors.forEach(v => {
       contributorStr += '\n' + v;
@@ -250,17 +248,23 @@ function generateContributorsOverview(contributors: string[], repoName: string, 
         type: 'mrkdwn',
         text: contributorStr,
       },
+    },
+    {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: '\n\nThanks to you all.',
+      },
+    });
+  } else {
+    res.push({
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `We have no new contributors in this project this week.\n\n ${repoName} team encourages everything about contribution from community.\n\n For more details, please refer to ${contributingLink}.`,
+      },
     });
   }
-
-  // push endline
-  res.push({
-    type: 'section',
-    text: {
-      type: 'mrkdwn',
-      text: '\n\nThanks to you all.',
-    },
-  });
 
   return res;
 }
