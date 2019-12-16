@@ -13,7 +13,7 @@ pipeline {
             steps{
                 sh 'npm config set registry=https://registry.npm.taobao.org'
                 sh 'npm install'
-                // sh 'npm install typescript@latest -g'
+                sh 'npm install typescript@latest -g'
             }
         }
         stage('Test') {
