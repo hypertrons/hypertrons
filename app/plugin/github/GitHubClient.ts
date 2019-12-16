@@ -206,6 +206,14 @@ export class GitHubClient extends HostingClientBase<Octokit> {
     });
   }
 
+  public async assign(num: number, login: string): Promise<void> {
+    await this.rawClient.issues.addAssignees({
+      ...this.repoName,
+      issue_number: num,
+      assignees: [ login ],
+    });
+  }
+
   public getData(): RepoData {
     return this.repoData;
   }

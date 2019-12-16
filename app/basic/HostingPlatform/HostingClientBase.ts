@@ -83,6 +83,8 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
 
   public abstract async merge(num: number): Promise<void>;
 
+  public abstract async assign(num: number, login: string): Promise<void>;
+
   public async runCI(configName: string, pullNumber: number): Promise<void> {
     if (!configName || !pullNumber) return;
 
@@ -238,6 +240,18 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
     const roleDetail = roleConfig.roles.find(r => r.name === role);
     if (!roleDetail || !roleDetail.users) return [];
     return roleDetail.users;
+  }
+
+  @luaMethod()
+  protected lua_addIssue(title: string, body: string, labels: string[]): void {
+    this.logger.info('Gonna add issue from lua, title=', title, ',body=', body);
+    this.addIssue(title, body, labels);
+  }
+
+  @luaMethod()
+  protected lua_assign(num: number, login: string): void {
+    this.logger.info('Gonna assign from lua, num=', num, ',login=', login);
+    this.assign(num, login);
   }
 
   @luaMethod()
