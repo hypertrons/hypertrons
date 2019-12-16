@@ -150,8 +150,11 @@ describe('ConfigLoader', () => {
 
     it('currect case', async () => {
       const configLoader = new ConfigLoader(app) as any;
-      const result = configLoader.genRepoConfigFilePath('path', 'id', 'owner/repo');
-      assert(result === path.join('path', 'id_owner_repo.json'));
+      let result = configLoader.genRepoConfigFilePath('path', 0, 'owner/repo');
+      assert(result === path.join('path', '0_owner_repo.json'));
+
+      result = configLoader.genRepoConfigFilePath('path', 1, 'owner/repo');
+      assert(result === path.join('path', '1_owner_repo.json'));
     });
   });
 
