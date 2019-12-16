@@ -18,6 +18,7 @@ import { Application, Agent } from 'egg';
 import { ConfigLoader } from '../../../../app/basic/HostingPlatform/ConfigLoader';
 import { prepareTestApplication, testClear } from '../../../Util';
 import assert, { deepEqual } from 'assert';
+import path from 'path';
 
 describe('ConfigLoader', () => {
   let app: Application;
@@ -150,7 +151,7 @@ describe('ConfigLoader', () => {
     it('currect case', async () => {
       const configLoader = new ConfigLoader(app) as any;
       const result = configLoader.genRepoConfigFilePath('path', 'id', 'owner/repo');
-      assert(result === 'path/id_owner_repo.json');
+      assert(result === path.join('path', 'id_owner_repo.json'));
     });
   });
 
