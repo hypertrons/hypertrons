@@ -93,7 +93,7 @@ export class ConfigLoader {
 
   // rootPath_number_owner_repoName.json <= (installationId, fullName)
   private genRepoConfigFilePath(rootPath: string, installationId: number, fullName: string): string {
-    if (!rootPath || !installationId || !fullName) return '';
+    if (!rootPath || installationId === undefined || installationId === null || !fullName) return '';
     const { owner, repo } = parseRepoName(fullName);
     if (!owner || !repo) return '';
     return join(rootPath, `${installationId}_${owner}_${repo}.json`);
