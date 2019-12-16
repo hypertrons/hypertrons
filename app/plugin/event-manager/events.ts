@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Issue, Comment, PullRequest, CheckRun, Push } from '../../basic/DataTypes';
+import { Issue, Comment, PullRequest, CheckRun, Push, Review } from '../../basic/DataTypes';
 import { Command } from '../command-manager/Command';
 import { IClient } from '../installation-manager/IClient';
 import { luaEvent } from '../../lua-vm/decorators';
@@ -118,6 +118,15 @@ class LuaPullRequestEvent {
   title: string;
   body: string;
   labels: string[];
+}
+
+/**
+ * When update a pull request review
+ */
+export class ReviewEvent extends RepoEventBase {
+  prNumber: number;
+  action: 'submitted' | 'dismissed' | 'edited';
+  review: Review | undefined;
 }
 
 /**

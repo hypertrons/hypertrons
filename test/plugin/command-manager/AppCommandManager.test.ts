@@ -17,7 +17,7 @@
 import assert from 'assert';
 import { waitFor, prepareTestApplication, testClear } from '../../Util';
 import { Application, Agent } from 'egg';
-import { CommandManagerNewCommandEvent, IssueEvent, CommentUpdateEvent, ReviewCommentEvent } from '../../../app/plugin/event-manager/events';
+import { CommandManagerNewCommandEvent, IssueEvent, CommentUpdateEvent, ReviewCommentEvent, ReviewEvent } from '../../../app/plugin/event-manager/events';
 
 describe('AppCommandManager', () => {
   let app: Application;
@@ -41,12 +41,16 @@ describe('AppCommandManager', () => {
     comment = {
       login: 'testAuthor',
     } as any;
+    review = {
+      body: 'body',
+      login: 'testAuthor',
+    } as any;
     issueNumber = 1;
     prNumber = 1;
     changes: {};
     client = {
       checkAuth: () => true,
-      checkField: () => true,
+      checkScope: () => true,
       getRepoData: () => ({
         issues: this.issues,
         pulls: this.pulls,
@@ -139,6 +143,22 @@ describe('AppCommandManager', () => {
       assert.deepEqual(e.commandEvent[0].command, { exec: '/assign', param: [ 'me' ] });
     });
 
+    it('analyse review', async () => {
+      const e = new MockEvent();
+      e.action = 'edited';
+      e.commands = [
+        { exec: '/assign', param: [ 'me' ] },
+      ];
+      e.pulls = [
+        { number: 1, author: 'hi' },
+      ];
+      agent.event.publish('worker', ReviewEvent, e);
+      await waitFor(5);
+      assert.equal(e.commandEvent[0].from, 'review');
+      assert.equal(e.commandEvent[0].issue, undefined);
+      assert.deepEqual(e.commandEvent[0].command, { exec: '/assign', param: [ 'me' ] });
+    });
+
     it('analyse review comment', async () => {
       const e = new MockEvent();
       e.action = 'edited';
@@ -150,7 +170,7 @@ describe('AppCommandManager', () => {
       ];
       agent.event.publish('worker', ReviewCommentEvent, e);
       await waitFor(5);
-      assert.equal(e.commandEvent[0].from, 'reviewComment');
+      assert.equal(e.commandEvent[0].from, 'review_comment');
       assert.equal(e.commandEvent[0].issue, undefined);
       assert.deepEqual(e.commandEvent[0].command, { exec: '/assign', param: [ 'me' ] });
     });
