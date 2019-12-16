@@ -111,6 +111,22 @@ export class GitLabClient extends HostingClientBase<Gitlab> {
     });
   }
 
+  public async assign(num: number, login: string): Promise<void> {
+    // Need to get user id by login first
+    try {
+      const user = await this.rawClient.Users.search(login) as any;
+      if (user && Array.isArray(user) && user.length > 0) {
+        const userId = user[0].id;
+        // API doc: https://docs.gitlab.com/ee/api/issues.html#edit-issue
+        await this.rawClient.Issues.edit(this.id, num, {
+          assignee_ids: [ userId ],
+        });
+      }
+    } catch (e) {
+      this.logger.error(e);
+    }
+  }
+
   private parseColor<T>(color: T): T {
     if (!color) return color;
     if (!(color as any).startsWith('#')) {
