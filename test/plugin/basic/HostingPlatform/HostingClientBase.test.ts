@@ -415,6 +415,12 @@ describe('HostingClientBase', () => {
               commands: [ '/approve' ],
             },
           ],
+          commands: [
+            {
+              name: '/approve',
+              scopes: [ 'review_comment', 'comment' ],
+            },
+          ],
         };
       }
       updateData() { }
@@ -448,18 +454,15 @@ describe('HostingClientBase', () => {
       });
     });
 
-    describe('checkField', () => {
+    describe('checkScope', () => {
       it('command has no field limit should return true', async () => {
-        assert.strictEqual(client.checkField('issue', '/madeInHeaven'), true);
+        assert.strictEqual(client.checkScope('issue', '/madeInHeaven'), true);
       });
 
-      it('check reviewComment-only command', async () => {
-        assert.strictEqual(client.checkField('reviewComment', '/approve'), true);
-      });
-
-      it('check issue-only command', async () => {
-        assert.strictEqual(client.checkField('issue', '/+1'), true);
-        assert.strictEqual(client.checkField('comment', '/+1'), true);
+      it('check review-comment-only command', async () => {
+        assert.strictEqual(client.checkScope('review_comment', '/approve'), true);
+        assert.strictEqual(client.checkScope('comment', '/approve'), true);
+        assert.strictEqual(client.checkScope('issue', '/approve'), false);
       });
     });
 

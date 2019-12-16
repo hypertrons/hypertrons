@@ -99,7 +99,6 @@ export interface Review {
   id: number;
   login: string;
   body: string;
-  url: string;
   createdAt: Date;
 }
 

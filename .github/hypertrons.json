@@ -81,5 +81,13 @@
       }
     ]
   },
+  "command": {
+    "commands": [
+      {
+        "name": "/approve",
+        "scopes": [ "review", "review_comment", "pull_comment" ]
+      }
+    ]
+  },
   "lua": ".github/hypertrons.lua"
 }

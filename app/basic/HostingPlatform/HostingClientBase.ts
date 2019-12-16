@@ -21,6 +21,7 @@ import { LuaVm } from '../../lua-vm/LuaVm';
 import { luaMethod, luaEvents } from '../../lua-vm/decorators';
 import { LUA_SCRIPT_KEY } from '../../plugin/component-manager/AppComponentManager';
 import RoleConfig from '../../component/role/config';
+import CommandConfig from '../../component/command/config';
 import { RepoData } from './RepoData';
 import { IncomingWebhookSendArguments } from '@slack/webhook/dist/IncomingWebhook';
 import IMConfig from '../../component/im/config';
@@ -159,19 +160,14 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
   }
 
   // Judge whether command can be exec in the current number issue/pr.
-  public checkField(from: 'issue' | 'comment' | 'reviewComment', command: string): boolean {
-    const reviewCommentCommand: string[] = [ '/approve' ];
-    const issueCommand: string[] = [ '/+1' ];
-    if (reviewCommentCommand.includes(command)) {
-      // only can be exec in review comment
-      return from === 'reviewComment';
-    } else if (issueCommand.includes(command)) {
-      // only can be exec in issue or issue comment
-      return (from === 'issue' || from === 'comment');
-    } else {
-      // commmand has no field limit
-      return true;
-    }
+  public checkScope(from: 'issue' | 'comment' | 'pull_comment' | 'review' | 'review_comment', command: string): boolean {
+    // config check
+    const commandConfig: CommandConfig | undefined = this.getCompConfig<CommandConfig>('command');
+    if (!commandConfig || !commandConfig.commands) return true;
+
+    const commandScope = commandConfig.commands.find(c => c.name === command);
+    if (commandScope) return commandScope.scopes.includes(from);
+    return true;
   }
 
   private async runLuaScript(): Promise<void> {

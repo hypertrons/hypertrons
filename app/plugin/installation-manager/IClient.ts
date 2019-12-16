@@ -26,7 +26,7 @@ export interface IClient {
 
   checkAuth(login: string, command: string, author: string): boolean;
 
-  checkField(from: 'issue' | 'comment' | 'reviewComment', command: string): boolean;
+  checkScope(from: 'issue' | 'comment' | 'pull_comment' | 'review' | 'review_comment', command: string): boolean;
 
   getFileContent(filePath: string): Promise<string | undefined>;
 

@@ -18,6 +18,7 @@ import {
   WebhookPayloadIssuesIssue,
   WebhookPayloadIssueCommentComment,
   WebhookPayloadPullRequestPullRequest,
+  WebhookPayloadPullRequestReviewReview,
   WebhookPayloadPullRequestReviewCommentComment,
   WebhookPayloadPush,
 } from '@octokit/webhooks';
@@ -29,6 +30,7 @@ export interface DataWrapper {
   issueWrapper(issue: any): Issue | undefined;
   commentWrapper(comment: any): Comment | undefined;
   pullRequestWrapper(pullRequest: any): PullRequest | undefined;
+  reviewCommentWrapper(reviewComment: any): Comment | undefined;
 }
 
 export class GithubWrapper implements DataWrapper {
@@ -152,7 +154,21 @@ export class GithubWrapper implements DataWrapper {
     }
   }
 
-  public reviewCommentWrapper(reviewComment: WebhookPayloadPullRequestReviewCommentComment): Review | undefined {
+  public reviewWrapper(review: WebhookPayloadPullRequestReviewReview): Review | undefined {
+    try {
+      return {
+        id: review.id,
+        login: review.user.login,
+        // In official doc, body is null type. But actually it's string type
+        body: (review.body) as any,
+        createdAt: new Date(review.submitted_at),
+      };
+    } catch (error) {
+      return undefined;
+    }
+  }
+
+  public reviewCommentWrapper(reviewComment: WebhookPayloadPullRequestReviewCommentComment): Comment | undefined {
     try {
       return {
         id: reviewComment.id,
