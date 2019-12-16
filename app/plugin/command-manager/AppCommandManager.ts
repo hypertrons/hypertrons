@@ -85,7 +85,7 @@ export class AppCommandManager extends AppPluginBase<null> {
         this.logger.info(`the comment's body is ${e.comment.body}`);
         const commands = this.getCommandsFromBody(e.comment.body).filter(c => {
           if (!e.client || !e.comment) return false;
-          return e.client.checkAuth(e.comment.login, c.exec, pull.author) && e.client.checkField('comment', c.exec);
+          return e.client.checkAuth(e.comment.login, c.exec, pull.author) && e.client.checkField('reviewComment', c.exec);
         });
         commands.map(command => {
           this.logger.info(`extract the command is ${command}`);
