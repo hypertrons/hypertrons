@@ -11,17 +11,17 @@ pipeline {
     stages {
         stage('Install') {
             steps{
-                // sh 'npm config set registry=https://registry.npm.taobao.org'
+                sh 'npm config set registry=https://registry.npm.taobao.org'
                 sh 'npm install'
-                sh 'npm install typescript@latest -g'
+                // sh 'npm install typescript@latest -g'
             }
         }
         stage('Test') {
             steps {
-                sh 'tsc'
+                sh 'npm run tsc'
                 sh 'npm run licensecheck'
                 sh 'npm run lint'
-                sh 'npm run test-local'
+                sh 'npm run cov'
             }
         }
         stage('Deploy') {

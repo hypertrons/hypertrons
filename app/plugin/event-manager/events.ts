@@ -95,6 +95,7 @@ export class CommentUpdateEvent extends RepoEventBase {
   issueNumber: number;
   action: 'created' | 'deleted' | 'edited';
   comment: Comment | undefined;
+  isIssue: boolean; // true: issue, false: PR/MR
 }
 
 /**

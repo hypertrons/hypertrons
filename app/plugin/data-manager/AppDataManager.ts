@@ -36,7 +36,13 @@ export class AppDataManager extends AppPluginBase<null> {
 
     this.app.event.subscribeAll(CommentUpdateEvent, async e => {
       if (!e.client || !e.comment) return;
-      e.client.repoData.updateComment(e.action, e.issueNumber, e.comment);
+
+      if (e.isIssue === true) {
+        e.client.repoData.updateIssueComment(e.action, e.issueNumber, e.comment);
+      } else {
+        e.client.repoData.updatePullComment(e.action, e.issueNumber, e.comment);
+      }
+
     });
 
     this.app.event.subscribeAll(IssueEvent, async e => {

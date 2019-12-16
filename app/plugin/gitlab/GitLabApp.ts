@@ -214,6 +214,7 @@ export class GitLabApp extends HostingBase<GitLabConfig, GitLabClient, Gitlab> {
             note,
             url,
             created_at,
+            noteable_type,
           },
         } = payload;
 
@@ -231,6 +232,7 @@ export class GitLabApp extends HostingBase<GitLabConfig, GitLabClient, Gitlab> {
             url,
             createdAt: created_at,
           },
+          isIssue: noteable_type === 'Issue',
         };
         this.app.event.publish('all', CommentUpdateEvent, ce);
         break;
