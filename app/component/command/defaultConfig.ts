@@ -19,6 +19,7 @@ const defaultConfig: Config = {
     {
       name: '/approve',
       scopes: [ 'pull_comment', 'review', 'review_comment' ],
+      intervalMinutes: 0,
     },
   ],
 };

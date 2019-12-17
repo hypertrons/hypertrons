@@ -49,8 +49,10 @@ describe('AppCommandManager', () => {
     prNumber = 1;
     changes: {};
     client = {
+      checkCommand: () => true,
       checkAuth: () => true,
       checkScope: () => true,
+      checkInterval: () => true,
       getRepoData: () => ({
         issues: this.issues,
         pulls: this.pulls,

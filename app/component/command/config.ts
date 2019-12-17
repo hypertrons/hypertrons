@@ -33,6 +33,12 @@ export class Command {
   })
   scopes: string[];
 
+  @configProp({
+    description: 'Command execute interval',
+    defaultValue: 0,
+  })
+  intervalMinutes: number;
+
 }
 
 @configClass({

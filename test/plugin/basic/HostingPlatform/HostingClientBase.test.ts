@@ -369,6 +369,96 @@ describe('HostingClientBase', () => {
     });
   });
 
+  describe('checkInterval', () => {
+    it('should return true if CompConfig is empty', async () => {
+      const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
+      client.getCompConfig = (<T>(_: string): T => undefined as any) as any;
+      const res = client.checkInterval(true, 0, '/rerun');
+      assert(res === true);
+    });
+
+    it('should return true if CompConfig.commands is empty', async () => {
+      const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
+      client.getCompConfig = (<T>(_: string): T => {
+        return {} as any;
+      }) as any;
+      let res = client.checkInterval(true, 0, '/rerun');
+      assert(res === true);
+
+      client.getCompConfig = (<T>(_: string): T => {
+        return { commands: [] } as any;
+      }) as any;
+      res = client.checkInterval(true, 0, '/rerun');
+      assert(res === true);
+    });
+
+    it('should return true if command not found in CompConfig.commands', async () => {
+      const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
+      client.getCompConfig = (<T>(_: string): T => {
+        return { commands: [{ name: '/test' }] } as any;
+      }) as any;
+      const res = client.checkInterval(true, 0, '/rerun');
+      assert(res === true);
+    });
+
+    it('should return true if CompConfig.command.intervalMinutes is empty or <= 0', async () => {
+      const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
+      client.getCompConfig = (<T>(_: string): T => {
+        return { commands: [{ name: '/rerun' }] } as any;
+      }) as any;
+      let res = client.checkInterval(true, 0, '/rerun');
+      assert(res === true);
+
+      client.getCompConfig = (<T>(_: string): T => {
+        return { commands: [{ name: '/rerun', intervalMinutes: 0 }] } as any;
+      }) as any;
+      res = client.checkInterval(true, 0, '/rerun');
+      assert(res === true);
+
+      client.getCompConfig = (<T>(_: string): T => {
+        return { commands: [{ name: '/rerun', intervalMinutes: -1 }] } as any;
+      }) as any;
+      res = client.checkInterval(true, 0, '/rerun');
+      assert(res === true);
+    });
+
+    it('should return true if lastExecTime is empty', async () => {
+      const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
+      client.getCompConfig = (<T>(_: string): T => {
+        return { commands: [{ name: '/rerun', intervalMinutes: 10 }] } as any;
+      }) as any;
+      const res = client.checkInterval(true, 0, '/rerun');
+      assert(res === true);
+    });
+
+    it('should return false if now() - lastExecTime <= interval', async () => {
+      const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
+      client.setCommandLastExecTime(true, 0);
+      client.getCompConfig = (<T>(_: string): T => {
+        return { commands: [{ name: '/rerun', intervalMinutes: 10 }] } as any;
+      }) as any;
+      const res = client.checkInterval(true, 0, '/rerun');
+      assert(res === false);
+    });
+
+    it('should return true if now() - lastExecTime > interval', async () => {
+      const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
+      client.commandLastExecTime.set('issue_0', 1575642832110); // 2019-12-06 22:33:52 GMT+0800 (GMT+08:00)
+      client.getCompConfig = (<T>(_: string): T => {
+        return { commands: [{ name: '/rerun', intervalMinutes: 10 }] } as any;
+      }) as any;
+      let res = client.checkInterval(true, 0, '/rerun');
+      assert(res === true);
+
+      client.commandLastExecTime.set('pull_0', 1575642832110); // 2019-12-06 22:33:52 GMT+0800 (GMT+08:00)
+      client.getCompConfig = (<T>(_: string): T => {
+        return { commands: [{ name: '/rerun', intervalMinutes: 10 }] } as any;
+      }) as any;
+      res = client.checkInterval(false, 0, '/rerun');
+      assert(res === true);
+    });
+  });
+
   describe('command check', () => {
     let client: HostingClientBase<object>;
 

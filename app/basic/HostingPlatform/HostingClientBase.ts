@@ -39,6 +39,7 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
   public repoData: RepoData;
   protected luaVm: LuaVm;
   public luaInjectMethods: Map<string, any>;
+  protected commandLastExecTime: Map<string, number>;
 
   constructor(name: string, hostId: number, app: Application) {
     this.name = name;
@@ -47,6 +48,7 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
     this.app = app;
     this.logger = loggerWrapper(app.logger, `[host-client-${this.hostId}-${this.name}]`);
     this.repoData = new RepoData();
+    this.commandLastExecTime = new Map<string, number>();
     process.nextTick(() => {
       // put in next tick to make sure construction finished
       this.runLuaScript();
@@ -87,28 +89,26 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
   public abstract async assign(num: number, login: string): Promise<void>;
 
   public async runCI(configName: string, pullNumber: number): Promise<void> {
-    if (!configName || !pullNumber) return;
+    if (!configName || !Number.isInteger(pullNumber)) return;
 
     const ciConfigs = this.getCompConfig<CIConfig>('ci');
-    if (!ciConfigs ||
-      !ciConfigs.enable || ciConfigs.enable !== true ||
-      !ciConfigs.configs || ciConfigs.configs.length === 0) return;
+    if (!ciConfigs || ciConfigs.enable !== true || !ciConfigs.configs) return;
 
-    ciConfigs.configs.forEach(config => {
-      if (config.name === configName) { // match configName
-        config.repoToJobMap.forEach(r2j => {
-          if (r2j.repo === this.name) { // match repoName
-            // Warnning: only support Jenkins now.
-            // Extend { if else } when extend CIPlatform
-            if (config.platform === CIPlatform.Jenkins) {
-              this.app.ciManager.runJenkins(r2j.job, pullNumber.toString(), config);
-            }
-            return;
-          }
-        });
-        return;
-      }
+    let jobName = '';
+    const ciConfig = ciConfigs.configs.find(config => {
+      return config.name === configName && (config.repoToJobMap.findIndex(r2j => {
+        if (r2j.repo === this.name) {
+          jobName = r2j.job;
+          return true;
+        }
+        return false;
+      }) !== -1);
     });
+    if (!ciConfig) return;
+
+    if (ciConfig.platform === CIPlatform.Jenkins) {
+      this.app.ciManager.runJenkins(jobName, pullNumber.toString(), ciConfig);
+    }
   }
 
   //endregion
@@ -132,6 +132,15 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
       this.luaInjectMethods = new Map<string, any>();
     }
     this.luaInjectMethods.set(key, value);
+  }
+
+  public checkCommand(command: string,
+                      login: string, author: string,
+                      from: 'issue' | 'comment' | 'pull_comment' | 'review' | 'review_comment',
+                      isIssue: boolean, issueNumber: number): boolean {
+    return this.checkAuth(login, command, author) &&
+    this.checkScope(from, command) &&
+    this.checkInterval(isIssue, issueNumber, command);
   }
 
   public checkAuth(login: string, command: string, author: string): boolean {
@@ -168,6 +177,34 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
     const commandScope = commandConfig.commands.find(c => c.name === command);
     if (commandScope) return commandScope.scopes.includes(from);
     return true;
+  }
+
+  public checkInterval(isIssue: boolean, issueNumber: number, command: string): boolean {
+    const commandConfigs: CommandConfig | undefined = this.getCompConfig<CommandConfig>('command');
+    if (!commandConfigs || !commandConfigs.commands) return true;
+
+    const config = commandConfigs.commands.find(c => c.name === command);
+    if (!config || !config.intervalMinutes || config.intervalMinutes <= 0) return true;
+
+    const lastExecTime = this.getCommandLastExecTime(isIssue, issueNumber);
+    if (lastExecTime === undefined || new Date().getTime() - lastExecTime > config.intervalMinutes * 60 * 1000) {
+      this.setCommandLastExecTime(isIssue, issueNumber);
+      return true;
+    }
+    return false;
+  }
+
+  protected setCommandLastExecTime(isIssue: boolean, issueNumber: number) {
+    if (isIssue) {
+      this.commandLastExecTime.set('issue_' + issueNumber, new Date().getTime());
+    } else {
+      this.commandLastExecTime.set('pull_' + issueNumber, new Date().getTime());
+    }
+  }
+
+  protected getCommandLastExecTime(isIssue: boolean, issueNumber: number): number | undefined {
+    if (isIssue) return this.commandLastExecTime.get('issue_' + issueNumber);
+    return this.commandLastExecTime.get('pull_' + issueNumber);
   }
 
   private async runLuaScript(): Promise<void> {
