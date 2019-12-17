@@ -1,0 +1,67 @@
+{
+  "installation": {
+    "client": {
+      "configs": [
+        {
+          "type": "github",
+          "config": {
+            "name": "github",
+            "endpoint": "https://api.github.com/",
+            "appId": 0,
+            "privateKeyPath": "private-key.pem",
+            "privateKeyPathAbsolute": false,
+            "webhook": {
+              "path": "/",
+              "secret": "test",
+              "proxyUrl": "https://smee.io/YOUR_PROXY"
+            },
+            "fetcher": {
+              "tokens": ["YOUR TOKEN"]
+            },
+            "config": {
+              "remote": {
+                "filePath": ".github/hypertrons.json"
+              },
+              "private": {
+                "file": {
+                  "rootPath": "./repo_configs/"
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "gitlab",
+          "config": {
+            "name": "MyGitLab",
+            "host": "https://gitlab.your_domain.com/",
+            "primaryToken": "Robot_token",
+            "webhook": {
+              "host": "http://127.0.0.1",
+              "path": "/",
+              "secret": "test",
+              "proxy": "https://smee.io/YOUR_PROXY"
+            },
+            "config": {
+              "remote": {
+                "filePath": ".gitlab/hypertrons.json"
+              },
+              "private": {
+                "file": {
+                  "rootPath": "./repo_configs/"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "component": {
+    "client": {
+      "basePath": "app/component",
+      "luaEntry": "index.lua",
+      "configModule": "config"
+    }
+  }
+}
