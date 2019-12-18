@@ -1,17 +1,15 @@
-import { PushEvent, RepoConfigLoadedEvent } from '../../plugin/event-manager/events';
 import { Application } from 'egg';
-import RoleConfig from '../../component/role/config';
-import { LuaVm } from '../../lua-vm/LuaVm';
-import { luaMethod, luaEvents } from '../../lua-vm/decorators';
-import { Repo } from '../DataTypes';
-import IMConfig from '../../component/im/config';
+import RoleConfig from '../../../component/role/config';
+import { LuaVm } from '../../../lua-vm/LuaVm';
+import { luaMethod, luaEvents } from '../../../lua-vm/decorators';
+import { Repo } from '../../DataTypes';
+import IMConfig from '../../../component/im/config';
 import { IncomingWebhookSendArguments } from '@slack/webhook/dist/IncomingWebhook';
-import { waitUntil, BotLogger, loggerWrapper } from '../Utils';
+import { BotLogger, loggerWrapper } from '../../Utils';
 import * as Nodemailer from 'nodemailer';
-import { DingTalkMessageType } from '../IMDataTypes';
-import { HostingClientBase } from './HostingClientBase';
-import { HostingConfigBase } from './HostingConfigBase';
-import { LUA_SCRIPT_KEY } from '../../plugin/component-manager/AppComponentManager';
+import { DingTalkMessageType } from '../../IMDataTypes';
+import { HostingClientBase } from '../HostingClientBase';
+import { HostingConfigBase } from '../HostingConfigBase';
 
 export class LuaClient<TConfig extends HostingConfigBase, TRawClient> {
   private luaSubscribeEvents: Map<any, any[]>;
@@ -30,11 +28,12 @@ export class LuaClient<TConfig extends HostingConfigBase, TRawClient> {
     this.logger = loggerWrapper(app.logger, `[${hcClient.name}-luaClient]`);
   }
 
-  public async init(): Promise<void> {
-    await waitUntil(() => this.hcClient.config !== null);
-    await this.runLuaScript(undefined);
-    this.listenPushEvent();
-    this.listenRepoConfigLoadedEvent();
+  public async onConfigLoaded(): Promise<void> {
+    await this.runLuaScript();
+  }
+
+  public dispose() {
+    // TODO
   }
 
   public recordSubscribeEvent(eventClass: any, func: any): void {
@@ -53,58 +52,6 @@ export class LuaClient<TConfig extends HostingConfigBase, TRawClient> {
     this.luaSubscribeEvents.clear();
   }
 
-  private listenPushEvent(): void {
-    this.app.event.subscribeAll(PushEvent, async e => {
-      this.logger.info('receive push event');
-      if (!e.client) return;
-      // 1. check whether pushevent is from target repo.
-      if (e.fullName !== this.name) {
-        return;
-      }
-      // 2. check whether lua is changed.
-      const configFilePath = this.hcClient.base.config.config.remote.filePath;
-      try {
-        const configFileContent: string | undefined = await this.hcClient.getFileContent(configFilePath);
-        if (configFileContent) {
-          const c = JSON.parse(configFileContent);
-          const luaFilePath = c[LUA_SCRIPT_KEY];
-          if (
-            e.push.commits.some(
-              c =>
-                c.modified.includes(luaFilePath) ||
-                c.added.includes(luaFilePath) ||
-                c.removed.includes(luaFilePath),
-            )
-          ) {
-            await this.runLuaScript(luaFilePath);
-          }
-        } else {
-          this.logger.info('configFileContent is null');
-        }
-      } catch (e) {
-        this.logger.error(e);
-      }
-    });
-  }
-
-  private listenRepoConfigLoadedEvent(): void {
-    this.app.event.subscribeAll(RepoConfigLoadedEvent, async e => {
-      this.logger.info('receive RepoConfigLoadedEvent');
-      if (!e.client) return;
-      // check whether pushevent is from target repo.
-      if (e.fullName !== this.name) {
-        return;
-      }
-      const configFilePath = this.hcClient.base.config.config.remote.filePath;
-      const configFileContent: string | undefined = await this.hcClient.getFileContent(configFilePath);
-      if (configFileContent) {
-        const c = JSON.parse(configFileContent);
-        const luaFilePath = c[LUA_SCRIPT_KEY];
-        await this.runLuaScript(luaFilePath);
-      }
-    });
-  }
-
   public setInjectFunction(key: string, value: any): void {
     if (!this.luaInjectMethods) {
       this.luaInjectMethods = new Map<string, any>();
@@ -112,16 +59,9 @@ export class LuaClient<TConfig extends HostingConfigBase, TRawClient> {
     this.luaInjectMethods.set(key, value);
   }
 
-  private async runLuaScript(luaFilePath: string | undefined): Promise<void> {
+  private async runLuaScript(): Promise<void> {
     this.logger.info('runLuaScript called');
-    if (!luaFilePath) {
-      const configFilePath = this.hcClient.base.config.config.remote.filePath;
-      const configFileContent: string | undefined = await this.hcClient.getFileContent(configFilePath);
-      if (configFileContent) {
-        const c = JSON.parse(configFileContent);
-        luaFilePath = c[LUA_SCRIPT_KEY];
-      }
-    }
+
     // 1. check whether there is already lua VM.
     if (this.luaVm) {
       // 2.1 if yes, stop VM, then cancelSubscribeEvent cancelSchedEvnt and finally start a new luaVm.
@@ -131,17 +71,6 @@ export class LuaClient<TConfig extends HostingConfigBase, TRawClient> {
       // this.cancelSchedEvent(); // TODO
     }
     this.luaVm = new LuaVm();
-
-    // 3. set methods and configs, then run scripts.
-    if (!luaFilePath || luaFilePath === '') {
-      // do not init if no lua script in config
-      return;
-    }
-    const luaContent = await this.hcClient.getFileContent(luaFilePath);
-    if (!luaContent || luaContent === '') {
-      // do not init if no lua script content found
-      return;
-    }
 
     // set methods
     if (this.luaInjectMethods) {
@@ -153,10 +82,10 @@ export class LuaClient<TConfig extends HostingConfigBase, TRawClient> {
     }
 
     // set configs
-    this.luaVm.set('config', this.hcClient.config); // component config here.
+    this.luaVm.set('config', this.hcClient.getConfig()); // component config here.
     // 4. run script
-    this.logger.info(luaContent);
-    const res = this.luaVm.run(luaContent);
+    this.logger.info(this.hcClient.getLuaScript());
+    const res = this.luaVm.run(this.hcClient.getLuaScript());
     this.logger.info('Lua exec result,', res);
 
   }
@@ -169,7 +98,7 @@ export class LuaClient<TConfig extends HostingConfigBase, TRawClient> {
     const eventClass = luaEvents.get(eventType);
     if (!eventClass) return; // only registered event can be used
     const func = async e => {
-      if (e.fullName !== this.name || e.installationId !== this.hcClient.hostId) {
+      if (e.fullName !== this.name || e.installationId !== this.hcClient.getHostId()) {
         // lua only consume self repo event
         return;
       }
@@ -189,7 +118,7 @@ export class LuaClient<TConfig extends HostingConfigBase, TRawClient> {
 
   @luaMethod()
   protected lua_getData(): Repo {
-    return this.hcClient.repoData.getRepoData();
+    return this.hcClient.getRepoData();
   }
 
   @luaMethod()
@@ -251,7 +180,7 @@ export class LuaClient<TConfig extends HostingConfigBase, TRawClient> {
     command: string,
     author: string,
   ): boolean {
-    return this.hcClient.checkAuth(login, command, author);
+    return this.hcClient.commandService.checkAuth(login, command, author);
   }
 
   @luaMethod()
@@ -283,7 +212,7 @@ export class LuaClient<TConfig extends HostingConfigBase, TRawClient> {
     if (!configName || !message) return;
 
     const config = this.hcClient.getCompConfig<IMConfig>('im');
-    if (!config || !config.enable || config.enable !== true || !config.slack) {
+    if (!config || !config.slack) {
       return;
     }
 
@@ -304,7 +233,7 @@ export class LuaClient<TConfig extends HostingConfigBase, TRawClient> {
     if (!configName || !message) return;
 
     const config = this.hcClient.getCompConfig<IMConfig>('im');
-    if (!config || !config.enable || config.enable !== true || !config.mail) {
+    if (!config || !config.mail) {
       return;
     }
 
@@ -328,7 +257,7 @@ export class LuaClient<TConfig extends HostingConfigBase, TRawClient> {
     if (!configName || !message) return;
 
     const config = this.hcClient.getCompConfig<IMConfig>('im');
-    if (!config || !config.enable || config.enable !== true || !config.dingTalk) {
+    if (!config || !config.dingTalk) {
       return;
     }
 

@@ -18,8 +18,9 @@ import Octokit = require('@octokit/rest');
 import { CheckRun } from '../../basic/DataTypes';
 import { Application } from 'egg';
 import { DataCat } from 'github-data-cat';
-import { RepoData } from '../../basic/HostingPlatform/RepoData';
+import { RepoDataService } from '../../basic/HostingPlatform/HostingClientService/RepoDataService';
 import { GitHubConfig } from './GitHubConfig';
+import { HostingBase } from '../../basic/HostingPlatform/HostingBase';
 
 export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
 
@@ -28,15 +29,17 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
   private repoName: {owner: string, repo: string};
   private dataCat: DataCat;
 
-  constructor(name: string, hostId: number, app: Application, dataCat: DataCat) {
+  constructor(name: string, hostId: number, app: Application, dataCat: DataCat,
+              hostBase: HostingBase<GitHubConfig, HostingClientBase<GitHubConfig, Octokit>, Octokit>) {
     super(name, hostId, app);
     this.repoName = parseRepoName(name);
     ({ owner: this.owner, repo: this.repo } = this.repoName);
     this.dataCat = dataCat;
+    this.hostBase = hostBase;
   }
 
   protected async updateData(): Promise<void> {
-    this.logger.info(`Start to update data for ${this.name}`);
+    this.logger.info(`Start to update data for ${this.fullName}`);
 
     const dataCat = this.dataCat;
     await waitUntil(() => dataCat.inited);
@@ -49,7 +52,7 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
         pulls: true,
       });
 
-    this.repoData.setRepoData({
+    this.repoDataService.setRepoData({
       ...full,
       stars: full.stars.map(star => {
         return {
@@ -215,8 +218,8 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
     });
   }
 
-  public getData(): RepoData {
-    return this.repoData;
+  public getData(): RepoDataService<GitHubConfig, Octokit> {
+    return this.repoDataService;
   }
 
 }

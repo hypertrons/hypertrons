@@ -12,16 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Application } from 'egg';
-import { AppDataManager } from './AppDataManager';
-import { AppPluginBase } from '../../basic/AppPluginBase';
+import Config from './config';
 
-declare module 'egg' {
-  interface Application {
-    dataManager: AppDataManager;
-  }
-}
-
-module.exports = (app: Application) => {
-  AppPluginBase.LoadToApp('dataManager', AppDataManager, app);
+const defaultConfig: Config = {
+  command: '/difficulty',
 };
+
+export default defaultConfig;

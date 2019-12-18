@@ -27,7 +27,7 @@ export default async (ctx: ComponentContext<Config>) => {
     // config check
     if (!e.client) return;
     const labelConfig = e.client.getCompConfig<Config>(ctx.name);
-    if (!labelConfig || !labelConfig.enable) return;
+    if (!labelConfig) return;
     const currentLabels = await e.client.listLabels();
 
     // traverse new config, update all contained labels

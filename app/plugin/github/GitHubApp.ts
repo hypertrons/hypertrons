@@ -83,20 +83,22 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
     return ret;
   }
 
-  protected async addRepo(name: string, payload: any): Promise<void> {
-    const client = new GitHubClient(name, this.id, this.app, this.dataCat);
-    client.rawClient = new Octokit();
+  public async addRepo(name: string, payload: any): Promise<void> {
     // set token before any request
-    client.rawClient.hook.before('request', async () => {
+    const githubClient = new GitHubClient(name, this.id, this.app, this.dataCat, this);
+    const oct = new Octokit();
+    githubClient.setRawClient(oct);
+    oct.hook.before('request', async () => {
       const token = await this.githubApp.getInstallationAccessToken({
         installationId: payload,
       });
-      client.rawClient.authenticate({
+      githubClient.getRawClient().authenticate({
         type: 'token',
         token,
       });
     });
-    this.clientMap.set(name, async () => client);
+    githubClient.init();
+    this.clientMap.set(name, async () => githubClient);
   }
 
   protected async initWebhook(config: GitHubConfig): Promise<void> {

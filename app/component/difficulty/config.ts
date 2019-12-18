@@ -12,16 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Application } from 'egg';
-import { AppPluginBase } from '../../basic/AppPluginBase';
-import { AppComponentManager } from './AppComponentManager';
+import { configClass, configProp } from '../../config-generator/decorators';
+import defaultConfig from './defaultConfig';
 
-declare module 'egg' {
-  interface Application {
-    component: AppComponentManager;
-  }
+@configClass({
+  description: 'Difficulty command config',
+})
+export default class Config {
+
+  @configProp({
+    description: 'Command name',
+    defaultValue: defaultConfig.command,
+  })
+  command: string;
+
 }
-
-module.exports = (app: Application) => {
-  AppPluginBase.LoadToApp('component', AppComponentManager, app);
-};

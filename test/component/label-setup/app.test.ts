@@ -28,7 +28,6 @@ describe('LabelSetupComponent', () => {
     createCounter = 0;
 
     compConfig = {
-      enable: true,
       labels: [],
     } as any;
     labels = [] as any;
@@ -55,9 +54,6 @@ describe('LabelSetupComponent', () => {
       app.installation.getClient = () => this.client;
     }
 
-    setConfigEnable(enable: boolean = true): void {
-      this.compConfig.enable = enable;
-    }
     setNewLabels<T>(configLabels: T[]): void {
       this.compConfig.labels = configLabels;
     }
@@ -77,15 +73,6 @@ describe('LabelSetupComponent', () => {
   it('should not trigger if client is empty', async () => {
     const e = new MockRepoConfigLoadedEvent();
     e.client = undefined;
-    agent.event.publish('worker', RepoConfigLoadedEvent, e);
-    await waitFor(5);
-    assert(e.updateCounter === 0);
-    assert(e.createCounter === 0);
-  });
-
-  it('should not trigger if enable is false', async () => {
-    const e = new MockRepoConfigLoadedEvent();
-    e.setConfigEnable(false);
     agent.event.publish('worker', RepoConfigLoadedEvent, e);
     await waitFor(5);
     assert(e.updateCounter === 0);

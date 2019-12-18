@@ -33,7 +33,7 @@ export class GitLabClient extends HostingClientBase<GitLabConfig, Gitlab> {
   }
 
   protected async updateData(): Promise<void> {
-    this.repoData.setRepoData(await getAll(this.gitlabGraphqlClient, this.name));
+    this.repoDataService.setRepoData(await getAll(this.gitlabGraphqlClient, this.fullName));
   }
 
   public async getFileContent(path: string): Promise<string | undefined> {

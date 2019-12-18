@@ -16,47 +16,24 @@ import { configClass, configProp } from '../../config-generator/decorators';
 import defaultConfig from './defaultConfig';
 
 @configClass({
-  description: 'every label type',
-})
-class Label {
-
-  @configProp({
-    description: 'Label name',
-    defaultValue: '',
-  })
-  name: string;
-
-  @configProp({
-    description: 'Label description',
-    defaultValue: '',
-  })
-  description: string;
-
-  @configProp({
-    description: 'Label color',
-    defaultValue: '#FFFFFF',
-  })
-  color: string;
-
-  @configProp({
-    description: 'Label keywords, use to auto label issues and pulls',
-    defaultValue: [],
-    arrayType: 'string',
-  })
-  keywords?: string[];
-
-}
-
-@configClass({
-  description: 'Manage label for repo automatically, not delete already exist labels',
+  description: 'Auto label config',
 })
 export default class Config {
 
   @configProp({
-    description: 'Labels to use',
-    defaultValue: defaultConfig.labels,
-    arrayType: Label,
+    description: 'Auto label only be triggered when the event contains the following actions',
+    type: 'array',
+    arrayType: 'string',
+    defaultValue: defaultConfig.actions,
   })
-  labels: Label[];
+  actions: string[];
+
+  @configProp({
+    description: 'Listened events',
+    type: 'array',
+    arrayType: 'string',
+    defaultValue: defaultConfig.events,
+  })
+  events: string[];
 
 }

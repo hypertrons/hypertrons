@@ -12,18 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export default {
-  component: {
-    client: {
-      basePath: 'app/component',
-      entryModule: 'app',
-      configModule: 'config',
-    },
-  },
+import Config from './config';
+
+const defaultConfig: Config = {
+  schedName: 'Issue reminder',
+  sched: '0 0 9 * * *',
+  reminderRole: 'replier',
+  message: 'This issue has not been replied for 24 hours, please pay attention to this issue: ',
 };
 
-export interface Config {
-  basePath: string;
-  entryModule: string;
-  configModule: string;
-}
+export default defaultConfig;

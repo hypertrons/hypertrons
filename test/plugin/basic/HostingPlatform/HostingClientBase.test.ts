@@ -97,18 +97,9 @@ describe('HostingClientBase', () => {
       assert(imNumber === 0);
     });
 
-    it('should not trigger if enable is false', async () => {
-      const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
-      const config = { enable: false };
-      client.getCompConfig = (<T>(_: string): T => config as any) as any;
-      client.lua_sendToSlack('test', {});
-      assert(imNumber === 0);
-    });
-
     it('should not trigger if configName not exist', async () => {
       const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
       const config = {
-        enable: true,
         slack: [],
       };
       client.getCompConfig = (<T>(_: string): T => config as any) as any;
@@ -119,7 +110,6 @@ describe('HostingClientBase', () => {
     it('right case', async () => {
       const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
       const config = {
-        enable: true,
         slack: [{ name: 'test' }],
       };
       client.getCompConfig = (<T>(_: string): T => config as any) as any;
@@ -155,20 +145,9 @@ describe('HostingClientBase', () => {
       assert(imNumber === 0);
     });
 
-    it('should not trigger if enable is false', async () => {
-      const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
-      const config = { enable: false };
-      client.getCompConfig = (<T>(_: string): T => config as any) as any;
-      client.lua_sendToMail('test', {});
-      assert(imNumber === 0);
-    });
-
     it('should not trigger if configName not exist', async () => {
       const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
-      const config = {
-        enable: true,
-        mail: [],
-      };
+      const config = { mail: [] };
       client.getCompConfig = (<T>(_: string): T => config as any) as any;
       client.lua_sendToMail('test', {});
       assert(imNumber === 0);
@@ -176,10 +155,7 @@ describe('HostingClientBase', () => {
 
     it('right case', async () => {
       const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
-      const config = {
-        enable: true,
-        mail: [{ name: 'test' }],
-      };
+      const config = { mail: [{ name: 'test' }] };
       client.getCompConfig = (<T>(_: string): T => config as any) as any;
       client.lua_sendToMail('test', {});
       assert(imNumber === 1);
@@ -213,20 +189,9 @@ describe('HostingClientBase', () => {
       assert(imNumber === 0);
     });
 
-    it('should not trigger if enable is false', async () => {
-      const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
-      const config = { enable: false };
-      client.getCompConfig = (<T>(_: string): T => config as any) as any;
-      client.lua_sendToDingTalk('test', {});
-      assert(imNumber === 0);
-    });
-
     it('should not trigger if configName not exist', async () => {
       const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
-      const config = {
-        enable: true,
-        dingTalk: [],
-      };
+      const config = { dingTalk: [] };
       client.getCompConfig = (<T>(_: string): T => config as any) as any;
       client.lua_sendToDingTalk('test', {});
       assert(imNumber === 0);
@@ -234,10 +199,7 @@ describe('HostingClientBase', () => {
 
     it('right case', async () => {
       const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
-      const config = {
-        enable: true,
-        dingTalk: [{ name: 'test1' }],
-      };
+      const config = { dingTalk: [{ name: 'test1' }] };
       client.getCompConfig = (<T>(_: string): T => config as any) as any;
       client.lua_sendToDingTalk('test1', {});
       assert(imNumber === 1);
@@ -267,19 +229,10 @@ describe('HostingClientBase', () => {
       assert(ciNumber === 0);
     });
 
-    it('should not trigger if compConfig.enable is false', async () => {
-      const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
-      client.getCompConfig = (<T>(_: string): T => {
-        return { enable: false } as any;
-      }) as any;
-      client.lua_runCI('test', 1);
-      assert(ciNumber === 0);
-    });
-
     it('should not trigger if compConfig.configs is empty', async () => {
       const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
       client.getCompConfig = (<T>(_: string): T => {
-        return { enable: true, configs: [] } as any;
+        return { configs: [] } as any;
       }) as any;
       client.lua_runCI('test', 1);
       assert(ciNumber === 0);
@@ -289,7 +242,6 @@ describe('HostingClientBase', () => {
       const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
       client.getCompConfig = (<T>(_: string): T => {
         return {
-          enable: true,
           configs: [
             {
               name: 'jenkins1',
@@ -310,7 +262,6 @@ describe('HostingClientBase', () => {
       const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
       client.getCompConfig = (<T>(_: string): T => {
         return {
-          enable: true,
           configs: [
             {
               name: 'jenkins1',
@@ -331,7 +282,7 @@ describe('HostingClientBase', () => {
       const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
       client.getCompConfig = (<T>(_: string): T => {
         return {
-          enable: true, configs: [
+          configs: [
             {
               name: 'jenkins1',
               platform: 'not exist',
@@ -350,7 +301,6 @@ describe('HostingClientBase', () => {
     it('right case', async () => {
       const client = new GitHubClient('owner/repo', 1, app, null as any) as any;
       const config = {
-        enable: true,
         configs: [
           {
             name: 'jenkins1',

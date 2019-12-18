@@ -64,8 +64,9 @@ export class GitLabApp extends HostingBase<GitLabConfig, GitLabClient, Gitlab> {
     return ret;
   }
 
-  protected async addRepo(name: string, payload: any): Promise<void> {
+  public async addRepo(name: string, payload: any): Promise<void> {
     const client = new GitLabClient(name, this.id, this.app, payload, this.client, this.gitlabGraphqlClient);
+    client.init();
     this.clientMap.set(name, async () => client);
     this.initWebhooksForRepo(name, payload, this.webhooksPath);
   }

@@ -12,11 +12,51 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Repo, Issue, PullRequest, Comment } from '../DataTypes';
+import { Repo, Issue, PullRequest, Comment } from '../../DataTypes';
+import { HostingConfigBase } from '../HostingConfigBase';
+import { HostingClientBase } from '../HostingClientBase';
+import { PullRequestEvent, LabelUpdateEvent, CommentUpdateEvent, IssueEvent } from '../../../plugin/event-manager/events';
+import { HostingClientRepoDataInitedEvent } from '../event';
 
-export class RepoData {
+export class RepoDataService<TConfig extends HostingConfigBase, TRawClient> {
 
   private repoData: Repo;
+  private client: HostingClientBase<TConfig, TRawClient>;
+
+  constructor(client: HostingClientBase<TConfig, TRawClient>) {
+    this.client = client;
+  }
+
+  public init() {
+    this.client.eventManager.subscribeAll(PullRequestEvent, async e => {
+      if (e.pullRequest) this.updatePull(e.action, e.pullRequest);
+    });
+    this.client.eventManager.subscribeAll(LabelUpdateEvent, async e => {
+      if (e.labelName) this.updateLabel(e.action, e.labelName, e.from);
+    });
+    this.client.eventManager.subscribeAll(CommentUpdateEvent, async e => {
+      if (!e.comment) return;
+      if (e.isIssue === true) {
+        this.updateIssueComment(e.action, e.issueNumber, e.comment);
+      } else {
+        this.updatePullComment(e.action, e.issueNumber, e.comment);
+      }
+    });
+    this.client.eventManager.subscribeAll(IssueEvent, async e => {
+      if (e.issue) this.updateIssue(e.action, e.issue);
+    });
+    this.client.eventManager.subscribeAll(HostingClientRepoDataInitedEvent, async e => {
+      this.repoData = e.repoData;
+    });
+  }
+
+  public syncRepoData() {
+    this.client.eventManager.publish('all', HostingClientRepoDataInitedEvent, {
+      id: this.client.getHostId(),
+      fullName: this.client.getFullName(),
+      repoData: this.repoData,
+    });
+  }
 
   public getRepoData(): Repo {
     return this.repoData;
@@ -32,21 +72,26 @@ export class RepoData {
     this.repoData.issues.forEach(v => {
       if (action === 'deleted') {
         const index = v.labels.findIndex(l => l === label);
-        if (index !== -1) v.labels.splice(index, 1);
+        if (index === -1) return;
+        v.labels.splice(index, 1);
       } else if (action === 'edited') {
         const index = v.labels.findIndex(l => l === from);
-        if (index !== -1) v.labels[index] = label;
+        if (index === -1) return;
+        v.labels[index] = label;
       }
     });
     this.repoData.pulls.forEach(v => {
       if (action === 'deleted') {
         const index = v.labels.findIndex(l => l === label);
-        if (index !== -1) v.labels.splice(index, 1);
+        if (index === -1) return;
+        v.labels.splice(index, 1);
       } else if (action === 'edited') {
         const index = v.labels.findIndex(l => l === from);
-        if (index !== -1) v.labels[index] = label;
+        if (index === -1) return;
+        v.labels[index] = label;
       }
     });
+    this.syncRepoData();
   }
 
   public updateIssue(action: string, issue: Issue): void {
@@ -56,11 +101,11 @@ export class RepoData {
       this.repoData.issues.push(issue);
     } else {
       const index = this.repoData.issues.findIndex(v => v.id === issue.id);
-      if (index !== -1) {
-        issue.comments = this.repoData.issues[index].comments;
-        this.repoData.issues[index] = issue;
-      }
+      if (index === -1) return;
+      issue.comments = this.repoData.issues[index].comments;
+      this.repoData.issues[index] = issue;
     }
+    this.syncRepoData();
   }
 
   public updatePull(action: string, pull: PullRequest): void {
@@ -69,11 +114,11 @@ export class RepoData {
       this.repoData.pulls.push(pull);
     } else {
       const index = this.repoData.pulls.findIndex(v => v.id === pull.id);
-      if (index !== -1) {
-        pull.comments = this.repoData.pulls[index].comments;
-        this.repoData.pulls[index] = pull;
-      }
+      if (index === -1) return;
+      pull.comments = this.repoData.pulls[index].comments;
+      this.repoData.pulls[index] = pull;
     }
+    this.syncRepoData();
   }
 
   public updateIssueComment(action: 'created' | 'deleted' | 'edited', issueNumber: number, comment: Comment): void {
@@ -86,14 +131,14 @@ export class RepoData {
       issue.comments.push(comment);
     } else {
       const index = issue.comments.findIndex(v => v.id === comment.id);
-      if (index !== -1) {
-        if (action === 'deleted') {
-          issue.comments.splice(index, 1);
-        } else {
-          issue.comments[index] = comment;
-        }
+      if (index === -1) return;
+      if (action === 'deleted') {
+        issue.comments.splice(index, 1);
+      } else {
+        issue.comments[index] = comment;
       }
     }
+    this.syncRepoData();
   }
 
   public updatePullComment(action: 'created' | 'deleted' | 'edited', pullNumber: number, comment: Comment): void {
@@ -106,14 +151,14 @@ export class RepoData {
       pull.comments.push(comment);
     } else {
       const index = pull.comments.findIndex(v => v.id === comment.id);
-      if (index !== -1) {
-        if (action === 'deleted') {
-          pull.comments.splice(index, 1);
-        } else {
-          pull.comments[index] = comment;
-        }
+      if (index === -1) return;
+      if (action === 'deleted') {
+        pull.comments.splice(index, 1);
+      } else {
+        pull.comments[index] = comment;
       }
     }
+    this.syncRepoData();
   }
 
 }

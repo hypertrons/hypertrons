@@ -23,6 +23,12 @@ class HostingConfigCompConfigRemote {
     defaultValue: './hypertrons.json',
   })
   filePath: string;
+
+  @configProp({
+    description: 'The remote lua file path under project repo',
+    defaultValue: './lua/',
+  })
+  luaScriptPath: string;
 }
 
 @configClass({
@@ -113,6 +119,47 @@ class HostingConfigCompConfig {
 }
 
 @configClass({
+  description: 'Component config file type config',
+})
+export class ComponentFileConfig {
+  @configProp({
+    description: 'Component config base file path',
+    defaultValue: 'app/component',
+  })
+  basePath: string;
+
+  @configProp({
+    description: 'Component config config file path',
+    defaultValue: 'config',
+  })
+  configModule: string;
+
+  @configProp({
+    description: 'Component config lua file path',
+    defaultValue: 'index.lua',
+  })
+  luaModule: string;
+
+  @configProp({
+    description: 'Component config version file path',
+    defaultValue: 'version',
+  })
+  versionPath: string;
+}
+
+@configClass({
+  description: 'Hosting component config',
+})
+export class ComponentConfig {
+  @configProp({
+    description: 'Indicate load the configuration from local file',
+    classType: ComponentFileConfig,
+    defaultValue: new ComponentFileConfig(),
+  })
+  file: ComponentFileConfig;
+}
+
+@configClass({
   description: 'Hosting config base',
 })
 export class HostingConfigBase {
@@ -128,4 +175,18 @@ export class HostingConfigBase {
     classType: HostingConfigCompConfig,
   })
   config: HostingConfigCompConfig;
+
+  @configProp({
+    description: 'Components config',
+    defaultValue: new ComponentConfig(),
+    classType: ComponentConfig,
+  })
+  component: ComponentConfig;
+
+  @configProp({
+    description: 'Enable user defined lua script or not',
+    type: 'boolean',
+    defaultValue: false,
+  })
+  enableRepoLua: boolean;
 }

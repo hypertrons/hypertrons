@@ -103,12 +103,6 @@ export class WeeklyReportTemplate {
 })
 export default class Config {
   @configProp({
-    description: 'Enable this component or not',
-    defaultValue: defaultConfig.enable,
-  })
-  enable: boolean;
-
-  @configProp({
     description: 'Job name of the weekly report',
     defaultValue: defaultConfig.jobName,
   })

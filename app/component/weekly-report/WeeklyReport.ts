@@ -63,7 +63,7 @@ export default class WeeklyReport {
         this.ctx.logger.info(`cancle the job for repo ${e.fullName}, installationId = ${e.installationId}`);
         this.cancleJobForRepo(e.installationId, e.fullName);
       }
-      if (!config || !config.enable) return;
+      if (!config) return;
       this.ctx.logger.info(`start to generate job for repo ${e.fullName}, installationId = ${e.installationId}, generateTime = ${config.generateTime}`);
       this.genJobForRepo(e.installationId, e.fullName, e.client, config);
     });
@@ -116,7 +116,7 @@ export default class WeeklyReport {
   }
   private async genSlackWeeklyReportForRepo(installationId: number, fullName: string, config: Config, client: IClient): Promise<void> {
     const imConfig = client.getCompConfig<IMConfig>('im');
-    if (!imConfig || !imConfig.enable || !imConfig.slack) return;
+    if (!imConfig || !imConfig.slack) return;
     this.ctx.logger.info(`start to generate weekly report to slack for repo ${fullName}, installationId = ${installationId}`);
     const weeklyReportStrForSlack: IncomingWebhookSendArguments = generateSlackWeeklyReport(
       fullName,

@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export default {
-  dataManager: {
-    client: { },
-  },
+import Config from './config';
+
+const defaultConfig: Config = {
+  command: '/rerun',
 };
+
+export default defaultConfig;

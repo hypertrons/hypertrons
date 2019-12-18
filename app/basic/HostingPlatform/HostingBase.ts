@@ -17,15 +17,17 @@ import { HostingClientBase } from './HostingClientBase';
 import { HostingConfigBase } from './HostingConfigBase';
 import { Application } from 'egg';
 import { join } from 'path';
+import { ComponentService, ComponentSet } from './ComponentService';
 
 export abstract class HostingBase<TConfig extends HostingConfigBase, TClient extends HostingClientBase<TConfig, TRawClient>, TRawClient> {
 
   protected id: number;
   protected name: string;
   protected clientMap: Map<string, () => Promise<TClient>>;
-  public config: TConfig;
+  protected config: TConfig;
   protected logger: BotLogger;
   protected app: Application;
+  public compService: ComponentService;
 
   constructor(id: number, config: TConfig, app: Application) {
     this.id = id;
@@ -34,12 +36,13 @@ export abstract class HostingBase<TConfig extends HostingConfigBase, TClient ext
     this.app = app;
     this.logger = loggerWrapper(app.logger, `[host-${this.id}-${this.name}]`);
     this.clientMap = new Map<string, () => Promise<TClient>>();
+    this.compService = new ComponentService(id, config.component, app);
     this.initWebhook(config);
   }
 
   public abstract async getInstalledRepos(): Promise<Array<{fullName: string, payload: any}>>;
 
-  protected abstract async addRepo(name: string, payload: any): Promise<void>;
+  public abstract async addRepo(name: string, payload: any): Promise<void>;
 
   protected abstract async initWebhook(config: TConfig): Promise<void>;
 
@@ -61,4 +64,15 @@ export abstract class HostingBase<TConfig extends HostingConfigBase, TClient ext
     return join('installation', p);
   }
 
+  public getConfig(): TConfig {
+    return this.config;
+  }
+
+  public async loadComponent(): Promise<ComponentSet | undefined > {
+    return await this.compService.loadComponents();
+  }
+
+  public setComponent(comps: ComponentSet) {
+    this.compService.setComponents(comps);
+  }
 }
