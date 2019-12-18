@@ -24,9 +24,18 @@ export interface IClient {
 
   getCompConfig<TConfig>(comp: string): TConfig | undefined;
 
+  checkCommand(
+    command: string,
+    login: string, author: string,
+    from: 'issue' | 'comment' | 'pull_comment' | 'review' | 'review_comment',
+    isIssue: boolean, issueNumber: number,
+  ): boolean;
+
   checkAuth(login: string, command: string, author: string): boolean;
 
   checkScope(from: 'issue' | 'comment' | 'pull_comment' | 'review' | 'review_comment', command: string): boolean;
+
+  checkInterval(isIssue: boolean, issueNumber: number, command: string): boolean;
 
   getFileContent(filePath: string): Promise<string | undefined>;
 
