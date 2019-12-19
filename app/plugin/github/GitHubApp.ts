@@ -105,7 +105,7 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
     });
 
     // setup proxy using smee.io
-    if (config.webhook.proxyUrl) {
+    if (config.webhook.proxyUrl && config.webhook.proxyUrl !== '') {
       const source = new EventSource(config.webhook.proxyUrl);
       source.onmessage = (event: any) => {
         const webhookEvent = JSON.parse(event.data);

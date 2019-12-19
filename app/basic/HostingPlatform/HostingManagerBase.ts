@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import { AppPluginBase } from '../AppPluginBase';
-import { Application } from 'egg';
+import { Application, Context } from 'egg';
 import { HostingPlatformInitEvent, HostingManagerInitRepoEvent, HostingPlatformConfigInitedEvent } from './event';
 import { HostingBase } from './HostingBase';
 import { HostingClientBase } from './HostingClientBase';
@@ -21,6 +21,7 @@ import { waitUntil } from '../Utils';
 import { HostingConfigBase } from './HostingConfigBase';
 import { ConfigLoader } from './ConfigLoader';
 import { RepoConfigLoadedEvent, RepoAddedEvent, PushEvent } from '../../plugin/event-manager/events';
+import { getConfigMeta } from '../../config-generator/decorators';
 
 export abstract class HostingManagerBase<THostingPlatform extends HostingBase<TConfig, TClient, TRawClient>,
   TClient extends HostingClientBase<TRawClient>, TRawClient,
@@ -148,11 +149,18 @@ export abstract class HostingManagerBase<THostingPlatform extends HostingBase<TC
         });
       }
     });
+
+    this.app.installation.get(`${this.type}/configs`, async (ctx: Context, next: any) => {
+      ctx.body = getConfigMeta(this.getConfigType());
+      await next();
+    });
   }
 
   public async onStart(): Promise<void> { }
 
   public async onClose(): Promise<void> { }
+
+  protected abstract getConfigType(): any;
 
   protected abstract getNewHostingPlatform(id: number, config: TConfig): Promise<THostingPlatform>;
 

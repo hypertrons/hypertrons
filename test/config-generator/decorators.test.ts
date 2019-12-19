@@ -29,6 +29,7 @@ describe('ConfigGenerator', () => {
         description: 'Boolean value',
         defaultValue: true,
         scope: 'public',
+        optional: false,
       },
       {
         name: 'stringValue',
@@ -36,6 +37,7 @@ describe('ConfigGenerator', () => {
         description: 'String value',
         defaultValue: 'default string',
         scope: 'public',
+        optional: false,
       },
       {
         name: 'numberPrivateValue',
@@ -43,12 +45,14 @@ describe('ConfigGenerator', () => {
         description: 'Number value',
         defaultValue: 10,
         scope: 'private',
+        optional: false,
       },
       {
         name: 'arrayValue',
         description: 'Nest array',
         type: 'array',
         scope: 'public',
+        optional: true,
         arrayType: {
           description: 'Nest type',
           type: 'object',
@@ -59,6 +63,7 @@ describe('ConfigGenerator', () => {
               type: 'string',
               defaultValue: 'field',
               scope: 'public',
+              optional: false,
             },
           ],
         },
@@ -73,6 +78,7 @@ describe('ConfigGenerator', () => {
         description: 'Nest type',
         type: 'object',
         scope: 'private',
+        optional: false,
         properties: [
           {
             name: 'field',
@@ -80,6 +86,7 @@ describe('ConfigGenerator', () => {
             description: 'Field',
             defaultValue: 'field',
             scope: 'public',
+            optional: false,
           },
         ],
       },
@@ -125,6 +132,7 @@ describe('ConfigGenerator', () => {
       description: 'Nest array',
       arrayType: NestType,
       defaultValue: [{ field: 'test' }],
+      optional: true,
     })
     arrayValue: NestType[];
 

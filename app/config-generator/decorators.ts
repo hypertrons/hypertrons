@@ -27,6 +27,7 @@ interface ConfigPropertyMetaData {
   defaultValue: any;
   type?: 'string' | 'number' | 'object' | 'boolean' | 'array' | 'enum' | 'cron' | 'object' | 'render_string';
   scope?: 'public' | 'private';
+  optional?: boolean;
   isValid?: (v: any) => boolean;
   // class
   classType?: any;
@@ -64,6 +65,12 @@ export function configProp(meta: ConfigPropertyMetaData): PropertyDecorator {
     if (!meta.scope) {
       meta.scope = 'public';
     }
+    if (!meta.optional) {
+      meta.optional = false;
+    }
+    if (meta.classType) {
+      meta.type = 'object';
+    }
     if (!meta.type) {
       const type = Reflect.getMetadata('design:type', target, key);
       meta.type = type.name.toLowerCase();
@@ -82,6 +89,7 @@ export function configProp(meta: ConfigPropertyMetaData): PropertyDecorator {
         ...Reflect.getMetadata(CLASS_META_KEY, meta.classType),
         name: String(key),
         scope: meta.scope,
+        optional: meta.optional,
       };
     }
     if (meta.type === 'array') {
@@ -106,5 +114,13 @@ export function configProp(meta: ConfigPropertyMetaData): PropertyDecorator {
 }
 
 export function getConfigMeta(target: any): ConfigClassMetaData {
-  return Reflect.getMetadata(CLASS_META_KEY, target);
+  let meta: any = {};
+  while (target) {
+    const m = Reflect.getMetadata(CLASS_META_KEY, target);
+    if (m) {
+      meta = Object.assign(m, meta);
+    }
+    target = target.prototype;
+  }
+  return meta;
 }

@@ -13,14 +13,59 @@
 // limitations under the License.
 
 import { HostingConfigBase } from '../../basic/HostingPlatform/HostingConfigBase';
+import { configClass, configProp } from '../../config-generator/decorators';
 
-export class GitLabConfig extends HostingConfigBase {
+@configClass({
+  description: 'Webhook config for the robot',
+})
+class WebhookConfig {
+
+  @configProp({
+    description: 'The host of the webhook',
+    defaultValue: '',
+  })
   host: string;
+
+  @configProp({
+    description: 'The listen path of the webhook',
+    defaultValue: '/',
+  })
+  path: string;
+
+  @configProp({
+    description: 'The secret of the webhook',
+    defaultValue: '',
+  })
+  secret: string;
+
+  @configProp({
+    description: 'The smee proxy for this webhook',
+    defaultValue: '',
+  })
+  proxyUrl: string;
+}
+
+@configClass({
+  description: 'The config for GitLab robot',
+})
+export class GitLabConfig extends HostingConfigBase {
+
+  @configProp({
+    description: 'Host of the GitLab platform',
+    defaultValue: 'https://www.gitlab.com',
+  })
+  host: string;
+
+  @configProp({
+    description: 'The token of your robot account',
+    defaultValue: '',
+  })
   primaryToken: string;
-  webhook: {
-    host: string;
-    path: string;
-    secret: string;
-    proxy: string;
-  };
+
+  @configProp({
+    description: 'Webhook config for the robot',
+    classType: WebhookConfig,
+    defaultValue: new WebhookConfig(),
+  })
+  webhook: WebhookConfig;
 }

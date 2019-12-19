@@ -84,12 +84,12 @@ export class GitLabApp extends HostingBase<GitLabConfig, GitLabClient, Gitlab> {
       this.triggerWebhook(event, payload);
       await next();
     });
-    this.webhooksPath = config.webhook.proxy ? config.webhook.proxy : resolve(config.webhook.host, subPath);
-    if (webhookConfig.proxy) {
+    this.webhooksPath = webhookConfig.proxyUrl ? webhookConfig.proxyUrl : resolve(webhookConfig.host, subPath);
+    if (webhookConfig.proxyUrl && webhookConfig.proxyUrl !== '') {
       const port = (this.app as any).server.address().port;
       const localPath = resolve(`http://localhost:${port}`, subPath);
       const smee = new SmeeClient({
-        source: webhookConfig.proxy,
+        source: webhookConfig.proxyUrl,
         target: localPath,
         logger: this.logger,
       });
