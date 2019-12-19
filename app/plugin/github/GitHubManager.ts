@@ -30,4 +30,8 @@ export class GitHubManager extends HostingManagerBase<GitHubApp, GitHubClient, O
     return new GitHubApp(id, config, this.app);
   }
 
+  protected getConfigType(): any {
+    return GitHubConfig;
+  }
+
 }

@@ -30,4 +30,8 @@ export class GitLabManager extends HostingManagerBase<GitLabApp, GitLabClient, G
     return new GitLabApp(id, config, this.app);
   }
 
+  protected getConfigType(): any {
+    return GitLabConfig;
+  }
+
 }
