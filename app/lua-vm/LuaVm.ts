@@ -99,15 +99,13 @@ export class LuaVm {
         return lua.lua_touserdata(this.L, index);
       case 'function':
         // lua_pushvalue will load index value on stack top
-        // lua_setglobal will pop the stack top and set to global reference
-        // so current callback function can be used later
-        const funcName = Math.random().toString();
+        // luaL_ref will pop the value and store as a ref for later use
         lua.lua_pushvalue(this.L, index);
-        lua.lua_setglobal(this.L, funcName);
+        const cbRef = lauxlib.luaL_ref(this.L, lua.LUA_REGISTRYINDEX);
         return (...args: any[]): any => {
           // get callback funtion and push to stack top
           const oldStackTop = lua.lua_gettop(this.L);
-          lua.lua_getglobal(this.L, funcName);
+          lua.lua_rawgeti(this.L, lua.LUA_REGISTRYINDEX, cbRef);
           args.forEach(p => {
             // push all args in sequence
             this.pushStackValue(p);
@@ -116,7 +114,7 @@ export class LuaVm {
           let ret = lua.lua_pcall(this.L, args.length, lua.LUA_MULTRET, 0);
           if (ret !== lua.LUA_OK) {
             // If ret !=== lua.LUA_OK, means there are errors while executing the function
-            console.log(`Error when exec function, ret=${ret}, name=${funcName}, msg=${this.getStackValue(-1)}`);
+            console.log(`Error when exec function, ret=${ret}, msg=${this.getStackValue(-1)}`);
           }
           ret = undefined;
           if (lua.lua_gettop(this.L) !== oldStackTop) {
