@@ -16,12 +16,24 @@ import 'reflect-metadata';
 
 export const luaEvents: Map<string, {toLuaEvent: (e: any) => any}> = new Map<string, {toLuaEvent: (e: any) => any}>();
 
+const LuaFunctionPrefix = '_lua';
 export function luaMethod(): MethodDecorator {
-  return (target, property, descriptor) => {
+  return (target, property, descriptor: any) => {
+    // register to lua inject functions
     const obj = target as any;
     const key = String(property);
-    if (typeof obj.setInjectFunction === 'function' && String(key).startsWith('lua_')) {
-      obj.setInjectFunction(key.substring(4), descriptor.value);
+    if (typeof obj.setInjectFunction === 'function' && key.startsWith(LuaFunctionPrefix)) {
+      // replace the actual function, auto try catch to avoid Lua failure when ts throws
+      const fn = descriptor.value;
+      descriptor.value = async function (...args: any[]) {
+        try {
+          return await fn.apply(this, args);
+        } catch (e) {
+          console.log(`Error exec lua-ts function ${key}, e=${e.message ? e.message : e}`);
+        }
+      };
+      obj.setInjectFunction(key.substring(LuaFunctionPrefix.length), descriptor.value);
+      return descriptor;
     }
   };
 }
