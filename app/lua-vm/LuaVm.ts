@@ -64,13 +64,13 @@ export class LuaVm {
 
   public set(key: string, value: any, target?: any): this {
     if (typeof value === 'function') {
-      value = this.wrapFunc(value, target);
+      value = this.wrapFunc(key, value, target);
     }
     this.ctx.set(key, value);
     return this;
   }
 
-  private wrapFunc(func: (...args: any[]) => any, target?: any): any {
+  private wrapFunc(key: string, func: (...args: any[]) => any, target?: any): any {
     const wrapped = (): any => {
       // call in ts
       const nArgs = lua.lua_gettop(this.L);
@@ -83,6 +83,8 @@ export class LuaVm {
       // set return value
       return this.pushStackValue(res);
     };
+    // save key as function name for debugging use
+    Object.defineProperty(func, 'name', { value: key });
     return wrapped;
   }
 
