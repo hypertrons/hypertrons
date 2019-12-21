@@ -42,7 +42,8 @@ export class AppSchedulerManager extends AppPluginBase<null> {
     switch (type) {
       case 'worker':
         // register on agent
-        const awj = new AgentWorkerJobHandler(this.app, name, time, func, this.handlerMap);
+        const awj = new AgentWorkerJobHandler(this.app, name, time, func);
+        this.handlerMap.set(name, awj);
         return awj;
       case 'workers':
         // register on self

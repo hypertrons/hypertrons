@@ -13,49 +13,44 @@
 // limitations under the License.
 
 import { Application } from 'egg';
-import { Job, scheduleJob } from 'node-schedule';
+import { Job, scheduleJob, cancelJob } from 'node-schedule';
 import { ISchedulerJobHandler, ISchedulerJobCallback } from './types';
 
 export class AgentWorkerJobHandler implements ISchedulerJobHandler {
 
   private app: Application;
   private name: string;
-  public innerName: string;
   private time: string;
   private func: ISchedulerJobCallback;
   private job: Job;
 
-  constructor(app: Application, name: string, time: string, func: ISchedulerJobCallback, curMap: Map<string, AgentWorkerJobHandler>) {
+  constructor(app: Application, name: string, time: string, func: ISchedulerJobCallback) {
     this.app = app;
     this.name = name;
     this.time = time;
     this.func = func;
     this.job = scheduleJob(name, time, () => { });
 
-    this.genInnerName();
-    if (curMap.has(this.innerName)) {
-      throw new Error(`Already have a job named in ${this.innerName}`);
-    }
-    curMap.set(this.innerName, this);
-
     this.app.event.publish('agent', SchedulerWorkerRegisterEvent, {
-      name: this.innerName,
+      name: this.name,
       time: this.time,
     });
   }
 
   public cancel(): void {
     this.app.event.publish('agent', SchedulerWorkerUpdateEvent, {
-      name: this.innerName,
+      name: this.name,
       type: 'cancel',
     });
+    this.job.cancel();
+    cancelJob(this.job);
   }
 
   public reschedule(time: string): void {
     this.time = time;
     this.job.reschedule(time);
     this.app.event.publish('agent', SchedulerWorkerUpdateEvent, {
-      name: this.innerName,
+      name: this.name,
       type: 'update',
       time: this.time,
     });
@@ -67,10 +62,6 @@ export class AgentWorkerJobHandler implements ISchedulerJobHandler {
 
   public invoke(): void {
     this.func(new Date());
-  }
-
-  private genInnerName() {
-    this.innerName = `${this.name}`;
   }
 
 }

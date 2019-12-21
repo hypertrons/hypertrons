@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import { ISchedulerJobHandler } from './types';
-import { Job } from 'node-schedule';
+import { Job, cancelJob } from 'node-schedule';
 
 export class BasicJobHandler implements ISchedulerJobHandler {
 
@@ -25,6 +25,7 @@ export class BasicJobHandler implements ISchedulerJobHandler {
 
   cancel(): void {
     this.job.cancel();
+    cancelJob(this.job);
   }
 
   reschedule(time: string): void {
