@@ -25,9 +25,9 @@ export function luaMethod(): MethodDecorator {
     if (typeof obj.setInjectFunction === 'function' && key.startsWith(LuaFunctionPrefix)) {
       // replace the actual function, auto try catch to avoid Lua failure when ts throws
       const fn = descriptor.value;
-      descriptor.value = async function (...args: any[]) {
+      descriptor.value = function (...args: any[]) {  // not support async call right now
         try {
-          return await fn.apply(this, args);
+          return fn.apply(this, args);
         } catch (e) {
           console.log(`Error exec lua-ts function ${key}, e=${e.message ? e.message : e}`);
         }
