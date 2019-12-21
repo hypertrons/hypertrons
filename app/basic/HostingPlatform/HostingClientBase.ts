@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { BotLogger, loggerWrapper, waitUntil } from '../Utils';
+import { BotLogger, loggerWrapper, waitUntil, renderString } from '../Utils';
 import { Application } from 'egg';
 import { IClient } from '../../plugin/installation-manager/IClient';
 import { CheckRun, CIPlatform, Repo } from '../DataTypes';
@@ -27,6 +27,8 @@ import { IncomingWebhookSendArguments } from '@slack/webhook/dist/IncomingWebhoo
 import IMConfig from '../../component/im/config';
 import * as Nodemailer from 'nodemailer';
 import { DingTalkMessageType } from '../IMDataTypes';
+import TranslationConfig from '../../component/translation/config';
+import * as os from 'os';
 
 export abstract class HostingClientBase<TRawClient> implements IClient {
 
@@ -282,6 +284,12 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
   }
 
   @luaMethod()
+  protected lua_updateIssue(number: number, update: {title?: string, body?: string, state?: 'open' | 'closed'}): void {
+    this.logger.info('Gonna update issue from lua, number=', number, ',update=', update);
+    this.updateIssue(number, update);
+  }
+
+  @luaMethod()
   protected lua_assign(num: number, login: string): void {
     this.logger.info('Gonna assign from lua, num=', num, ',login=', login);
     this.assign(num, login);
@@ -373,6 +381,21 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
         return;
       }
     });
+  }
+
+  @luaMethod()
+  protected lua_renderString(template: string, param?: any): string {
+    return renderString(template, param);
+  }
+
+  @luaMethod()
+  protected lua_translate(src: string, to: string, cb: (res: string) => void): void {
+    this.logger.info('Gonna get config for translation ...');
+    const config = this.getCompConfig<TranslationConfig>('translation');
+    if (!config || !config.googleTranslationKey) return;
+    this.logger.info(`Gonna translate to ${to}, src = ${src}`);
+    const strings = src.split(os.EOL);
+    this.app.translate.translate(config.googleTranslationKey, strings, to).then(res => cb(res.map(r => r.translatedText).join(os.EOL)));
   }
   //endregion
 }
