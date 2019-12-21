@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import { Agent } from 'egg';
-import { scheduleJob, Job } from 'node-schedule';
+import { scheduleJob, Job, cancelJob } from 'node-schedule';
 import { BasicJobHandler } from './BasicJobHandler';
 import { SchedulerWorkerRegisterEvent, SchedulerWorkerUpdateEvent, SchedulerAgentScheduleEvent } from './AgentWorkerJobHandler';
 import { AgentPluginBase } from '../../basic/AgentPluginBase';
@@ -44,8 +44,9 @@ export class AgentSchedulerManager extends AgentPluginBase<null> {
       if (!job) return;
       switch (e.type) {
         case 'cancel':
-          job.cancel();
           this.workerHandlerMap.delete(e.name);
+          job.cancel();
+          cancelJob(job);
           break;
         case 'update':
           if (e.time) {

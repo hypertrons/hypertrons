@@ -92,7 +92,7 @@ on('CommandEvent', function (e)
 end)
 
 -- Auto merge pull by approve command, check every hour
-sched('Auto merge', '0 0 */1 * * *', function ()
+sched('Auto merge', '0 */5 * * * *', function ()
   local data = getData()
   if (data == nil) then -- data not ready yet
     return
