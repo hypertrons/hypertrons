@@ -15,23 +15,17 @@
 import { AppPluginBase } from '../../basic/AppPluginBase';
 import googleTranslate from 'google-translate';
 
-export interface Translator {
-    translate(strings: string, target: string): Promise<TranslateResult>;
-    translateArray(strings: string[], target: string): Promise<TranslateResult[]>;
-    detectLanguage(strings: string): Promise<DetectResult>;
-}
-
 export interface TranslateResult {
-    translatedText: string;
-    originalText: string;
-    detectedSourceLanguage: string;
+  translatedText: string;
+  originalText: string;
+  detectedSourceLanguage: string;
 }
 
 export interface DetectResult {
-    language: string;
-    isReliable: boolean;
-    confidence: number;
-    originalText: string;
+  language: string;
+  isReliable: boolean;
+  confidence: number;
+  originalText: string;
 }
 
 export class AppTranslateManager extends AppPluginBase<null> {
@@ -42,78 +36,59 @@ export class AppTranslateManager extends AppPluginBase<null> {
 
   public async onClose(): Promise<void> { }
 
-  public async translate(googleTranslationKey: string, strings: string, target: string): Promise<TranslateResult> {
-      return this.getTranslator(googleTranslationKey).translate(strings, target);
-  }
-
-  public async translateArray(googleTranslationKey: string, strings: string[], target: string): Promise<TranslateResult[]> {
-      return this.getTranslator(googleTranslationKey).translateArray(strings, target);
-  }
-
-  public async detectLanguage(googleTranslationKey: string, strings: string): Promise<DetectResult> {
-      return this.getTranslator(googleTranslationKey).detectLanguage(strings);
-  }
-
   private newTranslator(key: string): any {
-      return googleTranslate(key);
+    return googleTranslate(key);
   }
 
-  private getTranslator(key: string): Translator {
-    const translator = this.newTranslator(key);
-    return {
-        translate: (strings: string, target: string): Promise<TranslateResult> => {
-            return new Promise<TranslateResult>(resolve => {
-                translator.translate(strings, target, (err: any, result: any): void => {
-                    if (err) {
-                        this.logger.error('Error happened when translate. ' +
-                            `err=${JSON.stringify(err)}, strings=${strings}`);
-                        resolve();
-                    } else {
-                        resolve({
-                            translatedText: result.translatedText,
-                            originalText: result.originalText,
-                            detectedSourceLanguage: result.detectedSourceLanguage,
-                        });
-                    }
-                });
+  public async translate<T extends string | string[]>(googleTranslationKey: string, src: T, to: string): Promise<T extends string ? TranslateResult : TranslateResult[]> {
+    return new Promise<any>(resolve => {
+      this.newTranslator(googleTranslationKey).translate(src, to, (err: any, result: any): void => {
+        if (err) {
+          this.logger.error('Error happened when translate. ' +
+            `err=${JSON.stringify(err)}, src=${src}`);
+          resolve();
+        } else {
+          if (!Array.isArray(src)) {
+            resolve({
+              translatedText: result.translatedText,
+              originalText: result.originalText,
+              detectedSourceLanguage: result.detectedSourceLanguage,
             });
-        },
-        translateArray: (strings: string[], target: string): Promise<TranslateResult[]> => {
-            return new Promise<TranslateResult[]>(resolve => {
-                translator.translate(strings, target, (err: any, result: any[]): void => {
-                    if (err) {
-                        this.logger.error('Error happened when translateArray. ' +
-                            `err=${JSON.stringify(err)}, strings=${strings}`);
-                        resolve();
-                    } else {
-                        resolve(result.map((res: any) => {
-                            return {
-                                translatedText: res.translatedText,
-                                originalText: res.originalText,
-                                detectedSourceLanguage: res.detectedSourceLanguage,
-                            };
-                        }));
-                    }
-                });
-            });
-        },
-        detectLanguage: (strings: string): Promise<DetectResult> => {
-            return new Promise<DetectResult>(resolve => {
-                translator.detectLanguage(strings, (err: any, result: any) => {
-                    if (err) {
-                        this.logger.error(`Error happened when detect language. err=${err}, strings=${strings}`);
-                        resolve();
-                    } else {
-                        resolve({
-                            language: result.language,
-                            isReliable: result.isReliable,
-                            confidence: result.confidence,
-                            originalText: result.originalText,
-                        });
-                    }
-                });
-            });
-        },
-    };
-    }
+          } else if (src.length > 1) {
+            resolve(result.map((res: any) => {
+              return {
+                translatedText: res.translatedText,
+                originalText: res.originalText,
+                detectedSourceLanguage: res.detectedSourceLanguage,
+              };
+            }));
+          } else {
+            resolve([{
+              translatedText: result.translatedText,
+              originalText: result.originalText,
+              detectedSourceLanguage: result.detectedSourceLanguage,
+            }]);
+          }
+        }
+      });
+    });
+  }
+
+  public async detectLanguage(googleTranslationKey: string, src: string): Promise<DetectResult> {
+    return new Promise<DetectResult>(resolve => {
+      this.newTranslator(googleTranslationKey).detectLanguage(src, (err: any, result: any) => {
+        if (err) {
+          this.logger.error(`Error happened when detect language. err=${err}, src=${src}`);
+          resolve();
+        } else {
+          resolve({
+            language: result.language,
+            isReliable: result.isReliable,
+            confidence: result.confidence,
+            originalText: result.originalText,
+          });
+        }
+      });
+    });
+  }
 }

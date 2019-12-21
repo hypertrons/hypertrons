@@ -18,9 +18,8 @@ import assert from 'assert';
 import { TranslateResult, DetectResult } from '../../../app/plugin/translate/AppTranslateManager';
 import { prepareTestApplication, testClear } from '../../Util';
 import { Application } from 'egg';
-import mock from 'egg-mock';
 
-describe('TranslateManager', () => {
+describe('AppTranslateManager', () => {
   let app: Application;
 
   beforeEach(async () => {
@@ -28,11 +27,10 @@ describe('TranslateManager', () => {
   });
   afterEach(() => {
     testClear(app);
-    mock.restore();
   });
 
   it('Test translate string correct', async () => {
-    mock(app.translate, 'newTranslator', (_key: string) => {
+    (app.translate as any).newTranslator = (_key: string) => {
       return {
         translate: (strings: string, _target: string, cb: (err: any, result: any) => void) => {
           const result: TranslateResult = {
@@ -43,17 +41,38 @@ describe('TranslateManager', () => {
           cb(null, result);
         },
       };
-    });
-    const originalText = '苹果';
-    const target = 'en';
-    const res: any = await app.translate.translate('', originalText, target);
-    assert(res.originalText === originalText && res.translatedText === 'apple');
+    };
+    const res: any = await app.translate.translate('', '苹果', 'en');
+    assert.strictEqual(res.translatedText, 'apple');
   });
 
-  it('Test translate string array correct', async () => {
-    mock(app.translate, 'newTranslator', (_key: string) => {
+  it('Test translate string array correct, array length = 1', async () => {
+    (app.translate as any).newTranslator = (_key: string) => {
       return {
         translate: (strings: string, _target: string, cb: (err: any, result: any) => void) => {
+          const result: TranslateResult = {
+            translatedText: '苹果',
+            originalText: strings,
+            detectedSourceLanguage: 'en',
+          };
+          cb(null, result);
+        },
+      };
+    };
+    const originalText: string[] = [ 'apple' ];
+    const expectedText: string[] = [ '苹果' ];
+    const target = 'zh-CN';
+    const res: any = await app.translate.translate('', originalText, target);
+    assert.strictEqual(Array.isArray(res), true);
+    for (const i in originalText) {
+      assert.strictEqual(res[i].translatedText, expectedText[i]);
+    }
+  });
+
+  it('Test translate string array correct, array length > 1', async () => {
+    (app.translate as any).newTranslator = (_key: string) => {
+      return {
+        translate: (strings: string[], _target: string, cb: (err: any, result: any) => void) => {
           const result: TranslateResult[] = [
             {
               translatedText: '苹果',
@@ -69,43 +88,40 @@ describe('TranslateManager', () => {
           cb(null, result);
         },
       };
-    });
+    };
     const originalText: string[] = [ 'apple', 'banana' ];
     const expectedText: string[] = [ '苹果', '香蕉' ];
     const target = 'zh-CN';
-    const res: TranslateResult[] = await app.translate.translateArray('', originalText, target);
+    const res: any = await app.translate.translate('', originalText, target);
+    assert.strictEqual(Array.isArray(res), true);
     for (const i in originalText) {
-      assert(res[i].originalText === originalText[i] && res[i].translatedText === expectedText[i]);
+      assert.strictEqual(res[i].translatedText, expectedText[i]);
     }
   });
 
   describe('Test error hanppend when translate', () => {
     beforeEach(async () => {
-      mock(app.translate, 'newTranslator', (_key: string) => {
+      (app.translate as any).newTranslator = (_key: string) => {
         return {
           translate: (_strings: string, _target: string, cb: (err: any, result?: any) => void) => {
             cb('ERROR_TEST_TRANSLATE');
           },
         };
-      });
+      };
     });
     it('translate string error', async () => {
-      const originalText = '苹果';
-      const target = 'en';
-      const res: any = await app.translate.translate('', originalText, target);
-      assert(res === undefined);
+      const res: any = await app.translate.translate('', '苹果', 'en');
+      assert.strictEqual(res, undefined);
     });
 
     it('test translate array error', async () => {
-      const originalText: string[] = [ 'apple', 'banana' ];
-      const target = 'zh-CN';
-      const res: TranslateResult[] = await app.translate.translateArray('', originalText, target);
-      assert(res === undefined);
+      const res = await app.translate.translate('', [ 'apple', 'banana' ], 'zh-CN');
+      assert.strictEqual(res, undefined);
     });
   });
 
   it('Test detectLanguage correct', async () => {
-    mock(app.translate, 'newTranslator', (_key: string) => {
+    (app.translate as any).newTranslator = (_key: string) => {
       return {
         detectLanguage: (strings: string, cb: (err: any, result: any) => void) => {
           const result: DetectResult = {
@@ -117,22 +133,20 @@ describe('TranslateManager', () => {
           cb(null, result);
         },
       };
-    });
-    const originalText = 'apple';
-    const res: DetectResult = await app.translate.detectLanguage('', originalText);
-    assert(res.language === 'en');
+    };
+    const res: DetectResult = await app.translate.detectLanguage('', 'apple');
+    assert.strictEqual(res.language, 'en');
   });
 
   it('Test error hanppend when detectLanguage', async () => {
-    mock(app.translate, 'newTranslator', (_key: string) => {
+    (app.translate as any).newTranslator = (_key: string) => {
       return {
         detectLanguage: (_strings: string, cb: (err: any, result?: any) => void) => {
           cb('ERROR_TEST_DETECTLANGUAGE');
         },
       };
-    });
-    const originalText = 'apple';
-    const res: DetectResult = await app.translate.detectLanguage('', originalText);
-    assert(res === undefined);
+    };
+    const res: DetectResult = await app.translate.detectLanguage('', 'apple');
+    assert.strictEqual(res, undefined);
   });
 });
