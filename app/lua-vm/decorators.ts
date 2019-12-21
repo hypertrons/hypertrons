@@ -16,7 +16,7 @@ import 'reflect-metadata';
 
 export const luaEvents: Map<string, {toLuaEvent: (e: any) => any}> = new Map<string, {toLuaEvent: (e: any) => any}>();
 
-const LuaFunctionPrefix = '_lua';
+const LuaFunctionPrefix = 'lua_';
 export function luaMethod(): MethodDecorator {
   return (target, property, descriptor: any) => {
     // register to lua inject functions
