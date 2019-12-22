@@ -24,7 +24,7 @@ import { RepoConfigLoadedEvent, RepoAddedEvent, PushEvent } from '../../plugin/e
 import { getConfigMeta } from '../../config-generator/decorators';
 
 export abstract class HostingManagerBase<THostingPlatform extends HostingBase<TConfig, TClient, TRawClient>,
-  TClient extends HostingClientBase<TRawClient>, TRawClient,
+  TClient extends HostingClientBase<TConfig, TRawClient>, TRawClient,
   TConfig extends HostingConfigBase> extends AppPluginBase<null> {
 
   protected type: string;
@@ -43,9 +43,13 @@ export abstract class HostingManagerBase<THostingPlatform extends HostingBase<TC
         await waitUntil(() => this.hpMap.has(e.id));
         const hp = this.hpMap.get(e.id);
         if (!hp) return;
-        this.logger.info(`Start to load installed repos for hosting name=${e.config.name}`);
+        this.logger.info(
+          `Start to load installed repos for hosting name=${e.config.name}`,
+        );
         const repos = await hp.getInstalledRepos();
-        this.logger.info(`All installed repos loaded for hosting name=${e.config.name}, count=${repos.length}`);
+        this.logger.info(
+          `All installed repos loaded for hosting name=${e.config.name}, count=${repos.length}`,
+        );
         repos.forEach(async repo => {
           const fullName = repo.fullName;
           this.app.event.publish('all', HostingManagerInitRepoEvent, {
@@ -55,7 +59,12 @@ export abstract class HostingManagerBase<THostingPlatform extends HostingBase<TC
           await waitUntil(() => (hp as any).clientMap.has(fullName));
           const client = await hp.getClient(fullName);
           if (!client) return;
-          const config = await this.configLoader.loadConfig(e.config, e.id, fullName, client);
+          const config = await this.configLoader.loadConfig(
+            e.config,
+            e.id,
+            fullName,
+            client,
+          );
           this.app.event.publish('all', HostingPlatformConfigInitedEvent, {
             id: e.id,
             fullName,
@@ -107,6 +116,10 @@ export abstract class HostingManagerBase<THostingPlatform extends HostingBase<TC
       if (hp) {
         this.logger.info(`Start to add repo for ${hp.getName()}, repo=${e.fullName}`);
         (hp as any).addRepo(e.fullName, e.payload);
+        const client = await hp.getClient(e.fullName);
+        if (client) {
+          client.base = hp;
+        }
       }
     });
 
@@ -123,22 +136,27 @@ export abstract class HostingManagerBase<THostingPlatform extends HostingBase<TC
     });
 
     this.app.event.subscribeOne(PushEvent, async e => {
-
       const hp = this.hpMap.get(e.installationId);
-      if (!hp ||
-          !(hp as any).config ||
-          !(hp as any).config.remote ||
-          !(hp as any).config.remote.filePath ||
-          !e.client) return;
+      if (
+        !hp ||
+        !(hp as any).config ||
+        !(hp as any).config.config ||
+        !(hp as any).config.config.remote ||
+        !(hp as any).config.config.remote.filePath ||
+        !e.client
+      ) return;
 
-      const filePath = (hp as any).config.remote.filePath;
-
-      if (e.push.commits.some(c => {
-          return c.modified.indexOf(filePath) >= 0 ||
-          c.added.indexOf(filePath) >= 0 ||
-          c.removed.indexOf(filePath) >= 0;
-      })) {
-        const config = await this.configLoader.loadConfig((hp as any).config, e.installationId, e.fullName, e.client);
+      const filePath = (hp as any).config.config.remote.filePath;
+      if (e.push.commits.some(c =>
+        c.modified.includes(filePath) ||
+        c.added.includes(filePath) ||
+        c.removed.includes(filePath))) {
+        const config = await this.configLoader.loadConfig(
+          (hp as any).config,
+          e.installationId,
+          e.fullName,
+          e.client,
+        );
         this.app.event.publish('all', HostingPlatformConfigInitedEvent, {
           id: e.installationId,
           fullName: e.fullName,
@@ -146,6 +164,7 @@ export abstract class HostingManagerBase<THostingPlatform extends HostingBase<TC
         });
         this.app.event.publish('all', RepoConfigLoadedEvent, {
           ...e,
+          client: undefined,
         });
       }
     });

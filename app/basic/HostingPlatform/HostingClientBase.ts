@@ -12,36 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { BotLogger, loggerWrapper, waitUntil, renderString } from '../Utils';
+import { BotLogger, loggerWrapper } from '../Utils';
 import { Application } from 'egg';
 import { IClient } from '../../plugin/installation-manager/IClient';
 import { CheckRun, CIPlatform, Repo } from '../DataTypes';
 import CIConfig from '../../component/ci/config';
-import { LuaVm } from '../../lua-vm/LuaVm';
-import { luaMethod, luaEvents } from '../../lua-vm/decorators';
-import { LUA_SCRIPT_KEY } from '../../plugin/component-manager/AppComponentManager';
 import RoleConfig from '../../component/role/config';
 import CommandConfig from '../../component/command/config';
 import { RepoData } from './RepoData';
-import { IncomingWebhookSendArguments } from '@slack/webhook/dist/IncomingWebhook';
-import IMConfig from '../../component/im/config';
-import * as Nodemailer from 'nodemailer';
-import { DingTalkMessageType } from '../IMDataTypes';
-import TranslationConfig from '../../component/translation/config';
-import * as os from 'os';
+import { LuaClient } from './LuaClient';
+import { HostingBase } from './HostingBase';
+import { HostingConfigBase } from './HostingConfigBase';
 
-export abstract class HostingClientBase<TRawClient> implements IClient {
+export abstract class HostingClientBase<TConfig extends HostingConfigBase, TRawClient> implements IClient {
 
   public hostId: number;
   public rawClient: TRawClient;
   public name: string; // fullName
   private app: Application;
   protected logger: BotLogger;
-  protected config: any;
+  public config: any;
   public repoData: RepoData;
-  protected luaVm: LuaVm;
-  public luaInjectMethods: Map<string, any>;
   protected commandLastExecTime: Map<string, number>;
+  private luaClient: LuaClient<TConfig, TRawClient>;
+  public base: HostingBase<
+    TConfig,
+    HostingClientBase<TConfig, TRawClient>,
+    TRawClient
+  >;
 
   constructor(name: string, hostId: number, app: Application) {
     this.name = name;
@@ -51,9 +49,10 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
     this.logger = loggerWrapper(app.logger, `[host-client-${this.hostId}-${this.name}]`);
     this.repoData = new RepoData();
     this.commandLastExecTime = new Map<string, number>();
+    this.luaClient = new LuaClient(app, this);
     process.nextTick(() => {
+      this.luaClient.init();
       // put in next tick to make sure construction finished
-      this.runLuaScript();
       this.updateData();
       // update data every morning at 8 o'clock
       // TODO need to support event update
@@ -63,7 +62,7 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
     });
   }
 
-  //region
+  // region
   // abstract functions
 
   protected abstract async updateData(): Promise<void>;
@@ -127,13 +126,6 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
       return this.config[comp] as TConfig;
     }
     return undefined;
-  }
-
-  public setInjectFunction(key: string, value: any): void {
-    if (!this.luaInjectMethods) {
-      this.luaInjectMethods = new Map<string, any>();
-    }
-    this.luaInjectMethods.set(key, value);
   }
 
   public checkCommand(command: string,
@@ -208,194 +200,6 @@ export abstract class HostingClientBase<TRawClient> implements IClient {
     if (isIssue) return this.commandLastExecTime.get('issue_' + issueNumber);
     return this.commandLastExecTime.get('pull_' + issueNumber);
   }
-
-  private async runLuaScript(): Promise<void> {
-    await waitUntil(() => this.config !== null);
-    const luaPath = this.getCompConfig<string>(LUA_SCRIPT_KEY);
-    if (!luaPath || luaPath === '') {
-      // do not init if no lua script in config
-      return;
-    }
-    const luaContent = await this.getFileContent(luaPath);
-    if (!luaContent || luaContent === '') {
-      // do not init if no lua script content found
-      return;
-    }
-
-    this.luaVm = new LuaVm();
-    // set methods
-    if (this.luaInjectMethods) {
-      this.luaInjectMethods.forEach((v, k) => {
-        this.luaVm.set(k, v, this);
-      });
-    }
-    // set configs
-    this.luaVm.set('config', this.config);
-
-    // run script
-    const res = this.luaVm.run(luaContent);
-    this.logger.info('Lua exec result,', res);
-  }
-
   //endregion
 
-  //region
-  // lua functions
-
-  @luaMethod()
-  protected lua_on(eventType: string, cb: (e: any) => void) {
-    const eventClass = luaEvents.get(eventType);
-    if (!eventClass) return;  // only registered event can be used
-    this.app.event.subscribeOne<any>(eventClass as any, async e => {
-      if (e.fullName !== this.name || e.installationId !== this.hostId) {
-        // lua only consume self repo event
-        return;
-      }
-      const luaE = eventClass.toLuaEvent(e);
-      if (!luaE) return;
-      cb(luaE);
-    });
-  }
-
-  @luaMethod()
-  protected lua_sched(name: string, time: string, cb: () => void) {
-    const jobName = `${this.name}_${name}`;
-    this.app.sched.register(jobName, time, 'worker', cb);
-  }
-
-  @luaMethod()
-  protected lua_getData(): Repo {
-    return this.repoData.getRepoData();
-  }
-
-  @luaMethod()
-  protected lua_getRoles(role: string): string[] {
-    const roleConfig: RoleConfig | undefined = this.getCompConfig<RoleConfig>('role');
-    if (!roleConfig || !roleConfig.roles) return [];
-    const roleDetail = roleConfig.roles.find(r => r.name === role);
-    if (!roleDetail || !roleDetail.users) return [];
-    return roleDetail.users;
-  }
-
-  @luaMethod()
-  protected lua_addIssue(title: string, body: string, labels: string[]): void {
-    this.logger.info('Gonna add issue from lua, title=', title, ',body=', body);
-    this.addIssue(title, body, labels);
-  }
-
-  @luaMethod()
-  protected lua_updateIssue(number: number, update: {title?: string, body?: string, state?: 'open' | 'closed'}): void {
-    this.logger.info('Gonna update issue from lua, number=', number, ',update=', update);
-    this.updateIssue(number, update);
-  }
-
-  @luaMethod()
-  protected lua_assign(num: number, login: string): void {
-    this.logger.info('Gonna assign from lua, num=', num, ',login=', login);
-    this.assign(num, login);
-  }
-
-  @luaMethod()
-  protected lua_addIssueComment(num: number, body: string): void {
-    this.logger.info('Gonna add issue comment from lua, number=', num, ',body=', body);
-    this.addIssueComment(num, body);
-  }
-
-  @luaMethod()
-  protected lua_addLabels(num: number, labels: string[]): void {
-    this.logger.info('Goona add label from lua, number=', num, ',labels=', labels);
-    this.addLabels(num, labels);
-  }
-
-  @luaMethod()
-  protected lua_toNow(time: string): number {
-    return new Date().getTime() - new Date(time).getTime();
-  }
-
-  @luaMethod()
-  protected lua_log(...msg: string[]): void {
-    this.logger.info('From lua:', ...msg);
-  }
-
-  @luaMethod()
-  protected lua_checkAuth(login: string, command: string, author: string): boolean {
-    return this.checkAuth(login, command, author);
-  }
-
-  @luaMethod()
-  protected lua_merge(num: number): void {
-    this.logger.info('Gonna merge pull from lua, number=', num);
-    this.merge(num);
-  }
-
-  @luaMethod()
-  protected lua_runCI(configName: string, pullNumber: number): void {
-    this.logger.info('Gonna run CI from lua, ',
-      'configName=', configName, ',pullNumber=', pullNumber, ', fullName=', this.name);
-    this.runCI(configName, pullNumber);
-  }
-
-  @luaMethod()
-  protected lua_sendToSlack(configName: string, message: IncomingWebhookSendArguments): void {
-    this.logger.info('Gonna run sendToSlack from lua, configName=', configName);
-    if (!configName || !message) return;
-
-    const config = this.getCompConfig<IMConfig>('im');
-    if (!config || !config.enable || config.enable !== true || !config.slack) return;
-
-    config.slack.forEach(c => {
-      if (c.name === configName) {
-        this.app.imManager.sendToSlack(message, c);
-        return;
-      }
-    });
-  }
-
-  @luaMethod()
-  protected lua_sendToMail(configName: string, message: Nodemailer.SendMailOptions): void {
-    this.logger.info('Gonna run sendToMail from lua, configName=', configName);
-    if (!configName || !message) return;
-
-    const config = this.getCompConfig<IMConfig>('im');
-    if (!config || !config.enable || config.enable !== true || !config.mail) return;
-
-    config.mail.forEach(c => {
-      if (c.name === configName) {
-        this.app.imManager.sendToMail(message, c);
-        return;
-      }
-    });
-  }
-
-  @luaMethod()
-  protected lua_sendToDingTalk(configName: string, message: DingTalkMessageType): void {
-    this.logger.info('Gonna run sendToDingTalk from lua, configName=', configName);
-    if (!configName || !message) return;
-
-    const config = this.getCompConfig<IMConfig>('im');
-    if (!config || !config.enable || config.enable !== true || !config.dingTalk) return;
-
-    config.dingTalk.forEach(c => {
-      if (c.name === configName) {
-        this.app.imManager.sendToDingTalk(message, c);
-        return;
-      }
-    });
-  }
-
-  @luaMethod()
-  protected lua_renderString(template: string, param?: any): string {
-    return renderString(template, param);
-  }
-
-  @luaMethod()
-  protected lua_translate(src: string, to: string, cb: (res: string) => void): void {
-    this.logger.info('Gonna get config for translation ...');
-    const config = this.getCompConfig<TranslationConfig>('translation');
-    if (!config || !config.googleTranslationKey) return;
-    this.logger.info(`Gonna translate to ${to}, src = ${src}`);
-    const strings = src.split(os.EOL);
-    this.app.translate.translate(config.googleTranslationKey, strings, to).then(res => cb(res.map(r => r.translatedText).join(os.EOL)));
-  }
-  //endregion
 }
