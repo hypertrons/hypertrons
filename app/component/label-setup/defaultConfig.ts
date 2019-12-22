@@ -15,7 +15,6 @@
 import Config from './config';
 
 const defaultConfig: Config = {
-  enable: false,
   labels: [
     // Kind
     {

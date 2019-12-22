@@ -13,23 +13,25 @@
 // limitations under the License.
 
 import { AppPluginBase } from '../../basic/AppPluginBase';
-import { IClient } from './IClient';
 import { Application } from 'egg';
 import { InstallationType } from './types';
 import { HostingPlatformInitEvent } from '../../basic/HostingPlatform/event';
 
 export class AppInstallationManager extends AppPluginBase<Config> {
 
-  private clientMap: Map<number, InstallationType>;
+  private clientMap: Map<number, InstallationInfo>;
 
   constructor(config: Config, app: Application) {
     super(config, app);
-    this.clientMap = new Map<number, InstallationType>();
+    this.clientMap = new Map<number, InstallationInfo>();
   }
 
   public async onReady(): Promise<void> {
     this.app.event.subscribeAll(HostingPlatformInitEvent, async e => {
-      this.clientMap.set(e.id, e.type);
+      this.clientMap.set(e.id, {
+        name: e.name,
+        type: e.type,
+      });
     });
   }
 
@@ -37,8 +39,8 @@ export class AppInstallationManager extends AppPluginBase<Config> {
 
   public async onClose(): Promise<void> { }
 
-  public async getClient(installationId: number, name: string): Promise<IClient | undefined> {
-    const type = this.clientMap.get(installationId);
+  public async getClient(installationId: number, name: string): Promise<any | undefined> {
+    const type = this.clientMap.get(installationId)?.type;
     if (type) {
       switch (type) {
         case 'github':
@@ -52,8 +54,22 @@ export class AppInstallationManager extends AppPluginBase<Config> {
     return undefined;
   }
 
-  public getInstallationType(installationId: number): InstallationType {
-    return this.clientMap.get(installationId);
+  public getInstallationType(installationId: number): InstallationType | undefined {
+    const installationInfo = this.clientMap.get(installationId);
+    if (installationInfo) return installationInfo.type;
+    return undefined;
+  }
+
+  public getInstallationInfoByName(installationName: string): {id: number, type: InstallationType} {
+    let id: number = -1;
+    let type: InstallationType;
+    this.clientMap.forEach((value, key) => {
+      if (value.name === installationName) {
+        id = key;
+        type = value.type;
+      }
+    });
+    return { id, type };
   }
 
 }
@@ -63,4 +79,9 @@ interface Config {
     type: InstallationType,
     config: any,
   }>;
+}
+
+export interface InstallationInfo {
+  name: string;
+  type: InstallationType;
 }

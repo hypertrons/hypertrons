@@ -14,13 +14,12 @@
 
 import { Issue, Comment, PullRequest, CheckRun, Push, Review } from '../../basic/DataTypes';
 import { Command } from '../command-manager/Command';
-import { IClient } from '../installation-manager/IClient';
 import { luaEvent } from '../../lua-vm/decorators';
 
 export class RepoEventBase {
   installationId: number;
   fullName: string;
-  client?: IClient;
+  client?: any;
 }
 
 /**
@@ -31,7 +30,9 @@ export class RepoConfigLoadedEvent extends RepoEventBase {}
 /**
  * Repo added
  */
-export class RepoAddedEvent extends RepoEventBase {}
+export class RepoAddedEvent extends RepoEventBase {
+  payload: any;
+}
 
 /**
  * Repo removed

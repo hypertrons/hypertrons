@@ -12,22 +12,37 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { ComponentSet } from './ComponentService';
+
 export type HostingPlatformTypes = 'github' | 'gitlab';
 
 export class HostingPlatformInitEvent {
   id: number;
+  name: string;
   type: HostingPlatformTypes;
   config: any;
 }
 
-export class HostingManagerInitRepoEvent {
+export class HostingPlatformInitRepoEvent {
   id: number;
   fullName: string;
   payload: any;
 }
 
-export class HostingPlatformConfigInitedEvent {
+export class HostingPlatformComponentInitedEvent {
+  id: number;
+  components: ComponentSet;
+}
+
+export class HostingClientConfigInitedEvent {
   id: number;
   fullName: string;
   config: any;
+  luaScript: string;
+}
+
+export class HostingClientRepoDataInitedEvent {
+  id: number;
+  fullName: string;
+  repoData: any;
 }

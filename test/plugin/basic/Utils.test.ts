@@ -264,4 +264,27 @@ describe('Utils', () => {
     });
   });
 
+  describe('customizerMerge', () => {
+    it('test 1', async () => {
+      const a = { a: 1 };
+      const b = { a: 2, b: 3 };
+      const res = Utils.customizerMerge(a, b);
+      console.log(res);
+    });
+
+    it('test 2', async () => {
+      const a = { a: 1, c: 4 };
+      const b = { a: 2, c: '3' };
+      const res = Utils.customizerMerge(a, b);
+      console.log(res);
+    });
+
+    it('test 3', async () => {
+      const a = { a: 1, c: 'a' };
+      const b = { a: 2, c: 3, d: 5 };
+      const res = Utils.customizerMergeWithType(a, b);
+      console.log(res);
+    });
+  });
+
 });

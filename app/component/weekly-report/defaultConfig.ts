@@ -82,7 +82,6 @@ For more details, please refer to {{contributingLink}} .
 };
 
 const defaultConfig: Config = {
-  enable: false,
   jobName: 'WeeklyReport',
   generateTime: '0 0 12 * * 1',
   weeklyReportTemplate: templateDefaultConfig,

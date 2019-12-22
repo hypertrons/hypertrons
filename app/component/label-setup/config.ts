@@ -53,12 +53,6 @@ class Label {
 export default class Config {
 
   @configProp({
-    description: 'Enable this component or not',
-    defaultValue: defaultConfig.enable,
-  })
-  enable: boolean;
-
-  @configProp({
     description: 'Labels to use',
     defaultValue: defaultConfig.labels,
     arrayType: Label,

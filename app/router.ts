@@ -14,6 +14,9 @@
 
 import { Application } from 'egg';
 
-export default (_: Application) => {
+export default (app: Application) => {
+  const { controller, router } = app;
 
+  router.get('installation/:installationName/configs', controller.installation.getConfig);
+  router.get('installation/:installationName/configs/:name/:version', controller.installation.getConfigByNameVersion);
 };

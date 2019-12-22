@@ -46,11 +46,6 @@ const plugin: EggPlugin = {
     path: join(__dirname, '../app/plugin/gitlab'),
   },
 
-  component: {
-    enable: true,
-    path: join(__dirname, '../app/plugin/component-manager'),
-  },
-
   ciManager: {
     enable: true,
     path: join(__dirname, '../app/plugin/ci-manager'),
@@ -64,11 +59,6 @@ const plugin: EggPlugin = {
   translate: {
     enable: true,
     path: join(__dirname, '../app/plugin/translate'),
-  },
-
-  dataManager: {
-    enable: true,
-    path: join(__dirname, '../app/plugin/data-manager'),
   },
 
 };

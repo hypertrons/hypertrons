@@ -38,7 +38,6 @@ const slackDefaultConfig: SlackConfig = {
 };
 
 const defaultConfig: Config = {
-  enable: false,
   slack: [ ],
   dingTalk: [ ],
   mail: [ ],
