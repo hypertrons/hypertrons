@@ -87,7 +87,7 @@ export class AppInstallationManager extends AppPluginBase<Config> {
     return platform;
   }
 
-  public getHostingClientByInstallationName(installationName: string, fullName: string): IClient {
+  public getHostingClientByInstallationName(installationName: string, fullName: string): Promise<IClient> {
     let client: any;
     this.clientMap.forEach((hostingPlatform, installationId) => {
       if (hostingPlatform.name === installationName) {

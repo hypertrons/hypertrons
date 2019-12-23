@@ -12,10 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Application } from 'egg';
+'use strict';
 
-export default (app: Application) => {
-  const { router, controller } = app;
+import assert from 'power-assert';
+import { genPlantUmlUrl } from '../../scripts/Utils';
 
-  router.get('/umlrenderer/:installationName/:owner/:repo', controller.umlrenderer.get);
-};
+describe('Scripts Util', () => {
+
+  beforeEach(() => {
+  });
+
+  it('Should gen current URL', () => {
+    const url = 'http://www.plantuml.com/plantuml/png/SoWkIImgAStDuNBAJrBGjLDmpCbCJbMmKiX8pSd9vt98pKi1IW80';
+    const str = `@startuml
+Bob -> Alice : hello
+@enduml`;
+    const genUrl = genPlantUmlUrl(str);
+    assert.equal(genUrl, url);
+  });
+});
