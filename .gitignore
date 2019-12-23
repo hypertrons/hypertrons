@@ -18,6 +18,7 @@ config/**/*.js
 app/**/*.map
 test/**/*.map
 config/**/*.map
+typings/**/*
 .travis.yml
 private-key.pem
 globalConfig.json
