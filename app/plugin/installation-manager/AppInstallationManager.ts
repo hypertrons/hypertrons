@@ -20,16 +20,16 @@ import { HostingPlatformInitEvent } from '../../basic/HostingPlatform/event';
 
 export class AppInstallationManager extends AppPluginBase<Config> {
 
-  private clientMap: Map<number, InstallationType>;
+  private clientMap: Map<number, InstallationInfo>;
 
   constructor(config: Config, app: Application) {
     super(config, app);
-    this.clientMap = new Map<number, InstallationType>();
+    this.clientMap = new Map<number, InstallationInfo>();
   }
 
   public async onReady(): Promise<void> {
     this.app.event.subscribeAll(HostingPlatformInitEvent, async e => {
-      this.clientMap.set(e.id, e.type);
+      this.clientMap.set(e.id, { type: e.type, name: e.config.name });
     });
   }
 
@@ -38,7 +38,7 @@ export class AppInstallationManager extends AppPluginBase<Config> {
   public async onClose(): Promise<void> { }
 
   public async getClient(installationId: number, name: string): Promise<IClient | undefined> {
-    const type = this.clientMap.get(installationId);
+    const type = this.clientMap.get(installationId)?.type;
     if (type) {
       switch (type) {
         case 'github':
@@ -53,9 +53,58 @@ export class AppInstallationManager extends AppPluginBase<Config> {
   }
 
   public getInstallationType(installationId: number): InstallationType {
-    return this.clientMap.get(installationId);
+    return this.clientMap.get(installationId)?.type;
   }
 
+  public getInstallationInfoByName(installationName: string): {id: number, type: InstallationType} | undefined {
+    let id: number = -1;
+    let type: InstallationType;
+    this.clientMap.forEach((value, key) => {
+      if (value.name === installationName) {
+        id = key;
+        type = value.type;
+      }
+    });
+    return { id, type };
+  }
+
+  public getHostingPlatformByInstallationName(installationName: string): any {
+    let platform: any;
+    this.clientMap.forEach((hostingPlatform, installationId) => {
+      if (hostingPlatform.name === installationName) {
+        switch (hostingPlatform.type) {
+          case 'github':
+            platform = this.app.github.getHostingPlatformById(installationId);
+            break;
+          case 'gitlab':
+            platform = this.app.gitlab.getHostingPlatformById(installationId);
+            break;
+          default:
+           break;
+        }
+      }
+    });
+    return platform;
+  }
+
+  public getHostingClientByInstallationName(installationName: string, fullName: string): IClient {
+    let client: any;
+    this.clientMap.forEach((hostingPlatform, installationId) => {
+      if (hostingPlatform.name === installationName) {
+        switch (hostingPlatform.type) {
+          case 'github':
+            client = this.app.github.getClient(installationId, fullName);
+            break;
+          case 'gitlab':
+            client = this.app.gitlab.getClient(installationId, fullName);
+            break;
+          default:
+           break;
+        }
+      }
+    });
+    return client;
+  }
 }
 
 interface Config {
@@ -63,4 +112,9 @@ interface Config {
     type: InstallationType,
     config: any,
   }>;
+}
+
+export interface InstallationInfo {
+  name: string;
+  type: InstallationType;
 }

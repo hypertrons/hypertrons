@@ -191,4 +191,8 @@ export abstract class HostingManagerBase<THostingPlatform extends HostingBase<TC
     return undefined;
   }
 
+  public getHostingPlatformById(id: number): HostingBase<TConfig , TClient, TRawClient> | undefined {
+    return this.hpMap.get(id);
+  }
+
 }
