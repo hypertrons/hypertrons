@@ -18,4 +18,7 @@ export default (app: Application) => {
   const { router, controller } = app;
 
   router.get('/umlrenderer/:installationName/:owner/:repo', controller.umlrenderer.get);
+  router.get('/installation/:installationName', controller.installation.getInstallationConfig);
+  router.get('/component/:installationName', controller.component.getComponentConfig);
+  router.get('/component/:installationName/:name/:version', controller.component.getComponentConfigByNameVersion);
 };

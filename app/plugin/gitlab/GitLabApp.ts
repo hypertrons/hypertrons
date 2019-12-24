@@ -28,7 +28,7 @@ export class GitLabApp extends HostingBase<GitLabConfig, GitLabClient, Gitlab> {
   private webhooksPath: string;
   private gitlabGraphqlClient: GitlabGraphqlClient;
   constructor(id: number, config: GitLabConfig, app: Application) {
-    super(id, config, app);
+    super('gitlab', id, config, app);
     this.client = new Gitlab({
       host: this.config.host,
       token: this.config.primaryToken,
@@ -64,8 +64,8 @@ export class GitLabApp extends HostingBase<GitLabConfig, GitLabClient, Gitlab> {
     return ret;
   }
 
-  protected async addRepo(name: string, payload: any): Promise<void> {
-    const client = new GitLabClient(name, this.id, this.app, payload, this.client, this.gitlabGraphqlClient);
+  public async addRepo(name: string, payload: any): Promise<void> {
+    const client = new GitLabClient(name, this.id, this.app, payload, this.client, this.gitlabGraphqlClient, this);
     this.clientMap.set(name, async () => client);
     this.initWebhooksForRepo(name, payload, this.webhooksPath);
   }

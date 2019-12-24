@@ -12,54 +12,98 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { BotLogger, loggerWrapper } from '../Utils';
+import { BotLogger, loggerWrapper, waitUntil, parseRepoName } from '../Utils';
 import { Application } from 'egg';
-import { IClient } from '../../plugin/installation-manager/IClient';
 import { CheckRun, CIPlatform, Repo } from '../DataTypes';
 import CIConfig from '../../component/ci/config';
-import RoleConfig from '../../component/role/config';
-import CommandConfig from '../../component/command/config';
-import { RepoData } from './RepoData';
-import { LuaClient } from './LuaClient';
+import { LuaService } from './HostingClientService/LuaService';
 import { HostingBase } from './HostingBase';
+import { RepoDataService } from './HostingClientService/RepoDataService';
+import { CommandService } from './HostingClientService/CommandService';
+import { ConfigService } from './HostingClientService/ConfigService';
+import { ISchedulerJobHandler } from '../../plugin/scheduler-manager/types';
 import { HostingConfigBase } from './HostingConfigBase';
+import { EventManager } from './HostingClientService/EventManager';
+import { ClientServiceBase } from './HostingClientService/ClientServiceBase';
+import { IClient } from '../../plugin/installation-manager/IClient';
+import { HostingClientSyncDataEvent } from './event';
 
 export abstract class HostingClientBase<TConfig extends HostingConfigBase, TRawClient> implements IClient {
 
-  public hostId: number;
-  public rawClient: TRawClient;
-  public name: string; // fullName
   private app: Application;
   protected logger: BotLogger;
-  public config: any;
-  public repoData: RepoData;
-  protected commandLastExecTime: Map<string, number>;
-  private luaClient: LuaClient<TConfig, TRawClient>;
-  public base: HostingBase<
-    TConfig,
-    HostingClientBase<TConfig, TRawClient>,
-    TRawClient
-  >;
 
-  constructor(name: string, hostId: number, app: Application) {
-    this.name = name;
+  protected hostId: number;
+  protected fullName: string;
+  protected rawClient: TRawClient;
+  protected hostBase: HostingBase<TConfig, HostingClientBase<TConfig, TRawClient>, TRawClient>;
+  protected job: ISchedulerJobHandler;
+  protected started: boolean;
+
+  private luaService: LuaService<TConfig, TRawClient>;
+  public repoDataService: RepoDataService<TConfig, TRawClient>;
+  public commandService: CommandService<TConfig, TRawClient>;
+  public configService: ConfigService<TConfig, TRawClient>;
+  public eventService: EventManager<TConfig, TRawClient>;
+  protected services: Array<ClientServiceBase<TConfig, TRawClient>>;
+
+  constructor(fullName: string, hostId: number, app: Application,
+              hostBase: HostingBase<TConfig, HostingClientBase<TConfig, TRawClient>, TRawClient>) {
+    this.fullName = fullName;
     this.hostId = hostId;
-    this.config = null;
     this.app = app;
-    this.logger = loggerWrapper(app.logger, `[host-client-${this.hostId}-${this.name}]`);
-    this.repoData = new RepoData();
-    this.commandLastExecTime = new Map<string, number>();
-    this.luaClient = new LuaClient(app, this);
+    this.hostBase = hostBase;
+    this.started = false;
+    this.logger = loggerWrapper(app.logger, `[client-${this.hostBase.getName()}-${this.fullName}]`);
+
+    this.eventService = new EventManager(app, this);
+    this.configService = new ConfigService(app, this);
+    this.repoDataService = new RepoDataService(app, this);
+    this.luaService = new LuaService(app, this);
+    this.commandService = new CommandService(app, this);
+    this.services = [ this.eventService, this.configService, this.repoDataService, this.luaService, this.commandService ];
+
     process.nextTick(() => {
-      this.luaClient.init();
-      // put in next tick to make sure construction finished
-      this.updateData();
-      // update data every morning at 8 o'clock
-      // TODO need to support event update
-      this.app.sched.register(`${this.name}_Update_Repo_Data`, '0 0 8 * * *', 'workers', () => {
-        this.updateData();
-      });
+      this.onStart();
     });
+  }
+
+  public async onStart(): Promise<void> {
+    this.logger.info('onStart');
+
+    this.eventService.subscribeOne(HostingClientSyncDataEvent, async () => {
+      this.syncData();
+    });
+
+    this.updateData();
+    this.job = this.app.sched.register(`${this.fullName}_Update_Repo_Data`, '0 0 8 * * *', 'workers', () => {
+      this.updateData();
+    });
+
+    for (const index in this.services) {
+      await this.services[index].onStart();
+    }
+
+    this.started = true;
+  }
+
+  public async onDispose(): Promise<void> {
+    this.logger.info('onDispose');
+    this.job.cancel();
+    for (let i = this.services.length - 1; i >= 0; i--) {
+      await this.services[i].onDispose();
+    }
+  }
+
+  public onConfigLoaded() {
+    this.logger.info('onConfigLoaded');
+    this.services.forEach(s => s.onConfigLoaded());
+  }
+
+  public async syncData(): Promise<void> {
+    this.logger.info('Start to sync data');
+    await waitUntil(() => this.started, { interval: 500 });
+    this.services.forEach(s => s.syncData());
   }
 
   // region
@@ -89,16 +133,58 @@ export abstract class HostingClientBase<TConfig extends HostingConfigBase, TRawC
 
   public abstract async assign(num: number, login: string): Promise<void>;
 
+  //endregion
+
+  //region
+  // common functions
+
+  public getRepoData(): Repo {
+    return this.repoDataService.getRepoData();
+  }
+  public getHostingBase(): HostingBase<TConfig, HostingClientBase<TConfig, TRawClient>, TRawClient> {
+    return this.hostBase;
+  }
+  public getHostId(): number {
+    return this.hostId;
+  }
+  public getFullName(): string {
+    return this.fullName;
+  }
+  public getConfig(): any {
+    return this.configService.getConfig();
+  }
+  public getCompConfig<TConfig>(comp: string): TConfig | undefined {
+    return this.configService.getCompConfig(comp);
+  }
+  public getLuaScript(): string {
+    return this.configService.getLuaScript();
+  }
+  public setRawClient(rawClient: TRawClient) {
+    this.rawClient = rawClient;
+  }
+  public getRawClient(): TRawClient {
+    return this.rawClient;
+  }
+  public getHostingConfig(): HostingConfigBase {
+    return this.hostBase.getConfig();
+  }
+  public getStarted(): boolean {
+    return this.started;
+  }
+  public getOwner(): string {
+    const { owner } = parseRepoName(this.fullName);
+    return owner;
+  }
   public async runCI(configName: string, pullNumber: number): Promise<void> {
     if (!configName || !Number.isInteger(pullNumber)) return;
 
     const ciConfigs = this.getCompConfig<CIConfig>('ci');
-    if (!ciConfigs || ciConfigs.enable !== true || !ciConfigs.configs) return;
+    if (!ciConfigs || !ciConfigs.configs) return;
 
     let jobName = '';
     const ciConfig = ciConfigs.configs.find(config => {
       return config.name === configName && (config.repoToJobMap.findIndex(r2j => {
-        if (r2j.repo === this.name) {
+        if (r2j.repo === this.fullName) {
           jobName = r2j.job;
           return true;
         }
@@ -112,94 +198,6 @@ export abstract class HostingClientBase<TConfig extends HostingConfigBase, TRawC
     }
   }
 
-  //endregion
-
-  //region
-  // common functions
-
-  public getRepoData(): Repo {
-    return this.repoData.getRepoData();
-  }
-
-  public getCompConfig<TConfig>(comp: string): TConfig | undefined {
-    if (this.config[comp]) {
-      return this.config[comp] as TConfig;
-    }
-    return undefined;
-  }
-
-  public checkCommand(command: string,
-                      login: string, author: string,
-                      from: 'issue' | 'comment' | 'pull_comment' | 'review' | 'review_comment',
-                      isIssue: boolean, issueNumber: number): boolean {
-    return this.checkAuth(login, command, author) &&
-    this.checkScope(from, command) &&
-    this.checkInterval(isIssue, issueNumber, command);
-  }
-
-  public checkAuth(login: string, command: string, author: string): boolean {
-    // config check
-    const roleConfig: RoleConfig | undefined = this.getCompConfig<RoleConfig>('role');
-    if (!roleConfig || !roleConfig.roles) return false;
-    // 1. Can anyone use the command?
-    const anyoneAuth = roleConfig.roles.find(role => role.name === 'anyone');
-    if (anyoneAuth && anyoneAuth.commands.includes(command)) return true;
-    // 2. Can author use the command?
-    if (login === author) {
-      const notAuthorAuth = roleConfig.roles.find(role => role.name === 'notauthor');
-      const authorAuth = roleConfig.roles.find(role => role.name === 'author');
-      if (notAuthorAuth && notAuthorAuth.commands.includes(command)) {
-        // The command must be exec with not author role
-        return false;
-      }
-      if (authorAuth && authorAuth.commands.includes(command)) {
-        // The command is allowed to be exec by author
-        return true;
-      }
-    }
-    // 3. Can user use the command?
-    return roleConfig.roles.find(r =>
-      r.users && r.users.includes(login) && r.commands && r.commands.includes(command)) !== undefined;
-  }
-
-  // Judge whether command can be exec in the current number issue/pr.
-  public checkScope(from: 'issue' | 'comment' | 'pull_comment' | 'review' | 'review_comment', command: string): boolean {
-    // config check
-    const commandConfig: CommandConfig | undefined = this.getCompConfig<CommandConfig>('command');
-    if (!commandConfig || !commandConfig.commands) return true;
-
-    const commandScope = commandConfig.commands.find(c => c.name === command);
-    if (commandScope) return commandScope.scopes.includes(from);
-    return true;
-  }
-
-  public checkInterval(isIssue: boolean, issueNumber: number, command: string): boolean {
-    const commandConfigs: CommandConfig | undefined = this.getCompConfig<CommandConfig>('command');
-    if (!commandConfigs || !commandConfigs.commands) return true;
-
-    const config = commandConfigs.commands.find(c => c.name === command);
-    if (!config || !config.intervalMinutes || config.intervalMinutes <= 0) return true;
-
-    const lastExecTime = this.getCommandLastExecTime(isIssue, issueNumber);
-    if (lastExecTime === undefined || new Date().getTime() - lastExecTime > config.intervalMinutes * 60 * 1000) {
-      this.setCommandLastExecTime(isIssue, issueNumber);
-      return true;
-    }
-    return false;
-  }
-
-  protected setCommandLastExecTime(isIssue: boolean, issueNumber: number) {
-    if (isIssue) {
-      this.commandLastExecTime.set('issue_' + issueNumber, new Date().getTime());
-    } else {
-      this.commandLastExecTime.set('pull_' + issueNumber, new Date().getTime());
-    }
-  }
-
-  protected getCommandLastExecTime(isIssue: boolean, issueNumber: number): number | undefined {
-    if (isIssue) return this.commandLastExecTime.get('issue_' + issueNumber);
-    return this.commandLastExecTime.get('pull_' + issueNumber);
-  }
   //endregion
 
 }

@@ -88,12 +88,6 @@ export class JenkinsConfig {
 export default class Config {
 
   @configProp({
-    description: 'Enable this component or not',
-    defaultValue: defaultConfig.enable,
-  })
-  enable: boolean;
-
-  @configProp({
     description: 'CI Platform configs',
     type: 'array',
     arrayType: JenkinsConfig,

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import { configClass, configProp } from '../../config-generator/decorators';
+import defaultConfig from './defaultConfig';
 /**
  * translation config
  */
@@ -23,7 +24,7 @@ export default class Config {
 
   @configProp({
     description: 'google translation key',
-    defaultValue: '',
+    defaultValue: defaultConfig.googleTranslationKey,
   })
   googleTranslationKey: string;
 }
