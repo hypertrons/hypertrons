@@ -20,13 +20,15 @@ import { luaMethod, luaEvents } from '../../lua-vm/decorators';
 import { Repo } from '../DataTypes';
 import IMConfig from '../../component/im/config';
 import { IncomingWebhookSendArguments } from '@slack/webhook/dist/IncomingWebhook';
-import { waitUntil, BotLogger, loggerWrapper } from '../Utils';
+import { waitUntil, BotLogger, loggerWrapper, renderString } from '../Utils';
 import * as Nodemailer from 'nodemailer';
 import { DingTalkMessageType } from '../IMDataTypes';
 import { HostingClientBase } from './HostingClientBase';
 import { HostingConfigBase } from './HostingConfigBase';
 import { LUA_SCRIPT_KEY } from '../../plugin/component-manager/AppComponentManager';
 import { ISchedulerJobHandler } from '../../plugin/scheduler-manager/types';
+import TranslationConfig from '../../component/translation/config';
+import * as os from 'os';
 
 export class LuaClient<TConfig extends HostingConfigBase, TRawClient> {
   private luaSubscribeEvents: Map<any, any[]>;
@@ -372,6 +374,21 @@ export class LuaClient<TConfig extends HostingConfigBase, TRawClient> {
         return;
       }
     });
+  }
+
+  @luaMethod()
+  protected lua_renderString(template: string, param?: any): string {
+    return renderString(template, param);
+  }
+
+  @luaMethod()
+  protected lua_translate(src: string, to: string, cb: (res: string) => void): void {
+    this.logger.info('Gonna get config for translation ...');
+    const config = this.hcClient.getCompConfig<TranslationConfig>('translation');
+    if (!config || !config.googleTranslationKey) return;
+    this.logger.info(`Gonna translate to ${to}, src = ${src}`);
+    const strings = src.split(os.EOL);
+    this.app.translate.translate(config.googleTranslationKey, strings, to).then(res => cb(res.map(r => r.translatedText).join(os.EOL)));
   }
   //endregion
 }
