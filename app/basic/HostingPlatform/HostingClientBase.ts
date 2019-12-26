@@ -23,6 +23,7 @@ import { RepoData } from './RepoData';
 import { LuaClient } from './LuaClient';
 import { HostingBase } from './HostingBase';
 import { HostingConfigBase } from './HostingConfigBase';
+import { SVG, Svg } from '@svgdotjs/svg.js';
 
 export abstract class HostingClientBase<TConfig extends HostingConfigBase, TRawClient> implements IClient {
 
@@ -199,6 +200,71 @@ export abstract class HostingClientBase<TConfig extends HostingConfigBase, TRawC
   protected getCommandLastExecTime(isIssue: boolean, issueNumber: number): number | undefined {
     if (isIssue) return this.commandLastExecTime.get('issue_' + issueNumber);
     return this.commandLastExecTime.get('pull_' + issueNumber);
+  }
+
+  public communitySvgImage(): string {
+    const roleConfig = this.getCompConfig<RoleConfig>('role');
+    if (!roleConfig || !roleConfig.roles || roleConfig.roles.length === 0) return '';
+
+    const titleHeight = 60;
+    const avatarHeight = 100;
+    const avatarWidth = 100;
+    const loginHeight = 10;
+    const rolePerRow = 5;
+    const roleMargin = 20;
+    let totalHeight = 0;
+
+    const getHeightByRole = (r: any): number => {
+      const n = Math.ceil(r.users.length / rolePerRow);
+      return titleHeight + n * (loginHeight + avatarHeight) + roleMargin;
+    };
+
+    roleConfig.roles.forEach(r => {
+      totalHeight += getHeightByRole(r);
+    });
+    const roleWidth = rolePerRow * avatarWidth;
+
+    let offsetYGlobal = 0;
+    const offsetXGlobal = 20;
+
+    const window = require('svgdom');
+    const document = window.document;
+    const { registerWindow } = require('@svgdotjs/svg.js');
+
+    registerWindow(window, document);
+
+    const canvas: Svg = SVG<SVGSVGElement>(document.documentElement);
+    canvas.size(roleWidth + offsetXGlobal, totalHeight + roleMargin);
+
+    const addAvatar = (login: string, index: number, roleIndex: number) => {
+      const homeUrl = `https://www.github.com/${login}`;
+      const url = `https://avatars3.githubusercontent.com/${login}?s=${avatarWidth * 2}`;
+      const id = `r${roleIndex}l${index}`;
+      const offsetX = (index % rolePerRow) * avatarWidth + offsetXGlobal;
+      const offsetY = offsetYGlobal + titleHeight + Math.floor(index / rolePerRow) * (loginHeight + avatarHeight);
+      // pattern the image to fill circle later
+      canvas.pattern().id(id).size(1, 1).attr({ patternUnits: 'objectBoundingBox' })
+        .image(url).size(avatarWidth, avatarHeight);
+      // use corresponding image to fill the circle
+      canvas.link(homeUrl).circle(avatarHeight).cx(offsetX + avatarHeight / 2).cy(offsetY + avatarHeight / 2).fill(`url(#${id})`);
+      // render text in svg container to align to middle
+      canvas.group().translate(offsetX, offsetY + avatarHeight)
+        .text(login).move(avatarWidth / 2, 0).font({ size: 14 }).attr({ 'text-anchor': 'middle' });
+    };
+
+    const addRole = (role: any, index: number) => {
+      // if the role users is empty, not render, maybe a special user type like author or anyone
+      if (!role.users || role.users.length === 0) return;
+      canvas.text(role.name).move(offsetXGlobal, offsetYGlobal).font({ size: 25 });
+      role.users.forEach((login: string, i: number) => {
+        addAvatar(login, i, index);
+      });
+      offsetYGlobal += getHeightByRole(role);
+    };
+
+    roleConfig.roles.forEach(addRole);
+
+    return canvas.svg();
   }
   //endregion
 

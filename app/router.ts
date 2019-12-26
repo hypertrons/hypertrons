@@ -18,4 +18,6 @@ export default (app: Application) => {
   const { router, controller } = app;
 
   router.get('/umlrenderer/:installationName/:owner/:repo', controller.umlrenderer.get);
+
+  router.get('/docs/:installationName/:owner/:repo/community.svg', controller.docs.communitySvgImage);
 };
