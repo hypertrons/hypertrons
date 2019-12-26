@@ -56,4 +56,6 @@ export interface IClient {
   createCheckRun(check: CheckRun): Promise<void>;
 
   runCI(configName: string, pullNumber: number): Promise<void>;
+
+  communitySvgImage(): string;
 }
