@@ -25,7 +25,6 @@ export const jenkinsDefaultConfig: JenkinsConfig = {
 };
 
 const defaultConfig: Config = {
-  enable: false,
   configs: [ ],
 };
 

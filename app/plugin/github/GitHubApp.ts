@@ -23,9 +23,14 @@ import { join } from 'path';
 import { existsSync, readFileSync } from 'fs';
 import Webhooks = require('@octokit/webhooks');
 import { GithubWrapper } from '../../basic/DataWrapper';
-import { IssueEvent, CommentUpdateEvent, LabelUpdateEvent, PullRequestEvent, ReviewCommentEvent, RepoRemovedEvent, RepoAddedEvent, PushEvent, ReviewEvent } from '../event-manager/events';
+import {
+  IssueEvent, CommentUpdateEvent, LabelUpdateEvent, PullRequestEvent, ReviewCommentEvent, PushEvent, ReviewEvent,
+} from '../event-manager/events';
 import { DataCat } from 'github-data-cat';
 import EventSource from 'eventsource';
+import {
+  HostingPlatformRepoRemovedEvent, HostingPlatformRepoAddedEvent, HostingPlatformUninstallEvent,
+} from '../../basic/HostingPlatform/event';
 
 // add retry plugin into octokit
 Octokit.plugin(retry);
@@ -37,7 +42,7 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
   public dataCat: DataCat;
 
   constructor(id: number, config: GitHubConfig, app: Application) {
-    super(id, config, app);
+    super('github', id, config, app);
     const privateKeyPath = config.privateKeyPath;
     const privateKeyFilePath = config.privateKeyPathAbsolute ?
         privateKeyPath : join(this.app.baseDir, privateKeyPath);
@@ -83,20 +88,21 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
     return ret;
   }
 
-  protected async addRepo(name: string, payload: any): Promise<void> {
-    const client = new GitHubClient(name, this.id, this.app, this.dataCat);
-    client.rawClient = new Octokit();
+  public async addRepo(name: string, payload: any): Promise<void> {
     // set token before any request
-    client.rawClient.hook.before('request', async () => {
+    const githubClient = new GitHubClient(name, this.id, this.app, this.dataCat, this);
+    const oct = new Octokit();
+    githubClient.setRawClient(oct);
+    oct.hook.before('request', async () => {
       const token = await this.githubApp.getInstallationAccessToken({
         installationId: payload,
       });
-      client.rawClient.authenticate({
+      githubClient.getRawClient().authenticate({
         type: 'token',
         token,
       });
     });
-    this.clientMap.set(name, async () => client);
+    this.clientMap.set(name, async () => githubClient);
   }
 
   protected async initWebhook(config: GitHubConfig): Promise<void> {
@@ -138,32 +144,32 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
     const githubWrapper = new GithubWrapper();
     webhooks.on('installation.created', e => {
       e.payload.repositories.forEach(r => {
-        this.app.event.publish('all', RepoAddedEvent, {
-          installationId: this.id,
+        this.app.event.publish('all', HostingPlatformRepoAddedEvent, {
+          id: this.id,
           fullName: r.full_name,
+          payload: r.id,
         });
       });
     });
     webhooks.on('installation_repositories.added', e => {
       e.payload.repositories_added.forEach(r => {
-        this.app.event.publish('all', RepoAddedEvent, {
-          installationId: this.id,
+        this.app.event.publish('all', HostingPlatformRepoAddedEvent, {
+          id: this.id,
           fullName: r.full_name,
+          payload: r.id,
         });
       });
     });
     webhooks.on('installation.deleted', e => {
-      e.payload.repositories.forEach(r => {
-        this.app.event.publish('all', RepoRemovedEvent, {
-          installationId: this.id,
-          fullName: r.full_name,
-        });
+      this.app.event.publish('all', HostingPlatformUninstallEvent, {
+        id: this.id,
+        owner: e.payload.installation.account.login,
       });
     });
     webhooks.on('installation_repositories.removed', e => {
       e.payload.repositories_removed.forEach(r => {
-        this.app.event.publish('all', RepoRemovedEvent, {
-          installationId: this.id,
+        this.app.event.publish('all', HostingPlatformRepoRemovedEvent, {
+          id: this.id,
           fullName: r.full_name,
         });
       });

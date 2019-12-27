@@ -1,6 +1,6 @@
 {
-  "label-setup": {
-    "enable": true,
+  "label_setup": {
+    "version": 1,
     "labels": [
       {
         "__merge__": true
@@ -37,11 +37,12 @@
       }
     ]
   },
-  "weekly-report": {
-    "enable": true,
+  "weekly_report": {
+    "version": 1,
     "generateTime": "0 0 12 * * 1"
   },
   "role": {
+    "version": 1,
     "roles": [
       {
         "name": "committer",
@@ -82,6 +83,7 @@
     ]
   },
   "command": {
+    "version": 1,
     "commands": [
       {
         "name": "/approve",
@@ -89,5 +91,22 @@
       }
     ]
   },
-  "lua": ".github/hypertrons.lua"
+  "approve": {
+    "version": 1
+  },
+  "auto_merge": {
+    "version": 1
+  },
+  "difficulty": {
+    "version": 1
+  },
+  "issue_reminder": {
+    "version": 1
+  },
+  "rerun": {
+    "version": 1
+  },
+  "auto_label": {
+    "version": 1
+  }
 }

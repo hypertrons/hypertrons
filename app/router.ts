@@ -20,4 +20,10 @@ export default (app: Application) => {
   router.get('/umlrenderer/:installationName/:owner/:repo', controller.umlrenderer.get);
 
   router.get('/docs/:installationName/:owner/:repo/community.svg', controller.docs.communitySvgImage);
+
+  router.get('/installation/:installationName', controller.installation.getInstallationConfig);
+
+  router.get('/component/:installationName', controller.component.getComponentConfig);
+
+  router.get('/component/:installationName/:name/:version', controller.component.getComponentConfigByNameVersion);
 };

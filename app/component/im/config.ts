@@ -143,12 +143,6 @@ export class SlackConfig {
 export default class Config {
 
   @configProp({
-    description: 'Enable this component or not',
-    defaultValue: defaultConfig.enable,
-  })
-  enable: boolean;
-
-  @configProp({
     description: 'Slack config list',
     type: 'array',
     arrayType: SlackConfig,

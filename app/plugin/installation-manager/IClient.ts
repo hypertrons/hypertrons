@@ -12,50 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { CheckRun, Repo } from '../../basic/DataTypes';
-import { RepoData } from '../../basic/HostingPlatform/RepoData';
+import { RepoEventBase } from '../event-manager/events';
 
 export interface IClient {
-  name: string;
-  rawClient: any;
-  repoData: RepoData;
 
-  getRepoData(): Repo;
-
-  getCompConfig<TConfig>(comp: string): TConfig | undefined;
-
-  checkCommand(
-    command: string,
-    login: string, author: string,
-    from: 'issue' | 'comment' | 'pull_comment' | 'review' | 'review_comment',
-    isIssue: boolean, issueNumber: number,
-  ): boolean;
-
-  checkAuth(login: string, command: string, author: string): boolean;
-
-  checkScope(from: 'issue' | 'comment' | 'pull_comment' | 'review' | 'review_comment', command: string): boolean;
-
-  checkInterval(isIssue: boolean, issueNumber: number, command: string): boolean;
+  eventService: {
+    consume<T extends RepoEventBase>(className: string, type: 'worker' | 'workers' | 'agent' | 'all', param: T): Promise<void>;
+  };
 
   getFileContent(filePath: string): Promise<string | undefined>;
 
-  addIssue(title: string, body: string, labels?: string[]): Promise<void>;
-
-  listLabels(): Promise<Array<{name: string, description: string, color: string}>>;
-
-  updateIssue(number: number, update: {title?: string, body?: string, state?: 'open' | 'closed'}): Promise<void>;
-
-  // addAssignees(number: number, assignees: string[]): Promise<void>;
-
-  addLabels(number: number, labels: string[]): Promise<void>;
-
-  createLabels(labels: Array<{name: string, description: string, color: string}>): Promise<void>;
-
-  updateLabels(labels: Array<{current_name: string, name?: string; description?: string, color?: string}>): Promise<void>;
-
-  createCheckRun(check: CheckRun): Promise<void>;
-
-  runCI(configName: string, pullNumber: number): Promise<void>;
-
   communitySvgImage(): string;
+
 }

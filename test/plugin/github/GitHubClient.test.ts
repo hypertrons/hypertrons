@@ -28,13 +28,25 @@ describe('GitHubClient', () => {
 
   beforeEach(async () => {
     ({ app, agent } = await prepareTestApplication());
-    client = new GitHubClient('owner/repo', 42, app, new MockDataCat() as any);
-    client.rawClient = new MockRawClient() as any;
-    testResult = (client.rawClient as any).testResult;
+    client = new GitHubClient('owner/repo', 42, app, new MockDataCat() as any, new MockHostingBase() as any);
+    client.setRawClient(new MockRawClient() as any);
+    testResult = (client.getRawClient() as any).testResult;
   });
   afterEach(() => {
     testClear(app, agent);
   });
+
+  /**
+   * Mock HostingBase
+   */
+  class MockHostingBase {
+    getName(): string {
+      return 'name';
+    }
+    getConfig(): any {
+      return {};
+    }
+  }
 
   /**
    * Mock GitHub DataCat

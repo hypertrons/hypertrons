@@ -61,11 +61,28 @@ export class AutoCreateMap<K, V> extends Map<K, V> {
 }
 
 export function customizerMerge(...objs: any[]): any {
-
-  if (!objs || objs.length === 0) {
-    return {};
+  if (!objs || objs.length === 0) return {};
+  try {
+    for (let i = 1; i < objs.length; i++) {
+      mergeWith(objs[0], objs[i], (objValue: any, srcValue: any, _: string) => {
+        if (typeof objValue !== typeof srcValue) return srcValue !== undefined ? srcValue : objValue;
+        if (isArray(srcValue)) {
+          if (srcValue[0] && srcValue[0].__merge__ === true) {
+            (srcValue as any[]).shift();
+            return objValue.concat(srcValue.filter(v => !objValue.includes(v)));
+          }
+          return srcValue;
+        }
+      });
+    }
+    return objs[0];
+  } catch (err) {
+    return objs[0];
   }
-  const errorList: any[] = [];
+}
+
+export function customizerMergeWithType(...objs: any[]): any {
+  if (!objs || objs.length === 0) return {};
   try {
     for (let i = 1; i < objs.length; i++) {
       mergeWith(objs[0], objs[i], (objValue: any, srcValue: any, _: string) => {
@@ -82,17 +99,10 @@ export function customizerMerge(...objs: any[]): any {
         }
       });
     }
-    return {
-      error: errorList,
-      config: objs[0],
-    };
+    return objs[0];
   } catch (err) {
-    return{
-      error : [ ...errorList, err ],
-      config: objs[0],
-    };
+    return objs[0];
   }
-
 }
 
 export function ParseDate(date: string | number | null): Date | null {

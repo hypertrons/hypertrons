@@ -19,21 +19,24 @@ import { CheckRun } from '../../basic/DataTypes';
 import { getAll } from './data/getAll';
 import { GitlabGraphqlClient } from './client/GitlabGraphqlClient';
 import { GitLabConfig } from './GitLabConfig';
+import { HostingBase } from '../../basic/HostingPlatform/HostingBase';
 
 export class GitLabClient extends HostingClientBase<GitLabConfig, Gitlab> {
 
   private id: number;
   private gitlabGraphqlClient: GitlabGraphqlClient;
 
-  constructor(name: string, hostId: number, app: Application, id: number, client: Gitlab, gitlabGraphqlClient: GitlabGraphqlClient) {
-    super(name, hostId, app);
+  constructor(name: string, hostId: number, app: Application, id: number, client: Gitlab,
+              gitlabGraphqlClient: GitlabGraphqlClient,
+              hostBase: HostingBase<GitLabConfig, HostingClientBase<GitLabConfig, Gitlab>, Gitlab>) {
+    super(name, hostId, app, hostBase);
     this.id = id;
     this.rawClient = client;
     this.gitlabGraphqlClient = gitlabGraphqlClient;
   }
 
   protected async updateData(): Promise<void> {
-    this.repoData.setRepoData(await getAll(this.gitlabGraphqlClient, this.name));
+    this.repoDataService.setRepoData(await getAll(this.gitlabGraphqlClient, this.fullName));
   }
 
   public async getFileContent(path: string): Promise<string | undefined> {
