@@ -42,8 +42,6 @@ For more details, please refer to [architecture](./docs/ARCHITECTURE.md).
 
 Hypertrons also use hypertrons(play as menbotics) to manage community, the community roles can be found in [config file](./.github/hypertrons.json).
 
-![community](http://api.hypertrons.io/docs/github/oss-mentor-bot/hypertrons/community.svg)
-
 ## Support
 
 If you have any questions or feature requests, please feel free to submit an issue.
