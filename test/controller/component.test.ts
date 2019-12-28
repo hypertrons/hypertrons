@@ -14,6 +14,10 @@
 
 import { app } from 'egg-mock/bootstrap';
 import { InstallationType } from '../../app/plugin/installation-manager/types';
+import { Agent } from 'egg';
+import { initWebhooks } from '../plugin/github/GitHubTestUtil';
+import { prepareTestApplication, testClear } from '../Util';
+import { MockApplication } from 'egg-mock';
 
 describe('Component Controller', () => {
 
@@ -87,6 +91,36 @@ describe('Component Controller', () => {
         .get('/component/not_exist/testRepo/1')
         .expect(200)
         .expect({});
+    });
+  });
+
+});
+
+describe('Real Component Controller', () => {
+  let app: MockApplication;
+  let agent: Agent;
+
+  before(async () => {
+    ({ app, agent } = await prepareTestApplication() as any);
+    await initWebhooks(app);
+  });
+  after(() => {
+    testClear(app, agent);
+  });
+
+  describe('GET /component/:installationName', () => {
+    it('should status 200 and get the body', () => {
+      return app.httpRequest()
+        .get('/component/github')
+        .expect(200);
+    });
+  });
+
+  describe('GET /component/:installationName/:name/:version', () => {
+    it('should status 200 and get the body', () => {
+      return app.httpRequest()
+        .get('/component/github/approve/1')
+        .expect(200);
     });
   });
 

@@ -172,7 +172,7 @@ class LuaCommandEvent {
 })
 export class CommandManagerNewCommandEvent extends RepoEventBase {
   login: string;
-  from: 'issue' | 'comment' | 'reviewComment';
+  from: 'issue' | 'comment' | 'review' | 'review_comment' | 'pull_comment';
   number: number;
   comment: Comment | undefined;
   issue: Issue | undefined;
