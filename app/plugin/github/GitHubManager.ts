@@ -18,6 +18,7 @@ import { GitHubClient } from './GitHubClient';
 import Octokit = require('@octokit/rest');
 import { GitHubConfig } from './GitHubConfig';
 import { Application } from 'egg';
+import { getConfigMeta } from '../../config-generator/decorators';
 
 export class GitHubManager extends HostingManagerBase<GitHubApp, GitHubClient, Octokit, GitHubConfig> {
 
@@ -30,8 +31,8 @@ export class GitHubManager extends HostingManagerBase<GitHubApp, GitHubClient, O
     return new GitHubApp(id, config, this.app);
   }
 
-  protected getConfigType(): any {
-    return GitHubConfig;
+  public getConfigType(): any {
+    return getConfigMeta(GitHubConfig);
   }
 
 }

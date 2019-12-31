@@ -12,22 +12,54 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { RepoEventBase } from '../../plugin/event-manager/events';
 export type HostingPlatformTypes = 'github' | 'gitlab';
 
-export class HostingPlatformInitEvent {
+// Hosting platform events
+export class HostingPlatformEventBase {
   id: number;
+}
+
+export class HostingPlatformInitEvent extends HostingPlatformEventBase {
   type: HostingPlatformTypes;
   config: any;
 }
 
-export class HostingManagerInitRepoEvent {
-  id: number;
+export class HostingPlatformSyncDataEvent extends HostingPlatformEventBase {
+}
+
+export class HostingPlatformComponentInitedEvent extends HostingPlatformEventBase {
+  components: any;
+}
+
+export class HostingPlatformInitRepoEvent extends HostingPlatformEventBase {
   fullName: string;
   payload: any;
 }
 
-export class HostingPlatformConfigInitedEvent {
-  id: number;
+export class HostingPlatformRepoAddedEvent extends HostingPlatformEventBase {
   fullName: string;
+  payload: any;
+}
+
+export class HostingPlatformRepoRemovedEvent extends HostingPlatformEventBase {
+  fullName: string;
+}
+
+export class HostingPlatformUninstallEvent extends HostingPlatformEventBase {
+  owner: string;
+}
+
+// Hosting client events
+
+export class HostingClientSyncDataEvent extends RepoEventBase {
+}
+
+export class HostingClientConfigInitedEvent extends RepoEventBase {
   config: any;
+  luaScript: string;
+}
+
+export class HostingClientRepoDataInitedEvent extends RepoEventBase {
+  repoData: any;
 }

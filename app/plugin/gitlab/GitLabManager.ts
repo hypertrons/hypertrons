@@ -18,6 +18,7 @@ import { GitLabApp } from './GitLabApp';
 import { GitLabClient } from './GitLabClient';
 import { Gitlab } from 'gitlab';
 import { GitLabConfig } from './GitLabConfig';
+import { getConfigMeta } from '../../config-generator/decorators';
 
 export class GitLabManager extends HostingManagerBase<GitLabApp, GitLabClient, Gitlab, GitLabConfig> {
 
@@ -30,8 +31,8 @@ export class GitLabManager extends HostingManagerBase<GitLabApp, GitLabClient, G
     return new GitLabApp(id, config, this.app);
   }
 
-  protected getConfigType(): any {
-    return GitLabConfig;
+  public getConfigType(): any {
+    return getConfigMeta(GitLabConfig);
   }
 
 }

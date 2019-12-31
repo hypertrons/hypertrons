@@ -13,30 +13,13 @@
 // limitations under the License.
 
 import { Issue, Comment, PullRequest, CheckRun, Push, Review } from '../../basic/DataTypes';
-import { Command } from '../command-manager/Command';
-import { IClient } from '../installation-manager/IClient';
 import { luaEvent } from '../../lua-vm/decorators';
+import { Command } from '../../basic/HostingPlatform/HostingClientService/CommandService';
 
 export class RepoEventBase {
   installationId: number;
   fullName: string;
-  client?: IClient;
 }
-
-/**
- * Repo config loaded
- */
-export class RepoConfigLoadedEvent extends RepoEventBase {}
-
-/**
- * Repo added
- */
-export class RepoAddedEvent extends RepoEventBase {}
-
-/**
- * Repo removed
- */
-export class RepoRemovedEvent extends RepoEventBase {}
 
 /**
  * When update a issue
@@ -108,19 +91,6 @@ export class LabelUpdateEvent extends RepoEventBase {
 }
 
 /**
- * When update a pull request
- */
-
-class LuaPullRequestEvent {
-  action: string;
-  number: number;
-  author: string;
-  title: string;
-  body: string;
-  labels: string[];
-}
-
-/**
  * When update a pull request review
  */
 export class ReviewEvent extends RepoEventBase {
@@ -136,6 +106,18 @@ export class ReviewCommentEvent extends RepoEventBase {
   prNumber: number;
   action: 'created' | 'deleted' | 'edited';
   comment: Comment | undefined;
+}
+
+/**
+ * When update a pull request
+ */
+class LuaPullRequestEvent {
+  action: string;
+  number: number;
+  author: string;
+  title: string;
+  body: string;
+  labels: string[];
 }
 
 @luaEvent({

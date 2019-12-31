@@ -278,4 +278,8 @@ export class LuaVm {
     return this.decoder.decode(type);
   }
 
+  public getLuaBuidinCodeLines(): number {
+    return luaBuidinCode.split('\n').length;
+  }
+
 }

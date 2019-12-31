@@ -78,15 +78,14 @@ describe('Utils', () => {
     it('should be raw value if pass 1 param', async () => {
       const a = {};
       const res = Utils.customizerMerge(a);
-      deepEqual(res.config, a);
-      assert(res.error.length === 0);
+      deepEqual(res, a);
     });
 
     it('should be srcValue if attr not exist', async () => {
       const a = { a: 1 };
       const b = { a: 2, b: 3 };
       const res = Utils.customizerMerge(a, b);
-      deepEqual(res.config, { a: 2, b: 3 });
+      deepEqual(res, { a: 2, b: 3 });
     });
 
     it('should be srcValue if attr not exist multi', async () => {
@@ -94,7 +93,7 @@ describe('Utils', () => {
       const b = { a: 2, b: 3 };
       const c = { a: 2, b: 'c' };
       const res = Utils.customizerMerge(a, b, c);
-      deepEqual(res.config, { a: 2, b: 3 });
+      deepEqual(res, { a: 2, b: 'c' });
     });
 
     it('should be srcValue if attr not exist multi', async () => {
@@ -102,35 +101,35 @@ describe('Utils', () => {
       const b = { a: 2, b: 3 };
       const c = { a: 2, b: { c: 'c' } };
       const res = Utils.customizerMerge(a, b, c);
-      deepEqual(res.config, { a: 2, b: 3 });
+      deepEqual(res, { a: 2, b: { c: 'c' } });
     });
 
     it('should not overwrite if type not match', async () => {
       const a = { a: 1, b: 2 };
       const b = { a: 2, b: '2' };
       const res = Utils.customizerMerge(a, b);
-      deepEqual(res.config, { a: 2, b: 2 });
+      deepEqual(res, { a: 2, b: '2' });
     });
 
     it('array overwrite 1', async () => {
       const a = { a: 1, b: [ 1 ] };
       const b = { a: 2, b: [] };
       const res = Utils.customizerMerge(a, b);
-      deepEqual(res.config, { a: 2, b: [] });
+      deepEqual(res, { a: 2, b: [] });
     });
 
     it('array overwrite 2', async () => {
       const a = { a: 1, b: [ 2 ] };
       const b = { a: 2, b: [ 1 ] };
       const res = Utils.customizerMerge(a, b);
-      deepEqual(res.config, { a: 2, b: [ 1 ] });
+      deepEqual(res, { a: 2, b: [ 1 ] });
     });
 
     it('array overwrite 3', async () => {
       const a = { a: 1, b: [ 1, 2 ] };
       const b = { a: 2, b: [ 1 ] };
       const res = Utils.customizerMerge(a, b);
-      deepEqual(res.config, { a: 2, b: [ 1 ] });
+      deepEqual(res, { a: 2, b: [ 1 ] });
     });
 
     it('multi array overwrite 1', async () => {
@@ -138,7 +137,7 @@ describe('Utils', () => {
       const b = { a: 2, b: [ 2 ] };
       const c = { a: 2, b: [] };
       const res = Utils.customizerMerge(a, b, c);
-      deepEqual(res.config, { a: 2, b: [] });
+      deepEqual(res, { a: 2, b: [] });
     });
 
     it('multi array overwrite 2', async () => {
@@ -146,7 +145,7 @@ describe('Utils', () => {
       const b = { a: 2, b: [ 2, 3 ] };
       const c = { a: 2, b: [ 4, 5 ] };
       const res = Utils.customizerMerge(a, b, c);
-      deepEqual(res.config, { a: 2, b: [ 4, 5 ] });
+      deepEqual(res, { a: 2, b: [ 4, 5 ] });
     });
 
     it('multi array overwrite 3', async () => {
@@ -154,28 +153,28 @@ describe('Utils', () => {
       const b = { a: 2, b: [] };
       const c = { a: 2, b: [ 4, 5 ] };
       const res = Utils.customizerMerge(a, b, c);
-      deepEqual(res.config, { a: 2, b: [ 4, 5 ] });
+      deepEqual(res, { a: 2, b: [ 4, 5 ] });
     });
 
     it('array merge 1', async () => {
       const a = { a: 1, b: [ 1 ] };
       const b = { a: 2, b: [{ __merge__: true }, 1 ] };
       const res = Utils.customizerMerge(a, b);
-      deepEqual(res.config, { a: 2, b: [ 1 ] });
+      deepEqual(res, { a: 2, b: [ 1 ] });
     });
 
     it('array merge 2', async () => {
       const a = { a: 1, b: [ 1, 2 ] };
       const b = { a: 2, b: [{ __merge__: true }, 1, 2, 3 ] };
       const res = Utils.customizerMerge(a, b);
-      deepEqual(res.config, { a: 2, b: [ 1, 2, 3 ] });
+      deepEqual(res, { a: 2, b: [ 1, 2, 3 ] });
     });
 
     it('array merge 3', async () => {
       const a = { a: 1, b: [ 1, 2 ] };
       const b = { a: 2, b: [{ __merge__: true }, 3, 4 ] };
       const res = Utils.customizerMerge(a, b);
-      deepEqual(res.config, { a: 2, b: [ 1, 2, 3, 4 ] });
+      deepEqual(res, { a: 2, b: [ 1, 2, 3, 4 ] });
     });
 
     it('multi array merge', async () => {
@@ -183,7 +182,7 @@ describe('Utils', () => {
       const b = { a: 2, b: [{ __merge__: true }, 3, 4 ] };
       const c = { a: 2, b: [{ __merge__: true }, 5, 6 ] };
       const res = Utils.customizerMerge(a, b, c);
-      deepEqual(res.config, { a: 2, b: [ 1, 2, 3, 4, 5, 6 ] });
+      deepEqual(res, { a: 2, b: [ 1, 2, 3, 4, 5, 6 ] });
     });
 
     it('multi array merge and overwrite 1', async () => {
@@ -191,7 +190,7 @@ describe('Utils', () => {
       const b = { a: 2, b: [ 3, 4 ] };
       const c = { a: 2, b: [{ __merge__: true }, 5, 6 ] };
       const res = Utils.customizerMerge(a, b, c);
-      deepEqual(res.config, { a: 2, b: [ 3, 4, 5, 6 ] });
+      deepEqual(res, { a: 2, b: [ 3, 4, 5, 6 ] });
     });
 
     it('multi array merge and overwrite 2', async () => {
@@ -199,7 +198,7 @@ describe('Utils', () => {
       const b = { a: 2, b: [{ __merge__: true }, 3, 4 ] };
       const c = { a: 2, b: [ 3, 4 ] };
       const res = Utils.customizerMerge(a, b, c);
-      deepEqual(res.config, { a: 2, b: [ 3, 4 ] });
+      deepEqual(res, { a: 2, b: [ 3, 4 ] });
     });
 
   });
@@ -261,6 +260,139 @@ describe('Utils', () => {
       const array = [ 1, 2, 3, 2, 1 ];
       const ua = Utils.uniqueArray(array);
       assert.deepEqual(ua, [ 1, 2, 3 ]);
+    });
+  });
+
+  describe('customizerMergeWithType', () => {
+    it('should be {} if pass 0 param', async () => {
+      const res = Utils.customizerMergeWithType();
+      deepEqual({}, res);
+    });
+
+    it('should be raw value if pass 1 param', async () => {
+      const a = {};
+      const res = Utils.customizerMergeWithType(a);
+      deepEqual(res, a);
+    });
+
+    it('should be srcValue if attr not exist', async () => {
+      const a = { a: 1 };
+      const b = { a: 2, b: 3 };
+      const res = Utils.customizerMergeWithType(a, b);
+      deepEqual(res, { a: 2, b: 3 });
+    });
+
+    it('should be srcValue if attr not exist multi', async () => {
+      const a = { a: 1 };
+      const b = { a: 2, b: 3 };
+      const c = { a: 2, b: 'c' };
+      const res = Utils.customizerMergeWithType(a, b, c);
+      deepEqual(res, { a: 2, b: 3 });
+    });
+
+    it('should be srcValue if attr not exist multi', async () => {
+      const a = { a: 1 };
+      const b = { a: 2, b: 3 };
+      const c = { a: 2, b: { c: 'c' } };
+      const res = Utils.customizerMergeWithType(a, b, c);
+      deepEqual(res, { a: 2, b: 3 });
+    });
+
+    it('should not overwrite if type not match', async () => {
+      const a = { a: 1, b: 2 };
+      const b = { a: 2, b: '2' };
+      const res = Utils.customizerMergeWithType(a, b);
+      deepEqual(res, { a: 2, b: 2 });
+    });
+
+    it('array overwrite 1', async () => {
+      const a = { a: 1, b: [ 1 ] };
+      const b = { a: 2, b: [] };
+      const res = Utils.customizerMergeWithType(a, b);
+      deepEqual(res, { a: 2, b: [] });
+    });
+
+    it('array overwrite 2', async () => {
+      const a = { a: 1, b: [ 2 ] };
+      const b = { a: 2, b: [ 1 ] };
+      const res = Utils.customizerMergeWithType(a, b);
+      deepEqual(res, { a: 2, b: [ 1 ] });
+    });
+
+    it('array overwrite 3', async () => {
+      const a = { a: 1, b: [ 1, 2 ] };
+      const b = { a: 2, b: [ 1 ] };
+      const res = Utils.customizerMergeWithType(a, b);
+      deepEqual(res, { a: 2, b: [ 1 ] });
+    });
+
+    it('multi array overwrite 1', async () => {
+      const a = { a: 1, b: [ 1 ] };
+      const b = { a: 2, b: [ 2 ] };
+      const c = { a: 2, b: [] };
+      const res = Utils.customizerMergeWithType(a, b, c);
+      deepEqual(res, { a: 2, b: [] });
+    });
+
+    it('multi array overwrite 2', async () => {
+      const a = { a: 1, b: [ 1 ] };
+      const b = { a: 2, b: [ 2, 3 ] };
+      const c = { a: 2, b: [ 4, 5 ] };
+      const res = Utils.customizerMergeWithType(a, b, c);
+      deepEqual(res, { a: 2, b: [ 4, 5 ] });
+    });
+
+    it('multi array overwrite 3', async () => {
+      const a = { a: 1, b: [ 1, 2 ] };
+      const b = { a: 2, b: [] };
+      const c = { a: 2, b: [ 4, 5 ] };
+      const res = Utils.customizerMergeWithType(a, b, c);
+      deepEqual(res, { a: 2, b: [ 4, 5 ] });
+    });
+
+    it('array merge 1', async () => {
+      const a = { a: 1, b: [ 1 ] };
+      const b = { a: 2, b: [{ __merge__: true }, 1 ] };
+      const res = Utils.customizerMergeWithType(a, b);
+      deepEqual(res, { a: 2, b: [ 1 ] });
+    });
+
+    it('array merge 2', async () => {
+      const a = { a: 1, b: [ 1, 2 ] };
+      const b = { a: 2, b: [{ __merge__: true }, 1, 2, 3 ] };
+      const res = Utils.customizerMergeWithType(a, b);
+      deepEqual(res, { a: 2, b: [ 1, 2, 3 ] });
+    });
+
+    it('array merge 3', async () => {
+      const a = { a: 1, b: [ 1, 2 ] };
+      const b = { a: 2, b: [{ __merge__: true }, 3, 4 ] };
+      const res = Utils.customizerMergeWithType(a, b);
+      deepEqual(res, { a: 2, b: [ 1, 2, 3, 4 ] });
+    });
+
+    it('multi array merge', async () => {
+      const a = { a: 1, b: [ 1, 2 ] };
+      const b = { a: 2, b: [{ __merge__: true }, 3, 4 ] };
+      const c = { a: 2, b: [{ __merge__: true }, 5, 6 ] };
+      const res = Utils.customizerMergeWithType(a, b, c);
+      deepEqual(res, { a: 2, b: [ 1, 2, 3, 4, 5, 6 ] });
+    });
+
+    it('multi array merge and overwrite 1', async () => {
+      const a = { a: 1, b: [ 1, 2 ] };
+      const b = { a: 2, b: [ 3, 4 ] };
+      const c = { a: 2, b: [{ __merge__: true }, 5, 6 ] };
+      const res = Utils.customizerMergeWithType(a, b, c);
+      deepEqual(res, { a: 2, b: [ 3, 4, 5, 6 ] });
+    });
+
+    it('multi array merge and overwrite 2', async () => {
+      const a = { a: 1, b: [ 1, 2 ] };
+      const b = { a: 2, b: [{ __merge__: true }, 3, 4 ] };
+      const c = { a: 2, b: [ 3, 4 ] };
+      const res = Utils.customizerMergeWithType(a, b, c);
+      deepEqual(res, { a: 2, b: [ 3, 4 ] });
     });
   });
 
