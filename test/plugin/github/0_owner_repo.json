@@ -106,10 +106,10 @@
   "rerun": {
     "version": 1
   },
-  "auto_label": {
+  "self_assign": {
     "version": 1
   },
-  "self_assign": {
+  "auto_label": {
     "version": 1
   }
 }

@@ -41,6 +41,7 @@ export class AppInstallationManager extends AppPluginBase<Config> {
   public async onClose(): Promise<void> { }
 
   public async getClient(installationId: number, name: string): Promise<IClient | undefined> {
+    // tslint:disable-next-line: whitespace
     const type = this.clientMap.get(installationId)?.type;
     if (type) {
       switch (type) {

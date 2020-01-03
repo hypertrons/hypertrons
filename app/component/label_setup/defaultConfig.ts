@@ -22,7 +22,7 @@ const defaultConfig: Config = {
       description: 'Category issues or prs related to bug.',
       color: 'e11d21',
       keywords: [ 'bug', 'bugreport', 'bug-report', 'bugfix', 'cannot', 'can not', "can't",
-                  'error', 'failure', 'failed to ', 'fix:' ],
+                  'error', 'failure', 'failed to', 'fix:' ],
     },
     {
       name: 'kind/feature',

@@ -44,7 +44,7 @@ export class CommandService<TConfig extends HostingConfigBase, TRawClient>
           return this.checkCommand(c.exec, e.issue.author, e.issue.author, 'issue', true, e.issue.number);
         });
         commands.map(command => {
-          this.logger.info(`extract the command is ${command}`);
+          this.logger.info(`extract the command is ${command.exec}`);
           // publish new command event
           const event = Object.assign(new CommandManagerNewCommandEvent(), {
             installationId: e.installationId,
@@ -80,7 +80,7 @@ export class CommandService<TConfig extends HostingConfigBase, TRawClient>
           return false;
         });
         commands.map(command => {
-          this.logger.info(`extract the command is ${command}`);
+          this.logger.info(`extract the command is ${command.exec}`);
           // publish new command event
           const event = Object.assign(new CommandManagerNewCommandEvent(), {
             installationId: e.installationId,
@@ -110,7 +110,7 @@ export class CommandService<TConfig extends HostingConfigBase, TRawClient>
           return this.checkCommand(c.exec, e.review.login, pull.author, 'review', false, pull.number);
         });
         commands.map(command => {
-          this.logger.info(`extract the command is ${command}`);
+          this.logger.info(`extract the command is ${command.exec}`);
           // publish new command event
           const event = Object.assign(new CommandManagerNewCommandEvent(), {
             installationId: e.installationId,
@@ -140,7 +140,7 @@ export class CommandService<TConfig extends HostingConfigBase, TRawClient>
           return this.checkCommand(c.exec, e.comment.login, pull.author, 'review_comment', false, pull.number);
         });
         commands.map(command => {
-          this.logger.info(`extract the command is ${command}`);
+          this.logger.info(`extract the command is ${command.exec}`);
           // publish new command event
           const event = Object.assign(new CommandManagerNewCommandEvent(), {
             installationId: e.installationId,
