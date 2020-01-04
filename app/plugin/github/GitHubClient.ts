@@ -173,6 +173,14 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
     });
   }
 
+  public async updateIssueComment(comment_id: number, body: string): Promise<void> {
+    await this.rawClient.issues.updateComment({
+      ...this.repoName,
+      comment_id,
+      body,
+    });
+  }
+
   public async addIssueComment(number: number, body: string): Promise<void> {
     await this.rawClient.issues.createComment({
       ...this.repoName,

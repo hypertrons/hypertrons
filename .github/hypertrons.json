@@ -48,7 +48,7 @@
         "name": "committer",
         "description": "Committer of the project",
         "users": [ "frank-zsy", "WuShaoling", "GoodMeowing", "heming6666", "liwen-tj" ],
-        "commands": [ "/difficulty", "/rerun", "/complete-checklist" ]
+        "commands": [ "/difficulty", "/rerun", "/complete-checklist", "/start-vote" ]
       },
       {
         "name": "replier",
@@ -78,7 +78,7 @@
         "name": "anyone",
         "description": "Anyone",
         "users": [],
-        "commands": [ "/self-assign" ]
+        "commands": [ "/self-assign", "/vote" ]
       }
     ]
   },
@@ -114,6 +114,9 @@
     "version": 1
   },
   "complete_checklist": {
+   "version": 1
+  },
+  "vote": {
     "version": 1
   }
 }

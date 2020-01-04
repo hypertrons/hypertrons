@@ -162,6 +162,8 @@ class LuaCommandEvent {
   command: string;
   number: number;
   login: string;
+  url: string;
+  comment_id: number;
   params: string[];
   from: 'issue' | 'comment' | 'review' | 'review_comment' | 'pull_comment';
 }
@@ -184,6 +186,8 @@ export class CommandManagerNewCommandEvent extends RepoEventBase {
       command: e.command.exec,
       params: e.command.param,
       login: e.login,
+      url: e.comment ? e.comment.url : '',
+      comment_id: e.comment ? e.comment.id : -1,
       number: e.number,
       from: e.from,
     };

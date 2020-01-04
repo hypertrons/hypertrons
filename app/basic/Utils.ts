@@ -42,6 +42,11 @@ export const GloablEvents = {
   CLOSE: 'hypertrons-close',
 };
 
+export const IssueMetaDataFormatRegExp = /<!-- hypertronsMetaData: ([\w\W]*) --!>/g;
+export const IssueMetaDataBegin = '<!-- hypertronsMetaData: ';
+export const IssueMetaDataEnd = ` --!>
+`;
+
 export class AutoCreateMap<K, V> extends Map<K, V> {
 
   private valueGenerator: () => V;

@@ -105,6 +105,12 @@ export class GitLabClient extends HostingClientBase<GitLabConfig, Gitlab> {
     await this.rawClient.IssueNotes.create(this.id, number, body);
   }
 
+  public async updateIssueComment(comment_id: number, body: string): Promise<void> {
+    // Wrong just to pass compile.
+    this.logger.info(comment_id, body);
+    await this.rawClient.Labels.all(this.id); // nonsense.
+  }
+
   public async updateLabels(labels: Array<{ current_name: string; description?: string | undefined; color?: string | undefined }>): Promise<void> {
     // API doc: https://docs.gitlab.com/ee/api/labels.html#edit-an-existing-label
     await Promise.all(labels.map(label => {
