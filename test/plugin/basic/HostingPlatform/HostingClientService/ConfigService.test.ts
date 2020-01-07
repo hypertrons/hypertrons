@@ -1,11 +1,11 @@
 // Copyright 2019 Xlab
-//
+
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-//
+
 //     http://www.apache.org/licenses/LICENSE-2.0
-//
+
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,30 +15,37 @@
 'use strict';
 
 import { Application, Agent } from 'egg';
-import { prepareTestApplication, testClear } from '../../../../Util';
+import { prepareTestApplication, testClear, waitFor } from '../../../../Util';
 import { GitHubClient } from '../../../../../app/plugin/github/GitHubClient';
 import { waitUntil } from '../../../../../app/basic/Utils';
-import assert, { deepEqual } from 'assert';
-import path from 'path';
+import { RawDataStatus } from '../../../../../app/basic/HostingPlatform/HostingClientService/ConfigService';
+import { deepEqual } from 'assert';
+import assert from 'power-assert';
+import * as path from 'path';
 
 describe('ConfigService', () => {
   let app: Application;
   let agent: Agent;
   let client: GitHubClient;
-  let callSyncDataCount = 0;
-  let updateConfig = false;
-  let updateLuaScript = false;
+  let publishEvent: any;
+  let status: RawDataStatus;
+  let callSyncData = 0;
 
   class MockComponentService {
     async getDefaultConfig(_: any): Promise<any> {
-      return {};
+      return { default: 'default' };
+    }
+    async getDefaultLuaScript(_: any): Promise<any> {
+      return { defaultLua: 'defaultLua' };
     }
   }
 
   class MockHostingBase {
     compService: MockComponentService;
+    repoConfigStatus: Map<string, RawDataStatus>;
     constructor() {
       this.compService = new MockComponentService();
+      this.repoConfigStatus = new Map<string, RawDataStatus>();
     }
     getName(): string {
       return 'name';
@@ -46,12 +53,28 @@ describe('ConfigService', () => {
     getConfig(): any {
       return {};
     }
+    getRepoConfigStatus(): Map<string, RawDataStatus> {
+      return this.repoConfigStatus;
+    }
+    updateConfigStatus(_: string, changedStatus: RawDataStatus) {
+      if (changedStatus.config) {
+        Object.keys(changedStatus.config).forEach(key => {
+          if (status && changedStatus.config[key] !== undefined) {
+            status.config[key] = changedStatus.config[key];
+          }
+        });
+      }
+      if (changedStatus.luaScript) {
+        Object.keys(changedStatus.luaScript).forEach(key => {
+          if (status && changedStatus.luaScript[key] !== undefined) {
+            status.luaScript[key] = changedStatus.luaScript[key];
+          }
+        });
+      }
+    }
   }
 
   beforeEach(async () => {
-    callSyncDataCount = 0;
-    updateConfig = false;
-    updateLuaScript = false;
   });
   afterEach(() => {
   });
@@ -62,14 +85,9 @@ describe('ConfigService', () => {
       ({ app, agent } = await prepareTestApplication());
       client = new GitHubClient('wsl/test', 0, app, null as any, new MockHostingBase() as any);
       await waitUntil(() => client.getStarted(), { interval: 5 });
-      client.configService.syncData = (async (pUpdateConfig: boolean, pUpdateLuaScript: boolean) => {
-        updateConfig = pUpdateConfig;
-        updateLuaScript = pUpdateLuaScript;
-        callSyncDataCount++;
-      });
       client.getHostingBase().getConfig = ((): any => {
         return {
-          enableRepoLua: true,
+          component: { enableRepoLua: true },
           config: { remote: { filePath: 'filePath', luaScriptPath: './github/lua/' } },
         };
       });
@@ -78,33 +96,93 @@ describe('ConfigService', () => {
       testClear(app, agent);
       client = null as any;
     });
+    beforeEach(async () => {
+      status = {
+        config: { file: 'clear', mysql: 'clear', remote: 'clear' },
+        luaScript: { remote: 'clear' },
+      };
+    });
 
-    it('should not trigger syncData() if commits not include filePath or luaScriptPath', async () => {
+    it('should not update both if commits not include filePath or luaScriptPath', async () => {
       await client.eventService.consume('PushEvent', 'worker', {
         push: { commits: [{ added: [], removed: [], modified: [] }] },
       } as any);
-      assert(callSyncDataCount === 0);
+      const compare = {
+        config: { file: 'clear', mysql: 'clear', remote: 'clear' },
+        luaScript: { remote: 'clear' },
+      };
+      deepEqual(compare, status);
     });
 
-    it('should only update config', async () => {
-      await client.eventService.consume('PushEvent', 'worker', {
+    it('should only update config.remote', async () => {
+      await client.eventService.consume('PushEvent', 'all', {
         push: { commits: [{ added: [ 'filePath' ], removed: [], modified: [] }] },
       } as any);
-      assert(updateConfig && updateLuaScript === false);
+      deepEqual(status, {
+        config: { file: 'clear', mysql: 'clear', remote: 'updated' },
+        luaScript: { remote: 'clear' },
+      });
+
+      await client.eventService.consume('PushEvent', 'all', {
+        push: { commits: [{ added: [], removed: [ 'filePath' ], modified: [] }] },
+      } as any);
+      deepEqual(status, {
+        config: { file: 'clear', mysql: 'clear', remote: 'deleted' },
+        luaScript: { remote: 'clear' },
+      });
     });
 
-    it('should only update luaScript', async () => {
-      await client.eventService.consume('PushEvent', 'worker', {
-        push: { commits: [{ added: [ './github/lua/' ], removed: [], modified: [] }] },
+    it('should only update luaScript.remote', async () => {
+      await client.eventService.consume('PushEvent', 'all', {
+        push: { commits: [{ added: [ './github/lua/a.lua' ], removed: [], modified: [] }] },
       } as any);
-      assert(updateConfig === false && updateLuaScript);
+      deepEqual(status, {
+        config: { file: 'clear', mysql: 'clear', remote: 'clear' },
+        luaScript: { remote: 'updated' },
+      });
+
+      await client.eventService.consume('PushEvent', 'all', {
+        push: { commits: [{ added: [], removed: [ './github/lua/b.lua' ], modified: [] }] },
+      } as any);
+      deepEqual(status, {
+        config: { file: 'clear', mysql: 'clear', remote: 'clear' },
+        luaScript: { remote: 'updated' },
+      });
     });
 
-    it('should update config and luaScript', async () => {
-      await client.eventService.consume('PushEvent', 'worker', {
-        push: { commits: [{ added: [ ], removed: [ './github/lua/' ], modified: [ 'filePath' ] }] },
+    it('should update configStatus and luaScriptStatus', async () => {
+      await client.eventService.consume('PushEvent', 'all', {
+        push: { commits: [{ added: [ ], removed: [ './github/lua/a.lua' ], modified: [ 'filePath' ] }] },
       } as any);
-      assert(updateConfig && updateLuaScript);
+      deepEqual(status, {
+        config: { file: 'clear', mysql: 'clear', remote: 'updated' },
+        luaScript: { remote: 'updated' },
+      });
+
+      await client.eventService.consume('PushEvent', 'all', {
+        push: { commits: [{ added: [ ], removed: [ 'filePath' ], modified: [ './github/lua/a.lua' ] }] },
+      } as any);
+      deepEqual(status, {
+        config: { file: 'clear', mysql: 'clear', remote: 'deleted' },
+        luaScript: { remote: 'updated' },
+      });
+    });
+
+    it('should not update luaScript if component.enableRepoLua is false', async () => {
+      client.getHostingBase().getConfig = ((): any => {
+        return {
+          component: { enableRepoLua: false },
+          config: { remote: { filePath: 'filePath', luaScriptPath: './github/lua/' } },
+        };
+      });
+
+      await client.eventService.consume('PushEvent', 'all', {
+        push: { commits: [{ added: [], removed: [ './github/lua/a.lua' ], modified: [ ] }] },
+      } as any);
+      deepEqual(status, {
+        config: { file: 'clear', mysql: 'clear', remote: 'clear' },
+        luaScript: { remote: 'clear' },
+      });
     });
 
   });
@@ -115,60 +193,75 @@ describe('ConfigService', () => {
       ({ app, agent } = await prepareTestApplication());
       client = new GitHubClient('wsl/test', 0, app, null as any, new MockHostingBase() as any);
       await waitUntil(() => client.getStarted(), { interval: 5 });
-      client.onConfigLoaded = () => { };
+      client.getHostingBase().updateConfigStatus = (_: string, param: any) => {
+        status = param;
+      };
+      client.onConfigLoaded = () => {};
+      (client.configService as any).mergedLuaScript = () => {};
+      (client.configService as any).mergedConfig = () => {};
     });
     after(() => {
       testClear(app, agent);
       client = null as any;
     });
 
-    it('should update config and luaScript', async () => {
-      (client.configService as any).config = {};
-      (client.configService as any).luaScript = '';
-
+    it('should update all', async () => {
+      status = {
+        config: { file: 'clear', mysql: 'clear', remote: 'clear' },
+        luaScript: { remote: 'clear' },
+      };
       await client.eventService.consume('HostingClientConfigInitedEvent', 'all', {
-        config: { foo: 'bar' },
-        luaScript: 'foo bar',
+        rawData: {
+          config: { remote: { foo1: 'bar1' }, file: { foo2: 'bar2' }, mysql: undefined },
+          luaScript: { remote: { foo3: 'bar3' } },
+        },
+        status: undefined,
       } as any);
-      deepEqual(client.configService.getConfig(), { foo: 'bar' });
-      assert(client.configService.getLuaScript() === 'foo bar');
+      deepEqual((client.configService as any).rawData, {
+        config: { file: { foo2: 'bar2', foo1: 'bar1' }, mysql: {}, remote: { foo1: 'bar1' } },
+        luaScript: { remote: { foo3: 'bar3' } },
+      });
+      deepEqual(status, {
+        config: { file: 'clear', mysql: 'clear', remote: 'clear' },
+        luaScript: { remote: 'clear' },
+      });
+
+      status = {
+        config: { file: 'clear', mysql: 'clear', remote: 'clear' },
+        luaScript: { remote: 'clear' },
+      };
+      await client.eventService.consume('HostingClientConfigInitedEvent', 'all', {
+        rawData: {
+          config: {},
+          luaScript: {},
+        },
+        status: { config: { remote: 'updated' } },
+      } as any);
+      deepEqual(status, { config: { remote: 'updated' } });
+    });
+  });
+
+  describe('onStart HostingClientConfigInitedEvent', () => {
+    before(async () => {
+      ({ app, agent } = await prepareTestApplication());
+      client = new GitHubClient('wsl/test', 0, app, null as any, new MockHostingBase() as any);
+      await waitUntil(() => client.getStarted(), { interval: 5 });
+      (client.configService as any).syncData = (_: any) => {
+        callSyncData++;
+      };
+    });
+    after(() => {
+      testClear(app, agent);
+      client = null as any;
     });
 
-    it('should only update luaScript', async () => {
-      (client.configService as any).config = { foo: 'bar' };
-      (client.configService as any).luaScript = '';
-
-      await client.eventService.consume('HostingClientConfigInitedEvent', 'all', {
-        config: undefined,
-        luaScript: 'test',
-      } as any);
-      deepEqual(client.configService.getConfig(), { foo: 'bar' });
-      assert(client.configService.getLuaScript() === 'test');
+    it('should call syncData()', async () => {
+      callSyncData = 0;
+      client.eventService.consume('HostingClientSyncConfigEvent', 'worker', {} as any);
+      await waitFor(5);
+      assert(callSyncData === 1);
     });
 
-    it('should only update config', async () => {
-      (client.configService as any).config = {};
-      (client.configService as any).luaScript = 'test';
-
-      await client.eventService.consume('HostingClientConfigInitedEvent', 'all', {
-        config: { foo: 'bar' },
-        luaScript: '',
-      } as any);
-      deepEqual(client.configService.getConfig(), { foo: 'bar' });
-      assert(client.configService.getLuaScript() === 'test');
-    });
-
-    it('should not update config and luaScript', async () => {
-      (client.configService as any).config = {};
-      (client.configService as any).luaScript = 'test';
-
-      await client.eventService.consume('HostingClientConfigInitedEvent', 'all', {
-        config: undefined,
-        luaScript: '',
-      } as any);
-      deepEqual(client.configService.getConfig(), {});
-      assert(client.configService.getLuaScript() === 'test');
-    });
   });
 
   describe('syncData()', () => {
@@ -176,91 +269,57 @@ describe('ConfigService', () => {
       ({ app, agent } = await prepareTestApplication());
       client = new GitHubClient('wsl/test', 0, app, null as any, new MockHostingBase() as any);
       await waitUntil(() => client.getStarted(), { interval: 5 });
-      (client.configService as any).loadConfig = (async () => {
-        (client.configService as any).config = { foo: 'bar' };
-      });
-      (client.configService as any).loadLuaScript = (async () => {
-        (client.configService as any).luaScript = 'foo:bar';
-      });
-      client.eventService.publish = () => {};
+      (client.configService as any).loadConfigFromFile = async () => ({ file: 'file' });
+      (client.configService as any).loadConfigFromMysql = async () => ({ mysql: 'mysql' });
+      (client.configService as any).loadConfigFromRemote = async () => ({ remote: 'remote' });
+      (client.configService as any).loadLuaScriptFromRemote = async () => ({ remoteLua: 'remoteLua' });
+      client.eventService.publish = (_: 'worker' | 'workers' | 'agent' | 'all',
+                                     __: new (...args: any) => any, param: Partial<any>) => publishEvent = param;
     });
     after(() => {
       testClear(app, agent);
       client = null as any;
     });
     beforeEach(async () => {
+      publishEvent = undefined;
       (client.configService as any).config = {};
-      (client.configService as any).luaScript = '';
     });
 
-    it('should update config and luaScript', async () => {
+    it('should update all if do not pass param', async () => {
       await client.configService.syncData();
-      assert((client.configService as any).luaScript === 'foo:bar');
-      deepEqual((client.configService as any).config, { foo: 'bar' });
+      assert(publishEvent.status === undefined);
+      deepEqual(publishEvent.rawData, {
+        config: {  file: { file: 'file' }, mysql: { mysql: 'mysql' }, remote: { remote: 'remote' } },
+        luaScript: { remote: { remoteLua: 'remoteLua' } },
+      });
     });
 
-    it('should only update config', async () => {
-      await client.configService.syncData(true, false);
-      deepEqual((client.configService as any).config, { foo: 'bar' });
-      assert((client.configService as any).luaScript === '');
+    it('should not update if all statuses are clear', async () => {
+      await client.configService.syncData({
+        config: {  file: 'clear', mysql: 'clear', remote: 'clear' },
+        luaScript: {  remote: 'clear' },
+      });
+      assert(publishEvent === undefined);
     });
 
-    it('should only update luaScript', async () => {
-      await client.configService.syncData(false, true);
-      deepEqual((client.configService as any).config, {});
-      assert((client.configService as any).luaScript === 'foo:bar');
-    });
-  });
-
-  describe('loadConfig() and loadLuaScript()', () => {
-    before(async () => {
-      ({ app, agent } = await prepareTestApplication());
-      client = new GitHubClient('wsl/test', 0, app, null as any, new MockHostingBase() as any);
-      await waitUntil(() => client.getStarted(), { interval: 5 });
-      client.getHostingBase().compService.getDefaultConfig = async (_: any): Promise<any> => {
-        return { comp1: {}, comp2: {} };
-      };
-      client.getHostingBase().compService.getDefaultLuaScript = async (_: any): Promise<any> => {
-        return {  comp1: 'lua script1', comp2: 'lua script2' };
-      };
-      client.getHostingBase().getConfig = (): any => {
-        return {};
-      };
-    });
-    after(() => {
-      testClear(app, agent);
-      client = null as any;
+    it('should update if all config statuses are deleted and LuaScriptChanged is true', async () => {
+      await client.configService.syncData({
+        config: {  file: 'deleted', mysql: 'deleted', remote: 'deleted' },
+        luaScript: {  remote: 'updated' },
+      });
+      assert(publishEvent.status === undefined);
+      deepEqual(publishEvent.rawData, {
+        config: {  file: {}, mysql: {}, remote: {} },
+        luaScript: { remote: { remoteLua: 'remoteLua' } },
+      });
     });
 
-    it('loadConfig() right case', async () => {
-      await (client.configService as any).loadConfig();
-      deepEqual((client.configService as any).config, { comp1: {}, comp2: {} });
-    });
-
-    it('loadLuaScript() right case', async () => {
-      await (client.configService as any).loadLuaScript((client.configService as any).config);
-      const lua =
-`local comp1 = function ()
-  local compName = 'comp1'
-  local compConfig = config.comp1
-lua script1
-end
-comp1()
-local comp2 = function ()
-  local compName = 'comp2'
-  local compConfig = config.comp2
-lua script2
-end
-comp2()
-`;
-      assert((client.configService as any).luaScript === lua);
-    });
   });
 
   describe('loadConfigFromFile()', () => {
     before(async () => {
       ({ app, agent } = await prepareTestApplication());
-      client = new GitHubClient('wsl/test', 0, app, null as any, new MockHostingBase() as any);
+      client = new GitHubClient('owner/repo2', 0, app, null as any, new MockHostingBase() as any);
       await waitUntil(() => client.getStarted(), { interval: 5 });
     });
     after(() => {
@@ -280,6 +339,14 @@ comp2()
       };
       const result = await (client.configService as any).loadConfigFromFile();
       deepEqual(result, {});
+    });
+
+    it('right case', async () => {
+      client.getHostingBase().getConfig = (): any => {
+        return { config: { private: { file: { rootPath: './test/plugin/github/repo_configs' } } } };
+      };
+      const result = await (client.configService as any).loadConfigFromFile();
+      deepEqual(result, { auto_label: { version: 1 } });
     });
   });
 
@@ -339,7 +406,7 @@ comp2()
     it('right case', async () => {
       client.getHostingBase().getConfig = ((): any => {
         return {
-          enableRepoLua: true,
+          component: { enableRepoLua: true },
           config: { remote: { luaScriptPath: '.github/lua/' } },
         };
       });
@@ -378,57 +445,30 @@ comp2()
       client = null as any;
     });
 
-    it('genRepoConfigFilePath() should return "" if params are empty', async () => {
-      (client as any).hostId = 0;
-      (client as any).fullName = 'owner/repo';
-      const result = (client.configService as any).genRepoConfigFilePath(null as any);
-      assert(result === '');
-    });
-
     it('genRepoConfigFilePath() right case', async () => {
       (client as any).hostId = 0;
       (client as any).fullName = 'owner/repo';
       let result = (client.configService as any).genRepoConfigFilePath('path');
-      assert(result === path.join('path', '0_owner_repo.json'));
+      assert(result === path.join('path', 'owner', 'repo') + '.json');
 
       (client as any).hostId = 1;
       (client as any).fullName = 'owner/repo';
-      result = (client.configService as any).genRepoConfigFilePath('path');
-      assert(result === path.join('path', '1_owner_repo.json'));
+      result = (client.configService as any).genRepoConfigFilePath('');
+      assert(result === path.join('owner', 'repo') + '.json');
     });
 
-    it('generateLuaContent() right case', async () => {
-      (client.configService as any).generateLuaContent({
-        im: 'im',
-        ci: 'ci',
-      });
-      const script =
-`local im = function ()
-  local compName = 'im'
-  local compConfig = config.im
-im
-end
-im()
-local ci = function ()
-  local compName = 'ci'
-  local compConfig = config.ci
-ci
-end
-ci()
-`;
-      assert((client.configService as any).luaScript === script);
+    it('genRepoLuaFilePath() right case', async () => {
+      let result = (client.configService as any).genRepoLuaFilePath('path', 'a');
+      assert(result === path.join('path', 'a.lua'));
+
+      result = (client.configService as any).genRepoLuaFilePath('', 'b');
+      assert(result === 'b.lua');
     });
 
     it('getConfig() right case', async () => {
       (client.configService as any).config = { foo: 'bar' };
       const res = client.configService.getConfig();
       deepEqual(res, { foo: 'bar' });
-    });
-
-    it('getLuaScript() right case', async () => {
-      (client.configService as any).luaScript = 'foo-bar';
-      const res = client.configService.getLuaScript();
-      assert(res, 'foo-bar');
     });
 
     it('getCompConfig() right case', async () => {
@@ -444,15 +484,12 @@ ci()
     });
 
     it('getLuaScriptOffset() right case', async () => {
-      (client.configService as any).luaScriptOffset = [
-        { compName: 'a', offset: 10 },
-        { compName: 'b', offset: 20 },
-      ];
+      (client.configService as any).config = {
+        comp1: { luaScript: 'lua-comp1' },
+        comp2: { luaScript: 'lua-comp2' },
+      };
       const res = client.configService.getLuaScriptOffset();
-      deepEqual(res, [
-        { compName: 'a', offset: 10 },
-        { compName: 'b', offset: 20 },
-      ]);
+      deepEqual(res, [{ compName: 'comp1', offset: 6 }, { compName: 'comp2', offset: 6 }]);
     });
   });
 

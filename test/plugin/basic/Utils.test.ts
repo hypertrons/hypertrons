@@ -16,6 +16,7 @@
 
 import assert, { deepEqual } from 'assert';
 import * as Utils from '../../../app/basic/Utils';
+import { join } from 'path';
 
 describe('Utils', () => {
 
@@ -396,4 +397,32 @@ describe('Utils', () => {
     });
   });
 
+  describe('parsePrivateConfigFileName', () => {
+    it('should return undefined if fileName is invalid', async () => {
+      let res = Utils.parsePrivateConfigFileName('a');
+      assert(res === '');
+
+      res = Utils.parsePrivateConfigFileName('a.json');
+      assert(res === '');
+
+      res = Utils.parsePrivateConfigFileName('a/.json');
+      assert(res === '');
+
+      res = Utils.parsePrivateConfigFileName('a_b_c.json');
+      assert(res === '');
+    });
+
+    it('right case', async () => {
+      let fullName = Utils.parsePrivateConfigFileName('owner/repo.json');
+      const compare = join('owner', 'repo');
+      assert(fullName, compare);
+
+      fullName = Utils.parsePrivateConfigFileName('prefix/owner/repo.json');
+      assert(fullName, compare);
+
+      fullName = Utils.parsePrivateConfigFileName('prefix/prefix/owner/repo.json');
+      assert(fullName, compare);
+    });
+
+  });
 });

@@ -34,7 +34,7 @@ describe('HostingClientBase', () => {
       return 'name';
     }
     getConfig(): any {
-      return {};
+      return { updateRepoDataSched: '0 0 8 * * *' };
     }
   }
 
@@ -121,9 +121,16 @@ describe('HostingClientBase', () => {
 
   describe('getLuaScript()', () => {
     it('right case', async () => {
-      (client.configService as any).luaScript = 'lua';
+      (client.configService as any).config = { foo: { luaScript: 'lua' } };
       const res = client.getLuaScript();
-      assert(res === 'lua');
+      const compare = `local foo = function ()
+  local compName = 'foo'
+  local compConfig = config.foo
+lua
+end
+foo()
+`;
+      assert(res === compare);
     });
   });
 

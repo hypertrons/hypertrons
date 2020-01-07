@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import { RepoEventBase } from '../../plugin/event-manager/events';
+import { RawDataStatus, RawData } from './HostingClientService/ConfigService';
 export type HostingPlatformTypes = 'github' | 'gitlab';
 
 // Hosting platform events
@@ -55,9 +56,13 @@ export class HostingPlatformUninstallEvent extends HostingPlatformEventBase {
 export class HostingClientSyncDataEvent extends RepoEventBase {
 }
 
+export class HostingClientSyncConfigEvent extends RepoEventBase {
+  status: RawDataStatus;
+}
+
 export class HostingClientConfigInitedEvent extends RepoEventBase {
-  config: any;
-  luaScript: string;
+  rawData: RawData;
+  status: RawDataStatus | undefined;
 }
 
 export class HostingClientRepoDataInitedEvent extends RepoEventBase {

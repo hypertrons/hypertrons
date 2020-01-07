@@ -100,8 +100,8 @@ export class LuaService<TConfig extends HostingConfigBase, TRawClient> extends C
     this.luaVm = new LuaVm();
 
     // 2. set methods and configs, then run scripts.
-    const luaContent = this.client.getLuaScript();
-    if (!luaContent || luaContent === '') {
+    const { luaScript, offset } = this.client.configService.getLuaScriptAndOffset();
+    if (!luaScript || luaScript === '') {
       // do not init if no lua script content found
       return;
     }
@@ -119,7 +119,7 @@ export class LuaService<TConfig extends HostingConfigBase, TRawClient> extends C
     this.luaVm.set('config', this.client.getConfig()); // component config here.
 
     // 3. run script
-    const res = this.luaVm.run(luaContent);
+    const res = this.luaVm.run(luaScript);
 
     // 4. handle exec result
     this.logger.info('Lua exec result,', res);
@@ -134,7 +134,6 @@ export class LuaService<TConfig extends HostingConfigBase, TRawClient> extends C
         let curLines = 1;
         if (this.luaVm) curLines += this.luaVm.getLuaBuidinCodeLines();
 
-        const offset = this.client.configService.getLuaScriptOffset();
         for (const i in offset) {
           if (curLines + offset[i].offset > errorLine) {
             this.logger.warn(`Lua error may be occurred in ${offset[i].compName} line ${errorLine - curLines - 2}`);
