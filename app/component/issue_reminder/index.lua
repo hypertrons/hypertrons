@@ -29,7 +29,11 @@ sched(compConfig.schedName, compConfig.sched, function ()
   for i= 1, #data.issues do
     local issue = data.issues[i]
     -- filter rule: 1. still open 2. has no comments 3. opened before 24 hours
-    if (issue.closedAt == nil and #issue.comments == 0 and toNow(issue.createdAt) > 24 * 60 * 60 * 1000) then
+    -- 4. issue author is not a bot 5. issue author is not a replier.
+    -- GitHub bots' name end with '[bot]'. Other platforms could name bot in this way.
+    if (issue.closedAt == nil and #issue.comments == 0 and toNow(issue.createdAt) > 24 * 60 * 60 * 1000
+        and string.find(issue.author, '%[bot%]', #issue.author-4) == nil
+        and not arrayContains(users, function (u) return u == issue.author end)) then
       addIssueComment(issue.number, msg)
     end
   end
