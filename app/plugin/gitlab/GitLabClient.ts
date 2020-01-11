@@ -74,6 +74,14 @@ export class GitLabClient extends HostingClientBase<GitLabConfig, Gitlab> {
     });
   }
 
+  public async removeLabel(number: number, label: string): Promise<void> {
+    this.logger.info(number, label);
+    // TODO
+    await this.rawClient.Issues.edit(this.id, number, {
+      labels: [], // just do nothing to pass compile
+    });
+  }
+
   public async updateIssue(number: number, update: {title?: string | undefined; body?: string | undefined; state?: 'open' | 'closed' | undefined; }): Promise<void> {
     // API doc: https://docs.gitlab.com/ee/api/issues.html#edit-issue
     let state_event: any;

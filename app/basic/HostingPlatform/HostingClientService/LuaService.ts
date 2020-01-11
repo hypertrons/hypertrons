@@ -177,8 +177,13 @@ export class LuaService<TConfig extends HostingConfigBase, TRawClient> extends C
 
   @luaMethod()
   protected lua_getIssuesNumber(): number[] {
-    const issues = this.client.getRepoData().issues;
-    return issues.map(issue => issue.number);
+    try {
+      const issues = this.client.getRepoData().issues;
+      return issues.map(issue => issue.number);
+    } catch (e) {
+      this.logger.warn(e.message);
+      return [];
+    }
   }
 
   @luaMethod()
@@ -191,9 +196,9 @@ export class LuaService<TConfig extends HostingConfigBase, TRawClient> extends C
   }
 
   @luaMethod()
-  protected lua_checkRoleName(roleName: string) {
+  protected lua_checkRoleName(roleName: string): boolean {
     const roleConfig: RoleConfig | undefined = this.client.getCompConfig<RoleConfig>('role');
-    if (!roleConfig || !roleConfig.roles) return [];
+    if (!roleConfig || !roleConfig.roles) return false;
     const roleDetail = roleConfig.roles.find(r => r.name === roleName);
     if (!roleDetail) return false;
     else return true;
@@ -201,24 +206,21 @@ export class LuaService<TConfig extends HostingConfigBase, TRawClient> extends C
 
   @luaMethod()
   protected lua_getIssueMetaData(issueNumber: number): object {
-    this.logger.info('call lua_getIssueMetaData issueNumber =', issueNumber);
-    const issues = this.client.getRepoData().issues;
-    const index = issues.findIndex(v => v.number === issueNumber);
-    if (index < 0) {
-      this.logger.info('In lua_getIssueMetaData, can not find issueNumber =', issueNumber);
-      return {};
-    }
-    const data = IssueMetaDataFormatRegExp.exec(issues[index].body);
-    if (data) {
-      try {
-        return JSON.parse(data[1]);
-      } catch (e) {
-        this.logger.error(e.message);
+    try {
+      const issues = this.client.getRepoData().issues;
+      const index = issues.findIndex(v => v.number === issueNumber);
+      if (index < 0) {
+        this.logger.info('In lua_getIssueMetaData, can not find issueNumber =', issueNumber);
         return {};
       }
-    } else {
-      return {};
+      const data = IssueMetaDataFormatRegExp.exec(issues[index].body);
+      if (data) {
+        return JSON.parse(data[1]);
+      }
+    } catch (e) {
+      this.logger.warn(e.message);
     }
+    return {};
   }
 
   @luaMethod()
@@ -244,7 +246,7 @@ export class LuaService<TConfig extends HostingConfigBase, TRawClient> extends C
           IssueMetaDataBegin + metaDataNew + IssueMetaDataEnd,
         );
       } catch (e) {
-        this.logger.error(e.message);
+        this.logger.warn(e.message);
       }
     } else {
       issues[index].body = IssueMetaDataBegin + JSON.stringify(data) + IssueMetaDataEnd + issues[index].body;
@@ -322,7 +324,6 @@ export class LuaService<TConfig extends HostingConfigBase, TRawClient> extends C
   @luaMethod()
   protected lua_string2table(x: string): object {
     // -- This will be removed when we add string2table function in lua.
-    this.logger.info(JSON.parse(x));
     return JSON.parse(x);
   }
 
@@ -363,6 +364,11 @@ export class LuaService<TConfig extends HostingConfigBase, TRawClient> extends C
       labels,
     );
     this.client.addLabels(num, labels);
+  }
+
+  @luaMethod()
+  protected lua_removeLabel(num: number, label: string): void {
+    this.client.removeLabel(num, label);
   }
 
   @luaMethod()

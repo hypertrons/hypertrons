@@ -13,12 +13,24 @@
 // limitations under the License.
 
 import { configClass, configProp } from '../../config-generator/decorators';
-import { voteSummaryDefaultConfig } from './defaultConfig';
+import voteSummaryDefaultConfig from './defaultConfig';
 
 @configClass({
   description: 'Help to collect vote info',
 })
 export default class Config {
+  @configProp({
+    description: 'startVoteCommand',
+    defaultValue: voteSummaryDefaultConfig.startVoteCommand,
+  })
+  startVoteCommand: string;
+
+  @configProp({
+    description: 'voteCommand',
+    defaultValue: voteSummaryDefaultConfig.voteCommand,
+  })
+  voteCommand: string;
+
   @configProp({
     description: 'Choice',
     defaultValue: voteSummaryDefaultConfig.choice,
@@ -68,14 +80,26 @@ export default class Config {
   voteJsonEnd: string;
 
   @configProp({
-    description: 'schedName',
-    defaultValue: voteSummaryDefaultConfig.schedName,
+    description: 'votingLabelName',
+    defaultValue: voteSummaryDefaultConfig.votingLabelName,
   })
-  schedName: string;
+  votingLabelName: string;
 
   @configProp({
-    description: 'sched',
-    defaultValue: voteSummaryDefaultConfig.sched,
+    description: 'votedLabelName',
+    defaultValue: voteSummaryDefaultConfig.votedLabelName,
   })
-  sched: string;
+  votedLabelName: string;
+
+  @configProp({
+    description: 'voteSchedName',
+    defaultValue: voteSummaryDefaultConfig.voteSchedName,
+  })
+  voteSchedName: string;
+
+  @configProp({
+    description: 'voteSched',
+    defaultValue: voteSummaryDefaultConfig.voteSched,
+  })
+  voteSched: string;
 }

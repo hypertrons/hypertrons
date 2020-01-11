@@ -205,6 +205,15 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
     });
   }
 
+  public async removeLabel(number: number, label: string): Promise<void> {
+    await this.rawClient.issues.removeLabel({
+      owner: this.owner,
+      repo: this.repo,
+      issue_number: number,
+      name: label,
+    });
+  }
+
   public async createLabels(labels: Array<{name: string, description: string, color: string}>): Promise<void> {
     await Promise.all(labels.map(label => {
       return this.rawClient.issues.createLabel({

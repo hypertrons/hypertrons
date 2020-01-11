@@ -16,7 +16,7 @@
 
 import { LuaVm } from '../../app/lua-vm/LuaVm';
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import { join, basename } from 'path';
 
 export class LuaVmWrapper {
   luaVm: LuaVm;
@@ -57,8 +57,7 @@ export class LuaVmWrapper {
  * @param injectMap the ts functions that gonna injected into lua vm
  */
 export async function prepareLuaTest(path: string, opt?: { customConfig?: any, injectMap?: Map<string, any> }): Promise<LuaVmWrapper> {
-  const pa = path.split('/');
-  const compName = pa[pa.length - 1];
+  const compName = basename(path);
 
   const luaVm = new LuaVm();
   const cc = await import(join('../../app/component/', compName, '/defaultConfig'));
@@ -121,5 +120,5 @@ export async function prepareLuaTest(path: string, opt?: { customConfig?: any, i
 const defaultMockLuaMethods = [
   'getData', 'getRoles', 'addIssue', 'assign', 'addIssueComment',
   'addLabels', 'toNow', 'log', 'checkAuth', 'merge', 'runCI',
-  'sendToSlack', 'sendToMail', 'sendToDingTalk', 'labelSetup', 'updateIssue', 'updatePull',
+  'sendToSlack', 'sendToMail', 'sendToDingTalk', 'labelSetup', 'updateIssue', 'updatePull', 'removeLabel'
 ];

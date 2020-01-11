@@ -130,6 +130,8 @@ export abstract class HostingClientBase<TConfig extends HostingConfigBase, TRawC
 
   public abstract async addLabels(number: number, labels: string[]): Promise<void>;
 
+  public abstract async removeLabel(number: number, label: string): Promise<void>;
+
   public abstract async updateLabels(labels: Array<{ current_name: string; name?: string; description?: string; color?: string; }>): Promise<void>;
 
   public abstract async createLabels(labels: Array<{ name: string, description: string, color: string }>): Promise<void>;

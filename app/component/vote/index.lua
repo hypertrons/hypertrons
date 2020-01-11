@@ -11,18 +11,6 @@
 -- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
-
-local splitChoices = function(choices)
-  -- In: A,B,C,D
-  -- Out:[A, B, C, D]
-  local res = {}
-  for c in string.gmatch(choices, '([^,]+)') do
-    table.insert(res, c)
-  end
-  return res
-end
-
-
 local convertDuration = function(dur)
     local endChar = string.sub(dur, -1)
     local res = tonumber(string.sub(dur, 1, -2))
@@ -39,8 +27,11 @@ local checkStartVote = function (issueNumber, params)
   if #params ~= 3 then
     return 'Starting a vote needs exactly THREE parameters.'
   end
-  if checkRoleName(params[2]) == false then
-    return 'Role `' .. params[2] .. '` not exist.'
+  local roles = splitByComma(params[2])
+  for i=1, #roles do
+    if checkRoleName(roles[i]) == false then
+      return 'Role `' .. roles[i] .. '` not exist.'
+    end
   end
   if string.match(params[3], '^[1-9]%d*[d|h]$') == nil then
     return 'Due date should start with a number and end with day or hour just like 30h or 2d.'
@@ -63,7 +54,6 @@ local checkLoginRole = function(participants, login)
   end
 end
 
-
 local checkVote = function(metaData, issueNumber, login, params)
   -- check params number
   if #params ~= 1 then
@@ -79,10 +69,18 @@ local checkVote = function(metaData, issueNumber, login, params)
         return 'Sorry, voting has been Out-of-Date.'
       else
         -- check whether this login has right to vote.
-        if checkLoginRole(metaData['participants'], login) == false then
-          return 'Sorry you have no right to vote.'
-        else
+        local allRoles = metaData['participants']
+        local hasRight = false
+        for i=1, #allRoles do
+          if checkLoginRole(allRoles[i], login) then
+            hasRight = true
+            break
+          end
+        end
+        if hasRight then
           return '' -- Vote successfully
+        else
+          return 'Sorry you have no right to vote.'
         end
       end
     else
@@ -98,10 +96,24 @@ end
 -- When we support multilayer table or table2string/string2table function in lua
 local mystring2table = function(str)
   local tbl = string2table(str)
+  local res = {}
   for k,v in pairs(tbl) do
-    tbl[k] = string2table(v)
+    -- This may look tricky. :(
+    -- When typescript funtion `string2table` return a table, \
+    -- it will automatically add a key-value, key:'__Meta__', value: 2.0. \
+    -- So we need to remove this unwanted key-value pair.
+    if k ~= '__Meta__' then
+      local tmp = string2table(v)
+      local res_tmp = {}
+      for kk, vv in pairs(tmp) do
+        if kk ~= '__Meta__' then
+          res_tmp[kk] = vv
+        end
+      end
+      res[k] = res_tmp
+    end
   end
-  return tbl
+  return res
 end
 
 
@@ -115,18 +127,18 @@ end
 
 -- <region>: VoteSummaryInfo
 local joinTemplate = function(voteSummaryJson)
-  local res = config['vote']['voteSummaryStart']
+  local res = compConfig.voteSummaryStart
   for k,v in pairs(voteSummaryJson) do
-    res = res .. rendStr(config['vote']['choice'], {['choiceName']=k})
+    res = res .. rendStr(compConfig.choice, {['choiceName']=k})
     for kk, vv in pairs(v) do
-      res = res .. rendStr(config['vote']['voter'], {['login']=kk})
+      res = res .. rendStr(compConfig.voter, {['login']=kk})
     end
   end
-  return res .. config['vote']['voteSummaryEnd']
+  return res .. compConfig.voteSummaryEnd
 end
 
 local joinJson = function(voteSummaryJson)
-  return config['vote']['voteJsonStart'] .. mytable2string(voteSummaryJson) .. config['vote']['voteJsonEnd']
+  return compConfig.voteJsonStart .. mytable2string(voteSummaryJson) .. compConfig.voteJsonEnd
 end
 
 local updateVote = function(voteSummaryJson, login, choice)
@@ -154,8 +166,8 @@ local updateVoteSummaryInfo = function(number, comment_id, choices, login, choic
   if commentBody == '' then -- failed to get comment body
     return
   end
-  local VoteSummaryJsonRegExp = config['vote']['voteSummaryJsonRegExp']
-  local VoteSummaryInfoRegExp = config['vote']['voteSummaryInfoRegExp']
+  local VoteSummaryJsonRegExp = compConfig.voteSummaryJsonRegExp
+  local VoteSummaryInfoRegExp = compConfig.voteSummaryInfoRegExp
   local voteSummaryJson = string.match(commentBody, VoteSummaryJsonRegExp)
   if voteSummaryJson == nil then
     voteSummaryJson = {}
@@ -168,8 +180,8 @@ local updateVoteSummaryInfo = function(number, comment_id, choices, login, choic
   else
     local vsj = mystring2table(voteSummaryJson)
     if updateVote(vsj, login, choice) then
-      commentBody.replace(VoteSummaryInfoRegExp, joinTemplate(vsj))
-      commentBody.replace(VoteSummaryJsonRegExp, joinJson(vsj))
+      commentBody = string.gsub(commentBody, VoteSummaryInfoRegExp, joinTemplate(vsj))
+      commentBody = string.gsub(commentBody, VoteSummaryJsonRegExp, joinJson(vsj))
       updateIssueComment(comment_id, commentBody)
     end
   end
@@ -178,26 +190,26 @@ end
 
 
 on('CommandEvent', function (e)
-  if (e.command == '/start-vote') then
+  if (e.command == compConfig.startVoteCommand) then
     local info = checkStartVote(e.number, e.params)
     if info == '' then
       if updateCommentAnnotation('info', e.number, e.comment_id, 'Start a new vote successfully.') then
         local voteInfo = {
-          ['choices'] = splitChoices(e.params[1]),
-          ['participants'] = e.params[2],
+          ['choices'] = splitByComma(e.params[1]),
+          ['participants'] = splitByComma(e.params[2]),
           ['duration'] = convertDuration(e.params[3]),
           ['launchTime'] =  getNowTime(),
           ['comment_id'] = e.comment_id
         }
         updateIssueMetaData(e.number, voteInfo)
-        addLabels(e.number, { 'voting' })
+        addLabels(e.number, { compConfig.votingLabelName })
       end
     else
       if e.comment_id then -- Tell user their mistake
         updateCommentAnnotation('error', e.number, e.comment_id, info)
       end
     end
-  elseif (e.command == '/vote') then
+  elseif (e.command == compConfig.voteCommand) then
     local metaData = getIssueMetaData(e.number)
     local info = checkVote(metaData, e.number, e.login, e.params)
     if info == '' then
@@ -210,14 +222,17 @@ on('CommandEvent', function (e)
   end
 end)
 
--- -- regularly check
--- sched(compConfig.schedName, compConfig.sched, function ()
---   local issuesNumber = getIssuesNumber()
---   for i=1, #issuesNumber do
---     local metaData = getIssueMetaData(issuesNumber[i])
---     -- check whether it's out of date
---     if (toNowNumber(metaData['launchTime']) > metaData['duration']) then
---       addLabels(issuesNumber[i], { 'vote end' })
---     else
---   end
--- end)
+-- regularly check
+sched(compConfig.voteSchedName, compConfig.voteSched, function ()
+  local issuesNumber = getIssuesNumber()
+  for i=1, #issuesNumber do
+    local metaData = getIssueMetaData(issuesNumber[i])
+    if metaData ~= {} and metaData['launchTime'] and metaData['duration'] then
+      -- check whether it's out of date
+      if toNowNumber(metaData['launchTime']) > metaData['duration'] then
+        addLabels(issuesNumber[i], { compConfig.votedLabelName })
+        removeLabel(issuesNumber[i], compConfig.votingLabelName)
+      end
+    end
+  end
+end)

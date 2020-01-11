@@ -43,3 +43,11 @@ local arrayContains = function(arr, predict)
   end
   return false
 end
+
+local splitByComma = function(s)
+  local res = {}
+  for c in string.gmatch(s, '([^,]+)') do
+    table.insert(res, c)
+  end
+  return res
+end

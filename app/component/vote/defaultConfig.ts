@@ -11,8 +11,11 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+import Config from './config';
 
-const voteSummaryDefaultConfig = {
+const voteSummaryDefaultConfig: Config = {
+  startVoteCommand: '/start-vote',
+  voteCommand: '/vote',
   choice: `
 - **{{choiceName}}**: `,
   voter: '{{login}}, ',
@@ -31,8 +34,10 @@ const voteSummaryDefaultConfig = {
   voteJsonStart: `
 <!-- VoteSummaryJson `,
   voteJsonEnd: ' --!>',
-  schedName: 'Regular Check',
-  sched: '0 0 */1 * * *',
+  votingLabelName: 'voting',
+  votedLabelName: 'vote end',
+  voteSchedName: 'Vote Regular Check',
+  voteSched: '0 20 * * * *',
 };
 
-export { voteSummaryDefaultConfig };
+export default voteSummaryDefaultConfig;
