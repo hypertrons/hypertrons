@@ -9,7 +9,7 @@ It is warmly welcomed if you have interest to hack on oss-mentor-bot. First, we 
 
 ## Reporting general issues
 
-To be honest, we regard every user of oss-mentor-bot as a very kind contributor. After experiencing oss-mentor-bot, you may have some feedback for the project. Then feel free to open an issue via [NEW ISSUE](https://github.com/oss-mentor-bot/oss-mentor-bot/issues/new).
+To be honest, we regard every user of oss-mentor-bot as a very kind contributor. After experiencing oss-mentor-bot, you may have some feedback for the project. Then feel free to open an issue via [NEW ISSUE]('').
 
 Since we collaborate project oss-mentor-bot in a distributed way, we appreciate **WELL-WRITTEN**, **DETAILED**, **EXPLICIT** issue reports. To make the communication more efficient, we wish everyone could search if your issue is an existing one in the searching list. If you find it existing, please add your details in comments under the existing issue instead of opening a brand new one.
 
@@ -38,6 +38,7 @@ Since you are ready to improve oss-mentor-bot with a PR, we suggest you could ta
 * [Code Style Rule](#code-style-rule)
 
 ### Code Style Rule
+
 Basiclly you need to pass TSLint checking and add apache license header.
 
 * [TSLint Checking](#tslint-checking)
@@ -48,21 +49,21 @@ Basiclly you need to pass TSLint checking and add apache license header.
 Before committing your code, you should first run `npm run lint` to check your code style. In oss-mento-bot, we use TSLint, which is an extensible static analysis tool that checks TypeScript code for readability, maintainability, and functionality errors. It is widely supported across modern editors & build systems and can be customized with your own lint rules, configurations, and formatters.
 
 If you use VSCode as your IDE, you may do the following steps to lint your code automatically.
-- install plugin `TSLint`
-- set the following content in .vscode/settings.json
-```
+* install plugin `TSLint`
+* set the following content in .vscode/settings.json
+``` json
 {
    "editor.codeActionsOnSave": {
        "source.fixAll.tslint": true
    }
 }
 ```
-- restart VSCode
+* restart VSCode
 
 #### Apache License Header
 
-If you add a new ts file in your modification, please make sure you add Apache License Header to all new files. 
-```
+If you add a new ts file in your modification, please make sure you add Apache License Header to all new files.
+``` text
 // Copyright 2019 Xlab
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -79,9 +80,9 @@ If you add a new ts file in your modification, please make sure you add Apache L
 ```
 
 If you use VSCode as your IDE, you may do the following steps to add Apache License Header automatically.
-- install plugin `licenser`
-- set the following content in .vscode/settings.json
-```
+* install plugin `licenser`
+* set the following content in .vscode/settings.json
+``` json
 {
     "licenser.author": "Xlab",
     "licenser.projectName": "oss-mentor-bot",
@@ -90,6 +91,4 @@ If you use VSCode as your IDE, you may do the following steps to add Apache Lice
     "licenser.license":"AL2"
 }
 ```
-- restart VSCode
-
-
+* restart VSCode
