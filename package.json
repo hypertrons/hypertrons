@@ -21,6 +21,7 @@
     "lint": "tslint --project . -c tslint.json && node app/utils/md-lint/index.js",
     "clean": "ets clean",
     "md-lint": "tsc app/utils/md-lint/index.ts && node app/utils/md-lint/index.js",
+    "filename-check": "tsc app/utils/filename-check/index.ts && node app/utils/filename-check/index.js",
     "licensecheck": "license-check"
   },
   "dependencies": {
@@ -104,6 +105,18 @@
       "ignore": [
         "node_modules/**/*"
       ]
+    }
+  },
+  "filename-check": {
+    "patterns": [ 
+      "app/**/*",
+      "test/**/*",
+      "config/**/*",
+      "scripts/**/*"
+    ],
+    "options": {
+      "useGitIgnore": true,
+      "ignore": []
     }
   },
   "license-check-config": {
