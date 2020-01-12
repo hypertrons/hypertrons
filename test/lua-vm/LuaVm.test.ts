@@ -150,6 +150,24 @@ return func(a, add(b, c), d)
     assert(res === a - b - c - d);
   });
 
+  it('Should support embedded object', () => {
+    let res: any = {};
+    const set = (obj: any) => {
+      res = obj;
+    };
+    luaVm.set('set', set);
+    luaVm.run(`
+local t = {
+  ['a'] = 'test',
+  ['d'] = {
+    ['e'] = -1
+  }
+}
+set(t)
+`);
+    assert(res.a === 'test' && res.d.e === -1);
+  });
+
   it('Should get value inside a map', () => {
     const a = 2, b = 3, c = 4;
     let res = 0;
