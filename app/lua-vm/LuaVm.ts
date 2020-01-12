@@ -89,6 +89,12 @@ export class LuaVm {
   }
 
   private getStackValue(index: number): any {
+    // The later check is because of the bug of fengari(https://github.com/fengari-lua/fengari/issues/175)
+    // will track this later
+    if (index < 0 && lua.lua_gettop(this.L) + index + 1 !== 0) {
+      // change index to positive number
+      index = lua.lua_gettop(this.L) + index + 1;
+    }
     const type = this.getStackType(index);
     switch (type) {
       case 'number':
