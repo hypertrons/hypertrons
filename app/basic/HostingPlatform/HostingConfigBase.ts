@@ -103,6 +103,12 @@ class HostingConfigCompConfigPrivate {
 })
 class HostingConfigCompConfig {
   @configProp({
+    description: 'Auto update configuration interval',
+    defaultValue: '0 */1 * * * *',
+  })
+  updateInterval: string;
+
+  @configProp({
     description: 'The remote config path stored on hosting platform',
     defaultValue: new HostingConfigCompConfigRemote(),
     classType: HostingConfigCompConfigRemote,
@@ -142,7 +148,7 @@ export class ComponentFileConfig {
 
   @configProp({
     description: 'Component config version file path',
-    defaultValue: 'version',
+    defaultValue: 'version.json',
   })
   versionPath: string;
 }
@@ -151,6 +157,13 @@ export class ComponentFileConfig {
   description: 'Hosting component config',
 })
 export class ComponentConfig {
+  @configProp({
+    description: 'Enable user defined lua script or not',
+    type: 'boolean',
+    defaultValue: false,
+  })
+  enableRepoLua: boolean;
+
   @configProp({
     description: 'Indicate load the configuration from local file',
     classType: ComponentFileConfig,
@@ -184,9 +197,8 @@ export class HostingConfigBase {
   component: ComponentConfig;
 
   @configProp({
-    description: 'Enable user defined lua script or not',
-    type: 'boolean',
-    defaultValue: false,
+    description: 'Auto update repoData interval',
+    defaultValue: '0 0 8 * * *',
   })
-  enableRepoLua: boolean;
+  updateRepoDataSched: string;
 }

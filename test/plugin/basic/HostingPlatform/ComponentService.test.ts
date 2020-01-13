@@ -62,6 +62,7 @@ describe('ComponentService', () => {
   beforeEach(async () => {
     ({ app, agent } = await prepareTestApplication());
     componentService = new ComponentService('github', {
+      enableRepoLua: true,
       file: {
         basePath: 'app/component',
         configModule: 'config',

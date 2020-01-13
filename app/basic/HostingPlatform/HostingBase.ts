@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { BotLogger, loggerWrapper, waitUntil } from '../Utils';
+import { BotLogger, loggerWrapper, waitUntil, parsePrivateConfigFileName } from '../Utils';
 import { HostingClientBase } from './HostingClientBase';
 import { HostingConfigBase } from './HostingConfigBase';
 import { Application } from 'egg';
@@ -20,10 +20,18 @@ import { join } from 'path';
 import { ComponentService } from './ComponentService';
 import {
   HostingPlatformComponentInitedEvent, HostingPlatformInitRepoEvent,
-  HostingPlatformRepoRemovedEvent, HostingPlatformTypes, HostingPlatformRepoAddedEvent, HostingPlatformUninstallEvent, HostingPlatformSyncDataEvent, HostingClientSyncDataEvent,
+  HostingPlatformRepoRemovedEvent, HostingPlatformTypes, HostingPlatformRepoAddedEvent,
+  HostingPlatformUninstallEvent, HostingPlatformSyncDataEvent, HostingClientSyncDataEvent,
+  HostingClientSyncConfigEvent,
 } from './event';
+import watch from 'node-watch';
+import { statSync } from 'fs';
+import { ISchedulerJobHandler } from '../../plugin/scheduler-manager/types';
+import { RawDataStatus } from './HostingClientService/ConfigService';
 
-export abstract class HostingBase<TConfig extends HostingConfigBase, TClient extends HostingClientBase<TConfig, TRawClient>, TRawClient> {
+export abstract class HostingBase<TConfig extends HostingConfigBase,
+                                  TClient extends HostingClientBase<TConfig, TRawClient>,
+                                  TRawClient> {
 
   protected app: Application;
   protected logger: BotLogger;
@@ -33,6 +41,8 @@ export abstract class HostingBase<TConfig extends HostingConfigBase, TClient ext
   protected clientMap: Map<string, () => Promise<TClient>>;
   protected config: TConfig;
   public compService: ComponentService;
+  private updateConfigSched: ISchedulerJobHandler;
+  private repoConfigStatus: Map<string, RawDataStatus>;
 
   constructor(hostingType: HostingPlatformTypes, id: number, config: TConfig, app: Application) {
     this.id = id;
@@ -43,6 +53,7 @@ export abstract class HostingBase<TConfig extends HostingConfigBase, TClient ext
     this.logger = loggerWrapper(app.logger, `[host-${this.name}]`);
     this.clientMap = new Map<string, () => Promise<TClient>>();
     this.compService = new ComponentService(this.name, config.component, app);
+    this.repoConfigStatus = new Map<string, RawDataStatus>();
     this.initWebhook(config);
     this.onStart();
   }
@@ -110,11 +121,29 @@ export abstract class HostingBase<TConfig extends HostingConfigBase, TClient ext
       });
     });
 
+    // init private-file config watcher
+    if (this.config.config.private.file) {
+      this.logger.info('Start to watch file config');
+      const options = { recursive: true, filter: /\.json$/ };
+      watch(this.config.config.private.file.rootPath, options, async (event, file) => {
+        if (event === 'update') {
+          const basePathInfo = statSync(file);
+          if (!basePathInfo.isDirectory()) { // Only concern about file changed
+            const fullName = parsePrivateConfigFileName(file);
+            this.updateConfigStatus(fullName, { config: { file: 'updated' } } as any);
+          }
+        } else if (event === 'remove') {
+          const fullName = parsePrivateConfigFileName(file);
+          this.updateConfigStatus(fullName, { config: { file: 'deleted' } } as any);
+        }
+      });
+    }
   }
 
   // Only one worker call this function
   private async syncData(): Promise<void> {
     // load and sync components
+    this.logger.info('Start to load components');
     const components = await this.compService.loadComponents();
     if (this.compService.getComponentLoaded()) {
       this.app.event.publish('all', HostingPlatformComponentInitedEvent, {
@@ -127,6 +156,7 @@ export abstract class HostingBase<TConfig extends HostingConfigBase, TClient ext
     }
 
     // Load and sync repos
+    this.logger.info('Start to load and sync repos');
     const repos = await this.getInstalledRepos();
     this.logger.info(`All installed repos loaded for hosting name=${this.name}, count=${repos.length}`);
     repos.forEach(async repo => {
@@ -151,9 +181,30 @@ export abstract class HostingBase<TConfig extends HostingConfigBase, TClient ext
         this.logger.error(`Add client error, client ${fullName} is undefined!`);
       }
     });
+
+    // start update config schedule
+    this.logger.info(`Start to update config schedule ${this.config.config.updateInterval}`);
+    this.updateConfigSched = this.app.sched.register(
+      `${this.id}_sync_config`,
+      this.config.config.updateInterval,
+      'worker',
+      () => {
+        this.repoConfigStatus.forEach((status, fullName) => {
+          this.repoConfigStatus.delete(fullName);
+          this.app.event.publish('worker', HostingClientSyncConfigEvent, {
+            installationId: this.id,
+            fullName,
+            status,
+          });
+        });
+      },
+    );
   }
 
   public async onDispose(): Promise<void> {
+    if (this.updateConfigSched !== undefined) {
+      this.updateConfigSched.cancel();
+    }
     this.clientMap.forEach(async(_, fullName) => {
       const client = await this.getClient(fullName);
       if (client) client.onDispose();
@@ -174,6 +225,35 @@ export abstract class HostingBase<TConfig extends HostingConfigBase, TClient ext
 
   public getConfig(): TConfig {
     return this.config;
+  }
+
+  public getRepoConfigStatus(): Map<string, RawDataStatus> {
+    return this.repoConfigStatus;
+  }
+
+  public updateConfigStatus(fullName: string, changedStatus: RawDataStatus) {
+    let status: RawDataStatus | undefined = this.repoConfigStatus.get(fullName);
+    if (status === undefined) {
+      status = {
+        config: { file: 'clear', mysql: 'clear', remote: 'clear' },
+        luaScript: { remote: 'clear' },
+      };
+    }
+    if (changedStatus.config) {
+      Object.keys(changedStatus.config).forEach(key => {
+        if (status && changedStatus.config[key] !== undefined) {
+          status.config[key] = changedStatus.config[key];
+        }
+      });
+    }
+    if (changedStatus.luaScript) {
+      Object.keys(changedStatus.luaScript).forEach(key => {
+        if (status && changedStatus.luaScript[key] !== undefined) {
+          status.luaScript[key] = changedStatus.luaScript[key];
+        }
+      });
+    }
+    this.repoConfigStatus.set(fullName, status);
   }
 
   protected post(path: string, middleware: any): string {

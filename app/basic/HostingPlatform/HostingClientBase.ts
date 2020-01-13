@@ -78,9 +78,10 @@ export abstract class HostingClientBase<TConfig extends HostingConfigBase, TRawC
     });
 
     this.updateData();
-    this.job = this.app.sched.register(`${this.fullName}_Update_Repo_Data`, '0 0 8 * * *', 'workers', () => {
-      this.updateData();
-    });
+    this.job = this.app.sched.register(`${this.fullName}_Update_Repo_Data`,
+                                        this.hostBase.getConfig().updateRepoDataSched,
+                                        'workers',
+                                        () => this.updateData());
 
     for (const index in this.services) {
       await this.services[index].onStart();

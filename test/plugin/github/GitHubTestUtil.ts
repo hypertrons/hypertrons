@@ -174,17 +174,19 @@ export async function initWebhooks(app: Application): Promise<any[]> {
         tokens: [ 'YOUR TOKEN' ],
       },
       config: {
+        updateInterval: '0 */1 * * * *',
         remote: {
           filePath: '.github/hypertrons.json',
           luaScriptPath: './github/lua/',
         },
         private: {
           file: {
-            rootPath: './test/plugin/github',
+            rootPath: './test/plugin/github/repo_configs',
           },
         },
       },
       component: {
+        enableRepoLua: false,
         file: {
           basePath: 'app/component',
           configModule: 'config',
@@ -192,6 +194,7 @@ export async function initWebhooks(app: Application): Promise<any[]> {
           versionPath: 'version.json',
         },
       },
+      updateRepoDataSched: '0 0 8 * * *',
     },
   };
   // replace getNewHostingPlatform method, generate mock github app
