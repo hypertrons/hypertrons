@@ -13,18 +13,24 @@
 -- limitations under the License.
 
 -- Auto merge pull by approve command
-sched(compConfig.schedName, compConfig.sched, function ()
-  local data = getData()
-  if (data == nil) then -- data not ready yet
-    return
-  end
-  for i= 1, #data.pulls do
-    local pull = data.pulls[i]
-    -- if the pull is still open and have config['approve'].label (default: pull/approved), try merge it
-    if (pull.closedAt == nil and arrayContains(pull.labels, function (l)
-      return l == config['approve'].label
-    end)) then
-      merge(pull.number)
+
+if (config['approve'] ~= nil and config['approve'].label ~= nil) then 
+  sched(compConfig.schedName, compConfig.sched, function ()
+    local data = getData()
+    if (data == nil) then -- data not ready yet
+      return
     end
-  end
-end)
+    for i= 1, #data.pulls do
+      local pull = data.pulls[i]
+      -- if the pull is still open and have config['approve'].label (default: pull/approved), try merge it
+      if (pull.closedAt == nil and arrayContains(pull.labels, function (l)
+        return l == config['approve'].label
+      end)) then
+        merge(pull.number)
+      end
+    end
+  end)
+else
+  log("Not set approve.label in config, skip " .. compName)
+end
+

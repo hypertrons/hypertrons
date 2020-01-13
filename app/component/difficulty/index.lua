@@ -13,18 +13,22 @@
 -- limitations under the License.
 
 -- Difficuty command
-on('CommandEvent', function (e)
-  if (e.command == compConfig.command) then
-    if (#e.params ~= 1) then
-      return
+if (config['label_setup'] ~= nil and config['label_setup'].labels ~= nil) then
+  on('CommandEvent', function (e)
+    if (e.command == compConfig.command) then
+      if (#e.params ~= 1) then
+        return
+      end
+      local level = e.params[1]
+      local label = 'difficulty/' .. level
+      local labels = config['label_setup'].labels
+      if (arrayContains(labels, function (l)
+        return l.name == label
+      end)) then
+        addLabels(e.number, { label })
+      end
     end
-    local level = e.params[1]
-    local label = 'difficulty/' .. level
-    local labels = config['label_setup'].labels
-    if (arrayContains(labels, function (l)
-      return l.name == label
-    end)) then
-      addLabels(e.number, { label })
-    end
-  end
-end)
+  end)
+else
+  log("Not set label_setup.labels in config, skip " .. compName)
+end

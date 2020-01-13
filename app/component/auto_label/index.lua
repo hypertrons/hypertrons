@@ -34,6 +34,10 @@ local autoLabel = function (e)
   end
 end
 
-for i = 1, #compConfig.events do
-  on(compConfig.events[i], autoLabel)
+if (config['label_setup'] ~= nil and config['label_setup'].labels ~= nil) then
+  for i = 1, #compConfig.events do
+    on(compConfig.events[i], autoLabel)
+  end
+else 
+  log("Not set label_setup.labels in config, skip " .. compName)
 end
