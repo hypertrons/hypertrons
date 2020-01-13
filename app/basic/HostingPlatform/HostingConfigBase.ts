@@ -154,6 +154,53 @@ export class ComponentFileConfig {
 }
 
 @configClass({
+  description: 'Component config file type config',
+})
+export class ComponentRemoteConfig {
+  @configProp({
+    description: 'Component config remote repo type',
+    defaultValue: 'github',
+  })
+  type: string;
+
+  @configProp({
+    description: 'Component config remote url',
+    defaultValue: 'https://github.com',
+  })
+  url: string;
+
+  @configProp({
+    description: 'Component config remote token',
+    defaultValue: '',
+  })
+  token: string;
+
+  @configProp({
+    description: 'Component config base file path',
+    defaultValue: 'app/component',
+  })
+  basePath: string;
+
+  @configProp({
+    description: 'Component config config file path',
+    defaultValue: 'config',
+  })
+  configModule: string;
+
+  @configProp({
+    description: 'Component config lua file path',
+    defaultValue: 'index.lua',
+  })
+  luaModule: string;
+
+  @configProp({
+    description: 'Component config version file path',
+    defaultValue: 'version',
+  })
+  versionPath: string;
+}
+
+@configClass({
   description: 'Hosting component config',
 })
 export class ComponentConfig {
@@ -170,6 +217,13 @@ export class ComponentConfig {
     defaultValue: new ComponentFileConfig(),
   })
   file: ComponentFileConfig;
+
+  @configProp({
+    description: 'Indicate load the configuration from remote file',
+    classType: ComponentRemoteConfig,
+    defaultValue: [],
+  })
+  remote?: ComponentRemoteConfig[];
 }
 
 @configClass({
