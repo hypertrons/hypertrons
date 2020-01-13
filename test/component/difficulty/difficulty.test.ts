@@ -17,7 +17,7 @@
 import assert from 'power-assert';
 import { prepareLuaTest } from '../LuaTestUtil';
 
-describe('approve component', () => {
+describe('difficulty component', () => {
   let luaVmWrapper;
 
   before(async () => {
@@ -27,9 +27,9 @@ describe('approve component', () => {
     luaVmWrapper.clean();
   });
 
-  describe('exec approve command', () => {
+  describe('exec difficulty command', () => {
 
-    it('add approve label', async () => {
+    it('add difficulty label', async () => {
       const result = luaVmWrapper.publish('CommandEvent', {
         number: 42,
         command: '/difficulty',

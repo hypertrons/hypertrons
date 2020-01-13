@@ -111,6 +111,7 @@ export async function prepareLuaTest(path: string, opt?: { customConfig?: any, i
 
   luaVm.set('config', hypertronsConfig);
   luaVm.set('compConfig', compConfig);
+  luaVm.set('compName', compName);
   luaVm.run(luaContent);
 
   return luaTestVm;
