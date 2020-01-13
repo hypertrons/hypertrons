@@ -121,5 +121,5 @@ export async function prepareLuaTest(path: string, opt?: { customConfig?: any, i
 const defaultMockLuaMethods = [
   'getData', 'getRoles', 'addIssue', 'assign', 'addIssueComment',
   'addLabels', 'toNow', 'log', 'checkAuth', 'merge', 'runCI',
-  'sendToSlack', 'sendToMail', 'sendToDingTalk', 'labelSetup',
+  'sendToSlack', 'sendToMail', 'sendToDingTalk', 'labelSetup', 'updateIssue', 'updatePull',
 ];

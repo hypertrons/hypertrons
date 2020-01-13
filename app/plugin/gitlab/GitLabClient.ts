@@ -86,6 +86,21 @@ export class GitLabClient extends HostingClientBase<GitLabConfig, Gitlab> {
     });
   }
 
+  // TODO please add test cases
+  public async updatePull(number: number, update: { title?: string;
+                                                    body?: string;
+                                                    state?: 'open' | 'closed';
+                                                   }): Promise<void> {
+    let state_event: any;
+    if (update.state === 'open') state_event = 'reopen';
+    if (update.state === 'closed') state_event = 'close';
+    await this.rawClient.MergeRequests.edit(this.id, number, {
+      title: update.title,
+      description: update.body,
+      state_event,
+    });
+  }
+
   public async addIssueComment(number: number, body: string): Promise<void> {
     await this.rawClient.IssueNotes.create(this.id, number, body);
   }

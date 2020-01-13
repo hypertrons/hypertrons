@@ -163,6 +163,7 @@ class LuaCommandEvent {
   number: number;
   login: string;
   params: string[];
+  from: 'issue' | 'comment' | 'review' | 'review_comment' | 'pull_comment';
 }
 
 @luaEvent({
@@ -184,6 +185,7 @@ export class CommandManagerNewCommandEvent extends RepoEventBase {
       params: e.command.param,
       login: e.login,
       number: e.number,
+      from: e.from,
     };
   }
 }
