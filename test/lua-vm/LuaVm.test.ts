@@ -168,32 +168,6 @@ set(t)
     assert(res.a === 'test' && res.d.e === -1);
   });
 
-  it('Should get value inside a map', () => {
-    const a = 2, b = 3, c = 4;
-    let res = 0;
-    const func = (m: Map<string, number>, cb: (r: Map<string, any>) => void): void => {
-      const map = new Map<string, number>();
-      const a = m.get('a') || 0;
-      const b = m.get('b') || 0;
-      map.set('num', a - b);
-      cb(map);
-    };
-    const cb = (r: Map<string, number>): void => {
-      res = r.get('num') || 0;
-    };
-
-    const map = new Map<string, number>().set('a', a).set('b', b).set('c', c);
-    luaVm.set('func', func).set('cb', cb).set('map', map);
-    luaVm.run(`
-func(map, function (r)
-  t = {}
-  t['__Meta__'] = 1   -- set tabel['__Meta__'] = 1 to indicate this is a map
-  t['num'] = r.num + map.c
-  cb(t)
-end)`);
-    assert(res === a - b + c);
-  });
-
   describe('Integrate test with app', () => {
     let app: Application;
     let agent: Agent;
