@@ -88,10 +88,6 @@
       {
         "name": "/approve",
         "scopes": [ "review", "review_comment", "pull_comment" ]
-      },
-      {
-        "name": "/complete-checklist",
-        "scopes": [ "issue", "comment", "review_comment", "pull_comment", "review" ]
       }
     ]
   },
