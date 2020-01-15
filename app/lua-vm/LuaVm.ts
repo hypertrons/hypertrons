@@ -31,11 +31,6 @@ export class LuaVm {
   private L: any;
   private ctx: Map<string, any>;
   private decoder: any;
-  private META_TYPE_KEY = '__Meta__';
-  private MetaType = {
-    MAP: 1,
-    OBJ: 2,
-  };
 
   constructor() {
     this.L = lauxlib.luaL_newstate();
@@ -89,12 +84,11 @@ export class LuaVm {
   }
 
   private getStackValue(index: number): any {
-    // The later check is because of the bug of fengari(https://github.com/fengari-lua/fengari/issues/175)
-    // will track this later
-    if (index < 0 && lua.lua_gettop(this.L) + index + 1 !== 0) {
-      // change index to positive number
-      index = lua.lua_gettop(this.L) + index + 1;
+    if (lua.lua_gettop(this.L) === 0) {
+      // has no value on stack
+      return undefined;
     }
+    index = lua.lua_absindex(this.L, index);
     const type = this.getStackType(index);
     switch (type) {
       case 'number':
@@ -152,38 +146,19 @@ export class LuaVm {
           }
           return arr;
         } else {
-          const map = new Map<string, any>();
+          const ret: any = {};
           lua.lua_pushnil(this.L);
           while (lua.lua_next(this.L, index) !== 0) {
             // iterate keys and values from table at index
             // lua_next will push key and value on stack
             const value = this.getStackValue(-1);
             const key = this.getStackValue(-2);
-            if (typeof key === 'string') {
-              map.set(key, value);
+            if (value && key) {
+              ret[key] = value;
             }
             lua.lua_pop(this.L, 1);
           }
-
-          const type = map.get(this.META_TYPE_KEY);
-          map.delete(this.META_TYPE_KEY);
-          if (type && type === this.MetaType.MAP) {
-            return map;
-          }
-          // default return as obj
-          const mapToObj = (map: Map<string, any>): any => {
-            const ret: any = {};
-            map.forEach((v, k) => {
-              if (v instanceof Map) {
-                ret[k] = mapToObj(v);
-              } else {
-                ret[k] = v;
-              }
-            });
-            return ret;
-          };
-          const obj = mapToObj(map);
-          return obj;
+          return ret;
         }
       case 'no value':
         return undefined;
@@ -215,9 +190,6 @@ export class LuaVm {
           // the key must be in string type, the value can be any type
           lua.lua_newtable(this.L);
           for (const [ k, v ] of value) {
-            lua.lua_pushstring(this.L, this.META_TYPE_KEY);
-            lua.lua_pushnumber(this.L, this.MetaType.MAP);
-            lua.lua_settable(this.L, -3);
             if (typeof k === 'string') {
               lua.lua_pushstring(this.L, k);
               const n = this.pushStackValue(v);
@@ -247,9 +219,6 @@ export class LuaVm {
           break;
         } else {
           lua.lua_newtable(this.L);
-          lua.lua_pushstring(this.L, this.META_TYPE_KEY);
-          lua.lua_pushnumber(this.L, this.MetaType.OBJ);
-          lua.lua_settable(this.L, -3);
           Object.keys(value).forEach(key => {
             if (typeof key === 'string') {
               lua.lua_pushstring(this.L, key);
