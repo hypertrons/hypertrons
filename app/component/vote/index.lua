@@ -91,40 +91,6 @@ local checkVote = function(metaData, issueNumber, login, params)
   end
 end
 
--- Currently we don't support to pass multilayer table to typescript.
--- These two function will be removed \
--- When we support multilayer table or table2string/string2table function in lua
-local mystring2table = function(str)
-  local tbl = string2table(str)
-  local res = {}
-  for k,v in pairs(tbl) do
-    -- This may look tricky. :(
-    -- When typescript funtion `string2table` return a table, \
-    -- it will automatically add a key-value, key:'__Meta__', value: 2.0. \
-    -- So we need to remove this unwanted key-value pair.
-    if k ~= '__Meta__' then
-      local tmp = string2table(v)
-      local res_tmp = {}
-      for kk, vv in pairs(tmp) do
-        if kk ~= '__Meta__' then
-          res_tmp[kk] = vv
-        end
-      end
-      res[k] = res_tmp
-    end
-  end
-  return res
-end
-
-
-local mytable2string = function(tbl)
-  for k,v in pairs(tbl) do
-    tbl[k] = table2string(v)
-  end
-  return table2string(tbl)
-end
-
-
 -- <region>: VoteSummaryInfo
 local joinTemplate = function(voteSummaryJson)
   local res = compConfig.voteSummaryStart
@@ -138,7 +104,7 @@ local joinTemplate = function(voteSummaryJson)
 end
 
 local joinJson = function(voteSummaryJson)
-  return compConfig.voteJsonStart .. mytable2string(voteSummaryJson) .. compConfig.voteJsonEnd
+  return compConfig.voteJsonStart .. table2string(voteSummaryJson) .. compConfig.voteJsonEnd
 end
 
 local updateVote = function(voteSummaryJson, login, choice)
@@ -178,7 +144,7 @@ local updateVoteSummaryInfo = function(number, comment_id, choices, login, choic
     commentBody = commentBody .. joinTemplate(voteSummaryJson) .. joinJson(voteSummaryJson)
     updateIssueComment(comment_id, commentBody)
   else
-    local vsj = mystring2table(voteSummaryJson)
+    local vsj = string2table(voteSummaryJson)
     if updateVote(vsj, login, choice) then
       commentBody = string.gsub(commentBody, VoteSummaryInfoRegExp, joinTemplate(vsj))
       commentBody = string.gsub(commentBody, VoteSummaryJsonRegExp, joinJson(vsj))

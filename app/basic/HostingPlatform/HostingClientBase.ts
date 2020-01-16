@@ -125,7 +125,7 @@ export abstract class HostingClientBase<TConfig extends HostingConfigBase, TRawC
   public abstract async updateIssue(number: number, update: { title?: string, body?: string, state?: 'open' | 'closed' }): Promise<void>;
 
   public abstract async updatePull(number: number, update: { title?: string, body?: string, state?: 'open' | 'closed' }): Promise<void>;
-  
+
   public abstract async updateIssueComment(comment_id: number, body: string): Promise<void>;
 
   public abstract async addLabels(number: number, labels: string[]): Promise<void>;
