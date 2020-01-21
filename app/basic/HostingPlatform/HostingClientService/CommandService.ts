@@ -86,7 +86,7 @@ export class CommandService<TConfig extends HostingConfigBase, TRawClient>
             installationId: e.installationId,
             fullName: e.fullName,
             login: (e.comment as any).login,
-            from: 'comment',
+            from: issue ? 'comment' : 'pull_comment',
             number: e.issueNumber,
             issue: undefined,
             comment: e.comment,

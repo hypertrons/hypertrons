@@ -243,6 +243,18 @@ export class LuaService<TConfig extends HostingConfigBase, TRawClient> extends C
   }
 
   @luaMethod()
+  protected lua_updateIssue(num: number, update: {title?: string, body?: string, state?: 'open' | 'closed'}): void {
+    this.logger.info('Gonna update issue number=', num);
+    this.client.updateIssue(num, update);
+  }
+
+  @luaMethod()
+  protected lua_updatePull(num: number, update: {title?: string, body?: string, state?: 'open' | 'closed'}): void {
+    this.logger.info('Gonna update pull request number=', num);
+    this.client.updatePull(num, update);
+  }
+
+  @luaMethod()
   protected lua_runCI(configName: string, pullNumber: number): void {
     this.logger.info(
       'Gonna run CI from lua, ',

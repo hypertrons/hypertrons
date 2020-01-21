@@ -153,6 +153,17 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
     });
   }
 
+  public async updatePull(number: number, update: { title?: string;
+                                                    body?: string;
+                                                    state?: 'open' | 'closed'
+                                                  }): Promise<void> {
+    await this.rawClient.issues.update({
+      ...this.repoName,
+      issue_number: number,
+      ...update,
+    });
+  }
+
   public async addIssueComment(number: number, body: string): Promise<void> {
     await this.rawClient.issues.createComment({
       ...this.repoName,

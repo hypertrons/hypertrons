@@ -48,7 +48,7 @@
         "name": "committer",
         "description": "Committer of the project",
         "users": [ "frank-zsy", "WuShaoling", "GoodMeowing", "heming6666", "liwen-tj" ],
-        "commands": [ "/difficulty", "/rerun" ]
+        "commands": [ "/difficulty", "/rerun", "/complete-checklist" ]
       },
       {
         "name": "replier",
@@ -110,6 +110,9 @@
     "version": 1
   },
   "self_assign": {
+    "version": 1
+  },
+  "complete_checklist": {
     "version": 1
   }
 }
