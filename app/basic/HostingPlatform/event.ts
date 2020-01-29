@@ -14,7 +14,7 @@
 
 import { RepoEventBase } from '../../plugin/event-manager/events';
 import { RawDataStatus, RawData } from './HostingClientService/ConfigService';
-export type HostingPlatformTypes = 'github' | 'gitlab';
+export type HostingPlatformTypes = 'github' | 'gitlab' | 'gitee';
 
 // Hosting platform events
 export class HostingPlatformEventBase {

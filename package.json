@@ -63,6 +63,7 @@
     "@types/lodash": "^4.14.149",
     "@types/mocha": "^2.2.40",
     "@types/node": "^12.12.14",
+    "@types/node-fetch": "^2.5.4",
     "@types/node-schedule": "^1.2.4",
     "@types/supertest": "^2.0.0",
     "autod": "^3.0.1",
