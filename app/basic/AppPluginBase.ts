@@ -18,7 +18,7 @@ import assert from 'assert';
 import { GloablEvents, BotLogger, loggerWrapper } from './Utils';
 
 /**
- * Oss mentor bot app plugin base class
+ * Hypertrons app plugin base class
  * Provide basic functions:
  *   1. LoadToApp static function
  *   2. app hooks on start

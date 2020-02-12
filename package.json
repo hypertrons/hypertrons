@@ -1,15 +1,15 @@
 {
-  "name": "oss-mentor-bot",
+  "name": "hypertrons",
   "version": "1.0.0",
-  "description": "Mentor robot for open source project",
+  "description": "Open source robot platform",
   "private": true,
   "egg": {
     "typescript": true,
     "declarations": true
   },
   "scripts": {
-    "start": "tsc && egg-scripts start --daemon --title=egg-server-oss-mentor-bot",
-    "stop": "egg-scripts stop --title=egg-server-oss-mentor-bot",
+    "start": "tsc && egg-scripts start --daemon --title=egg-server-hypertrons",
+    "stop": "egg-scripts stop --title=egg-server-hypertrons",
     "dev": "egg-bin dev",
     "debug": "egg-bin debug",
     "test-local": "egg-bin test",

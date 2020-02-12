@@ -1,6 +1,6 @@
 {
-  "name": "mentor-bot-ci-manager",
-  "description": "CI plugin for mentor bot",
+  "name": "hypertrons-ci-manager",
+  "description": "CI plugin for hypertrons",
   "eggPlugin": {
     "name": "ciManager"
   }

@@ -2,7 +2,7 @@
 
 > Empower open source with open source
 
-- Open source mentor robot
-- GitHub & GitLab supported
+- Open source robot platform
+- GitHub & GitLab & Gitee supported
 - Highly configurable
 - Pluggable components

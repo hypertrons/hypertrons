@@ -1,6 +1,6 @@
 {
-  "name": "mentor-bot-scheduler",
-  "description": "Scheduler manager for mentor bot",
+  "name": "hypertrons-scheduler",
+  "description": "Scheduler manager for hypertrons",
   "eggPlugin": {
     "name": "sched"
   }

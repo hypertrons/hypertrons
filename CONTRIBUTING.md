@@ -1,6 +1,6 @@
-# Contributing to oss-mentor-bot
+# Contributing to hypertrons
 
-It is warmly welcomed if you have interest to hack on oss-mentor-bot. First, we encourage this kind of willing very much. And here is a list of contributing guide for you.
+It is warmly welcomed if you have interest to hack on hypertrons. First, we encourage this kind of willing very much. And here is a list of contributing guide for you.
 
 ## Topics
 
@@ -9,9 +9,9 @@ It is warmly welcomed if you have interest to hack on oss-mentor-bot. First, we 
 
 ## Reporting general issues
 
-To be honest, we regard every user of oss-mentor-bot as a very kind contributor. After experiencing oss-mentor-bot, you may have some feedback for the project. Then feel free to open an issue via [NEW ISSUE]('').
+To be honest, we regard every user of hypertrons as a very kind contributor. After experiencing hypertrons, you may have some feedback for the project. Then feel free to open an issue via [NEW ISSUE]('').
 
-Since we collaborate project oss-mentor-bot in a distributed way, we appreciate **WELL-WRITTEN**, **DETAILED**, **EXPLICIT** issue reports. To make the communication more efficient, we wish everyone could search if your issue is an existing one in the searching list. If you find it existing, please add your details in comments under the existing issue instead of opening a brand new one.
+Since we collaborate project hypertrons in a distributed way, we appreciate **WELL-WRITTEN**, **DETAILED**, **EXPLICIT** issue reports. To make the communication more efficient, we wish everyone could search if your issue is an existing one in the searching list. If you find it existing, please add your details in comments under the existing issue instead of opening a brand new one.
 
 To make the issue details as standard as possible, we setup an ISSUE TEMPLATE for issue reporters. Please **BE SURE** to follow the instructions to fill fields in template.
 
@@ -33,7 +33,7 @@ Also we must remind that when filling a new issue, please remember to remove the
 
 > WE ARE LOOKING FORWARD TO ANY PR FROM YOU.
 
-Since you are ready to improve oss-mentor-bot with a PR, we suggest you could take a look at the PR rules here.
+Since you are ready to improve hypertrons with a PR, we suggest you could take a look at the PR rules here.
 
 * [Code Style Rule](#code-style-rule)
 
@@ -46,7 +46,7 @@ Basiclly you need to pass TSLint checking and add apache license header.
 
 #### TSLint Checking
 
-Before committing your code, you should first run `npm run lint` to check your code style. In oss-mento-bot, we use TSLint, which is an extensible static analysis tool that checks TypeScript code for readability, maintainability, and functionality errors. It is widely supported across modern editors & build systems and can be customized with your own lint rules, configurations, and formatters.
+Before committing your code, you should first run `npm run lint` to check your code style. In hypertrons, we use TSLint, which is an extensible static analysis tool that checks TypeScript code for readability, maintainability, and functionality errors. It is widely supported across modern editors & build systems and can be customized with your own lint rules, configurations, and formatters.
 
 If you use VSCode as your IDE, you may do the following steps to lint your code automatically.
 * install plugin `TSLint`
@@ -85,7 +85,7 @@ If you use VSCode as your IDE, you may do the following steps to add Apache Lice
 ``` json
 {
     "licenser.author": "Xlab",
-    "licenser.projectName": "oss-mentor-bot",
+    "licenser.projectName": "hypertrons",
     "licenser.useSingleLineStyle": true,
     "licenser.disableAutoHeaderInsertion": false,
     "licenser.license":"AL2"

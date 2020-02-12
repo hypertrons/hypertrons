@@ -1,6 +1,6 @@
 {
-  "name": "mentor-bot-im-manager",
-  "description": "IM plugin for mentor bot",
+  "name": "hypertrons-im-manager",
+  "description": "IM plugin for hypertrons",
   "eggPlugin": {
     "name": "imManager"
   }

@@ -1,6 +1,6 @@
 {
-  "name": "mentor-bot-github-manager",
-  "description": "GitHub manager for mentor bot",
+  "name": "hypertrons-github-manager",
+  "description": "GitHub manager for hypertrons",
   "eggPlugin": {
     "name": "github"
   }

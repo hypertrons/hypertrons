@@ -1,6 +1,6 @@
 {
-  "name": "mentor-bot-installation",
-  "description": "Installation manager for mentor bot",
+  "name": "hypertrons-installation",
+  "description": "Installation manager for hypertrons",
   "eggPlugin": {
     "name": "installation"
   }
