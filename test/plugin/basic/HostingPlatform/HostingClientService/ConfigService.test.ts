@@ -1,11 +1,11 @@
 // Copyright 2019 Xlab
-
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-
+//
 //     http://www.apache.org/licenses/LICENSE-2.0
-
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -206,10 +206,6 @@ describe('ConfigService', () => {
     });
 
     it('should update all', async () => {
-      status = {
-        config: { file: 'clear', mysql: 'clear', remote: 'clear' },
-        luaScript: { remote: 'clear' },
-      };
       await client.eventService.consume('HostingClientConfigInitedEvent', 'all', {
         rawData: {
           config: { remote: { foo1: 'bar1' }, file: { foo2: 'bar2' }, mysql: undefined },
@@ -218,7 +214,7 @@ describe('ConfigService', () => {
         status: undefined,
       } as any);
       deepEqual((client.configService as any).rawData, {
-        config: { file: { foo2: 'bar2', foo1: 'bar1' }, mysql: {}, remote: { foo1: 'bar1' } },
+        config: { remote: { foo1: 'bar1' }, file: { foo2: 'bar2' }, mysql: {}, },
         luaScript: { remote: { foo3: 'bar3' } },
       });
       deepEqual(status, {
@@ -226,10 +222,6 @@ describe('ConfigService', () => {
         luaScript: { remote: 'clear' },
       });
 
-      status = {
-        config: { file: 'clear', mysql: 'clear', remote: 'clear' },
-        luaScript: { remote: 'clear' },
-      };
       await client.eventService.consume('HostingClientConfigInitedEvent', 'all', {
         rawData: {
           config: {},

@@ -18,11 +18,7 @@ pipeline {
         }
         stage('Test') {
             steps {
-                sh 'npm run lint'
-                sh 'npm run cov'
-                sh 'npm run tsc'
-                sh 'npm run md-lint'
-                sh 'npm run license-check --blocking=true'
+                sh 'npm run test'
             }
         }
         stage('Deploy') {

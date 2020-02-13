@@ -13,17 +13,15 @@
     "dev": "egg-bin dev",
     "debug": "egg-bin debug",
     "test-local": "egg-bin test",
-    "test": "npm run lint -- --fix && npm run test-local",
+    "test": "npm run lint -- --fix && npm run cov && npm run tsc && npm run md-lint && npm run license-check",
     "cov": "egg-bin cov",
     "tsc": "ets && tsc -p .",
-    "ci": "npm run lint && npm run cov && npm run tsc",
     "autod": "autod",
     "lint": "tslint --project . -c tslint.json",
     "clean": "ets clean",
     "md-lint": "node app/utils/md-lint/index.js",
     "filename-check": "node app/utils/filename-check/index.js",
-    "license-check": "node app/utils/license-check/index.js",
-    "ci-local": "npm run lint && npm run tsc && npm run cov && npm run md-lint && npm run license-check && npm run filename-check"
+    "license-check": "node app/utils/license-check/index.js --blocking=true"
   },
   "dependencies": {
     "@octokit/app": "^4.1.0",
