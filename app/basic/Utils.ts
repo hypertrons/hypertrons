@@ -37,9 +37,9 @@ export function getRepoFullName(owner: string, repo: string): string {
 }
 
 export const GloablEvents = {
-  READY: 'oss-mentor-bot-ready',
-  START: 'oss-mentor-bot-start',
-  CLOSE: 'oss-mentor-bot-close',
+  READY: 'hypertrons-ready',
+  START: 'hypertrons-start',
+  CLOSE: 'hypertrons-close',
 };
 
 export class AutoCreateMap<K, V> extends Map<K, V> {

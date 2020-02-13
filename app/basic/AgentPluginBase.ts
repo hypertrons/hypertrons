@@ -17,7 +17,7 @@ import assert from 'assert';
 import { GloablEvents, BotLogger, loggerWrapper } from './Utils';
 
 /**
- * Oss mentor bot agent plugin base class
+ * Hypertrons agent plugin base class
  * Provide basic functions:
  *   1. LoadToAgent static function
  *   2. agent hooks on start

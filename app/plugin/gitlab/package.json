@@ -1,6 +1,6 @@
 {
-  "name": "mentor-bot-gitlab-manager",
-  "description": "GitLab manager for mentor bot",
+  "name": "hypertrons-gitlab-manager",
+  "description": "GitLab manager for hypertrons",
   "eggPlugin": {
     "name": "gitlab"
   }

@@ -1,6 +1,6 @@
 {
-  "name": "mentor-bot-translate-plugin",
-  "description": "translate plugin for mentor bot",
+  "name": "hypertrons-translate-plugin",
+  "description": "translate plugin for hypertrons",
   "eggPlugin": {
     "name": "translate"
   }
