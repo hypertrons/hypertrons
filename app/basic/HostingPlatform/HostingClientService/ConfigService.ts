@@ -154,7 +154,7 @@ export class ConfigService<TConfig extends HostingConfigBase, TRawClient>
   }
 
   private async mergeConfig() {
-    const mergeConfig = customizerMerge({}, ...Object.values(this.rawData.config).map(v => v));
+    const mergeConfig = customizerMerge(...Object.values(this.rawData.config).map(v => v));
     const defaultConfig = await this.client.getHostingBase().compService.getDefaultConfig(mergeConfig);
     this.config = customizerMergeWithType(defaultConfig, mergeConfig);
   }

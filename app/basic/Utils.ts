@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { mergeWith, isArray } from 'lodash';
+import { mergeWith, isArray, cloneDeep } from 'lodash';
 import waitFor from 'p-wait-for';
 import { EggLogger } from 'egg-logger';
 import { pope } from 'pope';
@@ -63,46 +63,46 @@ export class AutoCreateMap<K, V> extends Map<K, V> {
 
 export function customizerMerge(...objs: any[]): any {
   if (!objs || objs.length === 0) return {};
+  const res = cloneDeep(objs[0]);
   try {
     for (let i = 1; i < objs.length; i++) {
-      mergeWith(objs[0], objs[i], (objValue: any, srcValue: any, _: string) => {
+      mergeWith(res, objs[i], (objValue: any, srcValue: any, _: string) => {
         if (typeof objValue !== typeof srcValue) return srcValue !== undefined ? srcValue : objValue;
         if (isArray(srcValue)) {
           if (srcValue[0] && srcValue[0].__merge__ === true) {
-            (srcValue as any[]).shift();
-            return objValue.concat(srcValue.filter(v => !objValue.includes(v)));
+            return objValue.concat(srcValue.slice(1).filter(v => !objValue.includes(v)));
           }
           return srcValue;
         }
       });
     }
-    return objs[0];
+    return res;
   } catch (err) {
-    return objs[0];
+    return res;
   }
 }
 
 export function customizerMergeWithType(...objs: any[]): any {
   if (!objs || objs.length === 0) return {};
+  const res = cloneDeep(objs[0]);
   try {
     for (let i = 1; i < objs.length; i++) {
-      mergeWith(objs[0], objs[i], (objValue: any, srcValue: any, _: string) => {
+      mergeWith(res, objs[i], (objValue: any, srcValue: any, _: string) => {
         if (typeof objValue !== typeof srcValue) {
           return objValue ? objValue : srcValue;
         }
         if (isArray(srcValue)) {
           if (srcValue[0] && srcValue[0].__merge__ === true) {
-            (srcValue as any[]).shift();
-            return objValue.concat(srcValue.filter(v => !objValue.includes(v)));
+            return objValue.concat(srcValue.slice(1).filter(v => !objValue.includes(v)));
           } else {
             return srcValue;
           }
         }
       });
     }
-    return objs[0];
+    return res;
   } catch (err) {
-    return objs[0];
+    return res;
   }
 }
 
