@@ -91,7 +91,7 @@ describe('ComponentService', () => {
 
   describe('getLatestConfigStructure()', () => {
     it('right case', async () => {
-      componentService.setComponents({ foo: 'bar' });
+      (componentService as any).configStructure = { foo: 'bar' };
       deepEqual({ foo: 'bar' }, componentService.getLatestConfigStructure());
     });
   });
@@ -101,6 +101,9 @@ describe('ComponentService', () => {
       componentService.setComponents({
         comp: { 1: { foo: 'bar' } },
       });
+      (componentService as any).configStructure = {
+        comp: { 1: { foo: 'bar' } },
+      };
       deepEqual({ foo: 'bar' }, componentService.getConfigStructureByVersion('comp', 1));
     });
 
@@ -146,14 +149,24 @@ describe('ComponentService', () => {
 
     it('right case', async () => {
       const dir = path.join(app.baseDir, 'test', 'plugin', 'basic', 'HostingPlatform', 'components', 'auto_label');
-      await (componentService as any).loadComponent(dir, 'auto_label');
+      const sourceConfig = {
+        configModule: 'config',
+        luaModule: 'index.lua',
+        versionPath: 'version.json',
+      };
+      await (componentService as any).loadComponent(dir, 'auto_label', sourceConfig);
       const comps = componentService.getComponents().auto_label;
       assert(comps[1].config && comps[1].name && comps[1].version && comps[1].configStructure && comps[1].luaScript);
     });
 
     it('right case', async () => {
       const dir = path.join(app.baseDir, 'test', 'plugin', 'basic', 'HostingPlatform', 'components', 'command');
-      await (componentService as any).loadComponent(dir, 'command');
+      const sourceConfig = {
+        configModule: 'config',
+        luaModule: 'index.lua',
+        versionPath: 'version.json',
+      };
+      await (componentService as any).loadComponent(dir, 'command', sourceConfig);
       const comps = componentService.getComponents().command;
       assert(comps[1].config && comps[1].name && comps[1].version && comps[1].configStructure);
     });

@@ -109,12 +109,21 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
     });
   }
 
-  public async getFileContent(path: string): Promise<string | undefined> {
+  public async getFileContent(path: string, ref?: string): Promise<string | undefined> {
     try {
-      const res = await this.rawClient.repos.getContents({
-        ...this.repoName,
-        path,
-      });
+      let res;
+      if (ref) {
+        res = await this.rawClient.repos.getContents({
+          ...this.repoName,
+          path,
+          ref,
+        });
+      } else {
+        res = await this.rawClient.repos.getContents({
+          ...this.repoName,
+          path,
+        });
+      }
       const content = (res.data as any).content;
       return Buffer.from(content, 'base64').toString('ascii');
     } catch (e) {
@@ -230,6 +239,17 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
 
   public getData(): RepoDataService<GitHubConfig, Octokit> {
     return this.repoDataService;
+  }
+
+  public async getCommits(path: string): Promise<string[]> {
+    const res = await this.rawClient.repos.listCommits({
+      ...this.repoName,
+      path,
+      per_page: 100,
+    });
+    return res.data.map(r => {
+      return r.sha;
+    });
   }
 
 }

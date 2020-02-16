@@ -51,17 +51,30 @@
                   "rootPath": "./repo_configs/"
                 }
               }
+            },
+            "component": {
+              "file": {
+                "basePath": "app/component",
+                "configModule": "config",
+                "luaModule": "index.lua",
+                "versionPath": "version.json"
+              },
+              "remote": [
+                {
+                  "type": "github",
+                  "url": "https://github.com/owner/repo",
+                  "token": "token",
+                  "basePath": "app/component",
+                  "configModule": "config",
+                  "luaModule": "index.lua",
+                  "versionPath": "version.json"
+                }
+              ]
             }
           }
         }
       ]
     }
-  },
-  "component": {
-    "client": {
-      "basePath": "app/component",
-      "luaEntry": "index.lua",
-      "configModule": "config"
-    }
   }
+
 }
