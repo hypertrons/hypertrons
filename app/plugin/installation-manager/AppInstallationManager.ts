@@ -49,6 +49,8 @@ export class AppInstallationManager extends AppPluginBase<Config> {
           return this.app.github.getClient(installationId, name);
         case 'gitlab':
           return this.app.gitlab.getClient(installationId, name);
+        case 'gitee':
+          return this.app.gitee.getClient(installationId, name);
         default:
           break;
       }
@@ -84,6 +86,9 @@ export class AppInstallationManager extends AppPluginBase<Config> {
             break;
           case 'gitlab':
             client = this.app.gitlab.getClient(installationId, fullName);
+            break;
+          case 'gitee':
+            client = this.app.gitee.getClient(installationId, fullName);
             break;
           default:
            break;

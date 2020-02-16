@@ -12,10 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export type InstallationType = 'github' | 'gitlab' | 'gitee' | undefined;
+import { Issues } from './issues';
+import { Pulls } from './pulls';
+import { Repos } from './repos';
+import { Webhooks } from './webhooks';
 
-export class InstallationInitEvent {
-  installationId: number;
-  type: InstallationType;
-  config: any;
+export class GiteeRawClient {
+
+  token: string;
+  webhooks: Webhooks;
+  repos: Repos;
+  issues: Issues;
+  pulls: Pulls;
+
+  constructor(token: string) {
+    this.token = token;
+    this.webhooks = new Webhooks(token);
+    this.repos = new Repos(token);
+    this.issues = new Issues(token);
+    this.pulls = new Pulls(token);
+  }
+
 }

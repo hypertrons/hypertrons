@@ -41,6 +41,11 @@ const plugin: EggPlugin = {
     path: join(__dirname, '../app/plugin/gitlab'),
   },
 
+  gitee: {
+    enable: true,
+    path: join(__dirname, '../app/plugin/gitee'),
+  },
+
   ciManager: {
     enable: true,
     path: join(__dirname, '../app/plugin/ci-manager'),
