@@ -1,4 +1,4 @@
-// Copyright 2019 Xlab
+// Copyright 2020 Xlab
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,29 +14,45 @@
 
 import defaultConfig from './config';
 import * as gutil from 'gulp-util';
-import * as gulp from 'gulp';
-// tslint:disable-next-line: no-var-requires
-const license = require('gulp-license-check');
+import { readFileSync } from 'fs';
 
-let blocking = false;
-let logInfo = false;
-let logError = true;
+let logInfo = true;
 
 function initParam() {
   const argv = require('yargs').argv;
-  blocking = (argv.blocking === 'true' ? true : false);
-  logInfo = (argv.logInfo === 'true' ? true : false);
-  logError = (argv.logError === 'false' ? false : true);
+  logInfo = (argv.logInfo === 'false' ? false : true);
 }
 
-function doCheck(files: string[], licenseHeaderPath: string) {
+function doCheck(files: string[], licenseHeaderPaths: string[]) {
+
+  // load headers
+  const licenseHeaders: string[] = [];
+  try {
+    // tslint:disable-next-line: prefer-for-of
+    for (let i = 0; i < licenseHeaderPaths.length; i++) {
+      licenseHeaders.push(readFileSync(licenseHeaderPaths[i]).toString());
+    }
+  } catch (e) {
+    gutil.log('license-check', gutil.colors.red(`load license header from ${licenseHeaderPaths} error, ${e}`));
+    process.exit(-1);
+  }
+
   files.forEach(filePath => {
-    gulp.src(filePath).pipe(license({
-      path: licenseHeaderPath,
-      blocking,
-      logInfo,
-      logError,
-    }));
+    const fileContent = readFileSync(filePath).toString();
+    let find = false;
+    // tslint:disable-next-line: prefer-for-of
+    for (let i = 0; i < licenseHeaders.length; i++) {
+      if (fileContent.indexOf(licenseHeaders[i]) === 0) {
+        find = true;
+        break;
+      }
+    }
+    if (!find) {
+      process.exitCode = -1;
+      gutil.log('license-check', gutil.colors.red(`${filePath} doesn't contain the license header`));
+    } else if (logInfo) {
+      gutil.log('license-check', gutil.colors.green(`${filePath} ok`));
+    }
   });
 }
 
