@@ -12,10 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export type InstallationType = 'github' | 'gitlab' | 'gitee' | undefined;
-
-export class InstallationInitEvent {
-  installationId: number;
-  type: InstallationType;
-  config: any;
-}
+export default {
+  gitee: {
+    client: {},
+  },
+};

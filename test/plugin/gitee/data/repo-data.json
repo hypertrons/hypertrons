@@ -1,0 +1,50 @@
+{
+  "id": 0,
+  "owner": "goodmeowing",
+  "ownerInfo": {
+    "login": "rawRepoData.owner.login",
+    "__typename": "rawRepoData.owner.type",
+    "name": "rawRepoData.owner.name",
+    "bio": "",
+    "description": "",
+    "createdAt": null,
+    "company": "",
+    "location": "",
+    "websiteUrl": null,
+    "repositories": {
+      "totalCount": 0
+    },
+    "membersWithRole": {
+      "totalCount": 0
+    }
+  },
+  "name": "push_test",
+  "license": "rawRepoData.license",
+  "codeOfConduct": null,
+  "createdAt": "1970-01-01T00:00:00.000Z",
+  "updatedAt": "1970-01-01T00:00:00.000Z",
+  "pushedAt": "1970-01-01T00:00:00.000Z",
+  "isFork": false,
+  "description": "rawRepoData.description",
+  "language": "rawRepoData.language",
+  "starCount": 0,
+  "stars": [],
+  "watchCount": 0,
+  "forkCount": 0,
+  "directForkCount": 0,
+  "forks": [],
+  "branchCount": 1,
+  "defaultBranchName": "master",
+  "defaultBranchCommitCount": 1,
+  "releaseCount": 0,
+  "issues": [
+    {
+      "id": 1,
+      "author": "goodmeowing",
+      "number": 734957487868,
+      "comments": []
+    }
+  ],
+  "pulls": [],
+  "contributors": []
+}

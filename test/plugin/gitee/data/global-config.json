@@ -1,0 +1,63 @@
+{
+  "event": {
+    "client": {}
+  },
+  "sched": {
+    "client": {}
+  },
+  "configManager": {
+    "client": {}
+  },
+  "installation": {
+    "client": {
+      "configs": [
+        {
+          "type": "gitee",
+          "config": {
+            "name": "gitee",
+            "host": "",
+            "primaryToken": "",
+            "webhook": {
+              "host": "",
+              "path": "/",
+              "secret": ""
+            },
+            "config": {
+              "updateInterval": "0 */1 * * * *",
+              "remote": {
+                "filePath": ".github/hypertrons.json"
+              },
+              "private": {
+                "file": {
+                  "rootPath": "./test/plugin/gitee/data/repo-configs"
+                }
+              }
+            },
+            "component": {
+              "file": {
+                "basePath": "app/component",
+                "configModule": "config",
+                "luaModule": "index.lua",
+                "versionPath": "version.json"
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "component": {
+    "file": {
+      "basePath": "app/component",
+      "configModule": "config",
+      "luaModule": "index.lua",
+      "versionPath": "version.json"
+    }
+  },
+  "githubClient": {
+    "client": {}
+  },
+  "githubWebhook": {
+    "client": {}
+  }
+}

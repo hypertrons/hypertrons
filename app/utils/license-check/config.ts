@@ -25,7 +25,7 @@ export interface Config {
         cwd?: string;
       };
     };
-    licenseHeaderPath: string,
+    licenseHeaderPath: string[],
   }>;
 }
 
@@ -45,7 +45,10 @@ const defalutConfig: Config = {
           ignore: [],
         },
       },
-      licenseHeaderPath: 'app/utils/license-check/license-ts.header',
+      licenseHeaderPath: [
+        'app/utils/license-check/license-ts-2019.header',
+        'app/utils/license-check/license-ts-2020.header',
+      ],
     },
     {
       src: {
@@ -58,7 +61,10 @@ const defalutConfig: Config = {
           ignore: [],
         },
       },
-      licenseHeaderPath: 'app/utils/license-check/license-lua.header',
+      licenseHeaderPath: [
+        'app/utils/license-check/license-lua-2019.header',
+        'app/utils/license-check/license-lua-2020.header',
+      ],
     },
   ],
 };
