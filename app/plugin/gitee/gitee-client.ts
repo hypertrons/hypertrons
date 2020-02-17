@@ -176,6 +176,10 @@ export class GiteeClient extends HostingClientBase<GiteeConfig, GiteeRawClient> 
     });
   }
 
+  public async updateIssueComment(_comment_id: number, _body: string): Promise<void> {
+    return;
+  }
+
   public async addIssue(title: string, body: string, labels?: string[] | undefined): Promise<void> {
     // API doc: https://gitee.com/api/v5/swagger#/postV5ReposOwnerIssues
     await this.rawClient.issues.create({
@@ -268,6 +272,10 @@ export class GiteeClient extends HostingClientBase<GiteeConfig, GiteeRawClient> 
         ...label,
       });
     }));
+  }
+
+  public async removeLabel(_number: number, _label: string): Promise<void> {
+    return;
   }
 
   public async createLabels(labels: Array<{ name: string, description: string, color: string }>): Promise<void> {
