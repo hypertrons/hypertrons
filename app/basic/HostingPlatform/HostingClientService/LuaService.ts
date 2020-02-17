@@ -27,9 +27,9 @@ import { ClientServiceBase } from './ClientServiceBase';
 import { HostingClientBase } from '../HostingClientBase';
 import LabelSetupConfig from '../../../component/label_setup/config';
 import WeeklyReport from '../../helper/weekly-report/weekly-report';
+import { IssueMetaDataFormatRegExp, IssueMetaDataBegin, IssueMetaDataEnd, renderString } from '../../Utils';
 
 export class LuaService<TConfig extends HostingConfigBase, TRawClient> extends ClientServiceBase<TConfig, TRawClient> {
-
   private luaSubscribeEvents: Map<any, any[]>;
   private luaVm: LuaVm | null;
   private luaInjectMethods: Map<string, any>;
@@ -150,6 +150,7 @@ export class LuaService<TConfig extends HostingConfigBase, TRawClient> extends C
 
   @luaMethod()
   protected lua_on(eventType: string, cb: (e: any) => void) {
+    this.logger.info('call lua_on, eventType =', eventType);
     const eventClass = luaEvents.get(eventType);
     if (!eventClass) return; // only registered event can be used
     const func = async e => {
@@ -175,12 +176,160 @@ export class LuaService<TConfig extends HostingConfigBase, TRawClient> extends C
   }
 
   @luaMethod()
+  protected lua_getIssuesNumber(): number[] {
+    try {
+      const issues = this.client.getRepoData().issues;
+      return issues.map(issue => issue.number);
+    } catch (e) {
+      this.logger.warn(e.message);
+      return [];
+    }
+  }
+
+  @luaMethod()
   protected lua_getRoles(role: string): string[] {
     const roleConfig: RoleConfig | undefined = this.client.getCompConfig<RoleConfig>('role');
     if (!roleConfig || !roleConfig.roles) return [];
     const roleDetail = roleConfig.roles.find(r => r.name === role);
     if (!roleDetail || !roleDetail.users) return [];
     return roleDetail.users;
+  }
+
+  @luaMethod()
+  protected lua_checkRoleName(roleName: string): boolean {
+    const roleConfig: RoleConfig | undefined = this.client.getCompConfig<RoleConfig>('role');
+    if (!roleConfig || !roleConfig.roles) return false;
+    const roleDetail = roleConfig.roles.find(r => r.name === roleName);
+    if (!roleDetail) return false;
+    else return true;
+  }
+
+  @luaMethod()
+  protected lua_getIssueMetaData(issueNumber: number): object {
+    try {
+      const issues = this.client.getRepoData().issues;
+      const index = issues.findIndex(v => v.number === issueNumber);
+      if (index < 0) {
+        this.logger.info('In lua_getIssueMetaData, can not find issueNumber =', issueNumber);
+        return {};
+      }
+      const data = IssueMetaDataFormatRegExp.exec(issues[index].body);
+      if (data) {
+        return JSON.parse(data[1]);
+      }
+    } catch (e) {
+      this.logger.warn(e.message);
+    }
+    return {};
+  }
+
+  @luaMethod()
+  protected lua_updateIssueMetaData(issueNumber: number, data: object): void {
+    this.logger.info('call lua_updateIssueMetaData, issueNumber =', issueNumber);
+    const issues = this.client.getRepoData().issues;
+    const index = issues.findIndex(v => v.number === issueNumber);
+    if (index < 0) {
+      this.logger.info('In lua_updateIssueMetaData, cannot find this issue id =', issueNumber, index, issues.length);
+      return;
+    }
+    const matchData = IssueMetaDataFormatRegExp.exec(issues[index].body);
+    if (matchData) {
+      try {
+        // get data and then update
+        let metaDataJson = JSON.parse(matchData[1]);
+        metaDataJson = {
+          ...data,
+        };
+        const metaDataNew = JSON.stringify(metaDataJson);
+        issues[index].body = issues[index].body.replace(
+          IssueMetaDataFormatRegExp,
+          IssueMetaDataBegin + metaDataNew + IssueMetaDataEnd,
+        );
+      } catch (e) {
+        this.logger.warn(e.message);
+      }
+    } else {
+      issues[index].body = IssueMetaDataBegin + JSON.stringify(data) + IssueMetaDataEnd + issues[index].body;
+    }
+
+    // send updated issue body.
+    this.client.updateIssue(issueNumber, { body: issues[index].body });
+    return;
+  }
+
+  @luaMethod()
+  protected lua_updateCommentAnnotation(type: string, issueNumber: number, comment_id: number, message: string): boolean {
+    this.logger.info('call lua_updateCommentAnnotation ', 'type =', type);
+    const issues = this.client.getRepoData().issues;
+    const index = issues.findIndex(v => v.number === issueNumber);
+    if (index < 0) {
+      this.logger.info('In lua_updateCommentAnnotation, cannot find this issue id =', issueNumber, index, issues.length);
+      return false;
+    }
+    const cid = issues[index].comments.findIndex(c => c.id === comment_id);
+    if (cid < 0) {
+      this.logger.info('In lua_updateCommentAnnotation, cannot find this comment id =', comment_id, cid);
+      return false;
+    }
+
+    let commentBody = issues[index].comments[cid].body;
+    const matchError = commentBody.match(/> Error: [\w\W]*/g);
+    const matchInfo = commentBody.match(/> Info: [\w\W]*/g);
+    if (matchError || matchInfo) {
+      this.logger.info('already checked.');
+      return false;
+    }
+    let newContent = '';
+    if (type === 'info') {
+      newContent = `
+> Info: ` + message;
+    } else if (type === 'error') {
+      newContent = `
+> Error: ` + message;
+    }
+    commentBody += newContent;
+    this.client.updateIssueComment(comment_id, commentBody);
+    return true;
+  }
+
+  @luaMethod()
+  protected lua_updateIssueComment(comment_id: number, commentBody: string) {
+    this.logger.info('call lua_updateIssueComment, comment_id =', comment_id);
+    return this.client.updateIssueComment(comment_id, commentBody);
+  }
+
+  @luaMethod()
+  protected lua_getIssueComment(issueNumber: number, comment_id: number): string {
+    this.logger.info('call lua_getIssueComment, issueNumber =', issueNumber);
+    const issues = this.client.getRepoData().issues;
+    const index = issues.findIndex(v => v.number === issueNumber);
+    if (index < 0) {
+      this.logger.info('In lua_getIssueComment, can\'t find issueNumber = ', issueNumber);
+      return '';
+    }
+    const cid = issues[index].comments.findIndex(c => c.id === comment_id);
+    if (cid < 0) {
+      this.logger.info('In lua_getIssueComment, can\'t find comment_id = ', comment_id);
+      return '';
+    }
+    return issues[index].comments[cid].body;
+  }
+
+  @luaMethod()
+  protected lua_table2string(x: object): string {
+    // -- This will be removed when we add table2string function in lua.
+    return JSON.stringify(x);
+  }
+
+  @luaMethod()
+  protected lua_string2table(x: string): object {
+    // -- This will be removed when we add string2table function in lua.
+    return JSON.parse(x);
+  }
+
+  @luaMethod()
+  protected lua_rendStr(tmp: string, param: object): string {
+    return renderString(tmp, param);
   }
 
   @luaMethod()
@@ -218,8 +367,23 @@ export class LuaService<TConfig extends HostingConfigBase, TRawClient> extends C
   }
 
   @luaMethod()
+  protected lua_removeLabel(num: number, label: string): void {
+    this.client.removeLabel(num, label);
+  }
+
+  @luaMethod()
   protected lua_toNow(time: string): number {
     return new Date().getTime() - new Date(time).getTime();
+  }
+
+  @luaMethod()
+  protected lua_getNowTime(): number {
+    return new Date().getTime();
+  }
+
+  @luaMethod()
+  protected lua_toNowNumber(time: number): number {
+    return new Date().getTime() - time;
   }
 
   @luaMethod()
