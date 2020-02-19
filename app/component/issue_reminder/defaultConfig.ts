@@ -19,6 +19,7 @@ const defaultConfig: Config = {
   sched: '0 0 9 * * *',
   reminderRole: 'replier',
   message: 'This issue has not been replied for 24 hours, please pay attention to this issue: ',
+  ignore: [ 'weekly-report' ],
 };
 
 export default defaultConfig;

@@ -31,6 +31,7 @@ describe('issue_reminder component', () => {
             createdAt: 0,
             closedAt: null,
             comments: [],
+            labels: [],
           },
           // should not reply closed issue
           {
@@ -39,6 +40,7 @@ describe('issue_reminder component', () => {
             createdAt: 0,
             closedAt: 0,
             comments: [],
+            labels: [],
           },
           // should not reply commented issue
           {
@@ -51,6 +53,7 @@ describe('issue_reminder component', () => {
                 id: 1,
               },
             ],
+            labels: [],
           },
           // should not reply issue created within a day
           {
@@ -59,6 +62,7 @@ describe('issue_reminder component', () => {
             createdAt: new Date().getTime(),
             closedAt: null,
             comments: [],
+            labels: [],
           },
           // should not reply issue created by repliers
           {
@@ -67,6 +71,7 @@ describe('issue_reminder component', () => {
             createdAt: 0,
             closedAt: null,
             comments: [],
+            labels: [],
           },
           // should reply this
           {
@@ -75,6 +80,16 @@ describe('issue_reminder component', () => {
             createdAt: 0,
             closedAt: null,
             comments: [],
+            labels: [],
+          },
+          // should not reply issue that contains specific labels
+          {
+            author: 'author',
+            number: 7,
+            createdAt: 0,
+            closedAt: null,
+            comments: [],
+            labels: [ 'bug', 'weekly-report' ],
           },
         ],
       })).set('getRoles', () => [

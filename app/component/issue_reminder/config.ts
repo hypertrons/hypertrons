@@ -44,4 +44,10 @@ export default class Config {
   })
   message: string;
 
+  @configProp({
+    description: 'Ignore issues with specific labels',
+    defaultValue: defaultConfig.ignore,
+  })
+  ignore: string[];
+
 }
