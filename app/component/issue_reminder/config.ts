@@ -46,6 +46,8 @@ export default class Config {
 
   @configProp({
     description: 'Ignore issues with specific labels',
+    type: 'array',
+    arrayType: 'string',
     defaultValue: defaultConfig.ignore,
   })
   ignore: string[];
