@@ -34,6 +34,26 @@
         "name": "pull/approved",
         "description": "If a pull is approved, it will be automatically merged",
         "color": "008672"
+      },
+      {
+        "name": "kind/community",
+        "description": "Community related issue or pull",
+        "color": "99ff66",
+        "keywords": [
+          "community"
+        ]
+      },
+      {
+        "name": "kind/CICD",
+        "description": "CI/CD related issue or pull",
+        "color": "0099ff",
+        "keywords": [
+          "continuous integration",
+          "continuous delivery",
+          "[ci]",
+          "[cd]",
+          "[ci/cd]"
+        ]
       }
     ]
   },
