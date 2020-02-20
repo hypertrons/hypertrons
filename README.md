@@ -1,5 +1,7 @@
 # Hypertrons
 
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/3722/badge)](https://bestpractices.coreinfrastructure.org/projects/3722)
+
 Hypertrons is an open source robot hosting platform which supports [GitHub](https://www.github.com) and [GitLab](https://www.gitlab.com).
 
 ## Start using Hypertrons
