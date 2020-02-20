@@ -21,7 +21,7 @@
     "clean": "ets clean",
     "md-lint": "node app/utils/md-lint/index.js",
     "filename-check": "node app/utils/filename-check/index.js",
-    "license-check": "node app/utils/license-check/index.js"
+    "license-check": "node app/utils/license-check/index.js --logInfo=false"
   },
   "dependencies": {
     "@octokit/app": "^4.1.0",
