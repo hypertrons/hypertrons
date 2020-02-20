@@ -60,6 +60,8 @@
     "xml2js": "^0.4.19"
   },
   "devDependencies": {
+    "@commitlint/cli": "^8.3.5",
+    "@commitlint/config-conventional": "^8.3.4",
     "@types/lodash": "^4.14.149",
     "@types/mocha": "^2.2.40",
     "@types/node": "^12.12.14",
@@ -74,6 +76,8 @@
     "gulp": "^4.0.2",
     "gulp-license-check": "^1.2.1",
     "gulp-util": "^3.0.8",
+    "husky": "^4.2.3",
+    "lint-staged": "^10.0.7",
     "nock": "^11.7.0",
     "remark": "^11.0.2",
     "remark-lint-no-dead-urls": "^1.0.1",
