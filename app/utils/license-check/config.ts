@@ -1,4 +1,4 @@
-// Copyright 2019 Xlab
+// Copyright 2019 - present Xlab
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -46,8 +46,7 @@ const defalutConfig: Config = {
         },
       },
       licenseHeaderPath: [
-        'app/utils/license-check/license-ts-2019.header',
-        'app/utils/license-check/license-ts-2020.header',
+        'app/utils/license-check/license-ts.header',
       ],
     },
     {
@@ -62,8 +61,7 @@ const defalutConfig: Config = {
         },
       },
       licenseHeaderPath: [
-        'app/utils/license-check/license-lua-2019.header',
-        'app/utils/license-check/license-lua-2020.header',
+        'app/utils/license-check/license-lua.header',
       ],
     },
   ],

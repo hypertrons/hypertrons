@@ -64,7 +64,7 @@ If you use VSCode as your IDE, you may do the following steps to lint your code 
 
 If you add a new ts file in your modification, please make sure you add Apache License Header to all new files.
 ``` text
-// Copyright 2019 Xlab
+// Copyright 2019 - present Xlab
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
