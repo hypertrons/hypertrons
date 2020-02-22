@@ -1,0 +1,7 @@
+{
+  "hooks": {
+   "pre-commit": "lint-staged",
+   "pre-push": "npm run test-local",
+   "commit-msg": "commitlint -e $HUSKY_GIT_PARAMS --config ./commitlint.config.js"
+  }
+}
