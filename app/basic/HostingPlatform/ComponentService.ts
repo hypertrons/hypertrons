@@ -71,7 +71,7 @@ export class ComponentService {
   public async loadComponents(): Promise<any> {
     try {
       // create or update config dependency
-      const historyPath = join(this.app.baseDir, 'component-history');
+      const historyPath = join(this.app.baseDir, '.component-history');
       if (!existsSync(historyPath) || !existsSync(join(historyPath, '/config-generator')) || !existsSync(join(historyPath, '/basic'))) {
         mkdirSync(join(historyPath, '/config-generator'), { recursive: true });
         mkdirSync(join(historyPath, '/basic'), { recursive: true });
@@ -129,7 +129,7 @@ export class ComponentService {
         }
 
         // load saved local file in last step
-        const basePath = join(this.app.baseDir, 'component-history');
+        const basePath = join(this.app.baseDir, '.component-history');
         if (!existsSync(basePath)) {
           this.logger.info(`Component directory path not exists, path=${basePath}`);
           return undefined;
@@ -237,7 +237,7 @@ export class ComponentService {
   private async loadComponentFromGitHub(repo: string, path: string, name: string, remoteConfig: ComponentRemoteConfig): Promise<void> {
     try {
       // make a dir for store history component
-      const compHistoryPath = join(this.app.baseDir, 'component-history/', name);
+      const compHistoryPath = join(this.app.baseDir, '.component-history/', name);
       if (!existsSync(compHistoryPath)) {
         mkdirSync(compHistoryPath);
       }
