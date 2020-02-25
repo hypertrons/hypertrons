@@ -81,9 +81,11 @@ export class ConfigService<TConfig extends HostingConfigBase, TRawClient>
             this.rawData.luaScript[key] = e.rawData.luaScript[key];
           }
         });
-        if (needUpdateLuaScript) await this.mergeLuaScript();
       }
-      if (needUpdateConfig || needUpdateLuaScript) this.client.onConfigLoaded();
+      if (needUpdateConfig || needUpdateLuaScript) {
+        await this.mergeLuaScript();
+        this.client.onConfigLoaded();
+      }
     });
 
     this.client.eventService.subscribeOne(HostingClientSyncConfigEvent, async e => this.syncData(e.status));
