@@ -46,6 +46,7 @@ describe('GitHubApp', () => {
 
     // send created webhooks and check client
     await sendToWebhooks(app, 'installation.created', {
+      installation: { id: 1 },
       repositories: [
         {
           id: 2,
@@ -87,6 +88,7 @@ describe('GitHubApp', () => {
 
     // send created webhooks and check client
     await sendToWebhooks(app, 'installation_repositories.added', {
+      installation: { id: 1 },
       repositories_added: [
         {
           id: 2,

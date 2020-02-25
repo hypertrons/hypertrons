@@ -147,7 +147,7 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
         this.app.event.publish('all', HostingPlatformRepoAddedEvent, {
           id: this.id,
           fullName: r.full_name,
-          payload: r.id,
+          payload: e.payload.installation.id,
         });
       });
     });
@@ -156,7 +156,7 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
         this.app.event.publish('all', HostingPlatformRepoAddedEvent, {
           id: this.id,
           fullName: r.full_name,
-          payload: r.id,
+          payload: e.payload.installation.id,
         });
       });
     });
