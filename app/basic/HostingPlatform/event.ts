@@ -14,6 +14,7 @@
 
 import { RepoEventBase } from '../../plugin/event-manager/events';
 import { RawDataStatus, RawData } from './HostingClientService/ConfigService';
+import { Repo } from '../DataTypes';
 export type HostingPlatformTypes = 'github' | 'gitlab' | 'gitee';
 
 // Hosting platform events
@@ -66,5 +67,5 @@ export class HostingClientConfigInitedEvent extends RepoEventBase {
 }
 
 export class HostingClientRepoDataInitedEvent extends RepoEventBase {
-  repoData: any;
+  repoData: Repo;
 }
