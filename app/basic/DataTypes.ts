@@ -37,7 +37,7 @@ export interface Repo {
   license: string | null;
   codeOfConduct: string | null;
   createdAt: Date;
-  updatedAt: Date;
+  updatedAt: Date | null;
   pushedAt: Date | null;
   isFork: boolean;
   description: string | null;
@@ -70,7 +70,7 @@ export interface Issue {
   author: string;
   number: number;
   createdAt: Date;
-  updatedAt: Date;
+  updatedAt: Date | null;
   closedAt: Date | null;
   title: string;
   body: string;

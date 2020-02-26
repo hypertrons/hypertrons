@@ -21,7 +21,7 @@ import {
 import { HostingClientRepoDataInitedEvent } from '../event';
 import { ClientServiceBase } from './ClientServiceBase';
 import { Application } from 'egg';
-import { waitUntil } from '../../Utils';
+import { waitUntil, ParseDate } from '../../Utils';
 
 export class RepoDataService<TConfig extends HostingConfigBase, TRawClient> extends ClientServiceBase<TConfig, TRawClient> {
 
@@ -56,6 +56,7 @@ export class RepoDataService<TConfig extends HostingConfigBase, TRawClient> exte
     this.client.eventService.subscribeAll(HostingClientRepoDataInitedEvent, async e => {
       this.logger.info('Repo data inited, update local data.');
       this.repoData = e.repoData;
+      this.formatRepoData();
     });
   }
 
@@ -169,6 +170,32 @@ export class RepoDataService<TConfig extends HostingConfigBase, TRawClient> exte
         pull.comments[index] = comment;
       }
     }
+  }
+
+  private formatRepoData(): void {
+    this.repoData.ownerInfo.createdAt = ParseDate(this.repoData.ownerInfo.createdAt as any);
+
+    this.repoData.createdAt = ParseDate(this.repoData.createdAt as any) as any;
+    this.repoData.updatedAt = ParseDate(this.repoData.updatedAt as any);
+    this.repoData.pushedAt = ParseDate(this.repoData.pushedAt as any);
+
+    this.repoData.issues.forEach(issue => {
+      issue.closedAt = ParseDate(issue.closedAt as any);
+      issue.createdAt = ParseDate(issue.createdAt as any) as any;
+      issue.updatedAt = ParseDate(issue.updatedAt as any);
+
+      issue.comments.forEach(c => c.createdAt = ParseDate(c.createdAt as any) as any);
+    });
+
+    this.repoData.pulls.forEach(pull => {
+      pull.createdAt = ParseDate(pull.createdAt as any) as any;
+      pull.updatedAt = ParseDate(pull.updatedAt as any) as any;
+      pull.closedAt = ParseDate(pull.closedAt as any);
+      pull.mergedAt = ParseDate(pull.mergedAt as any);
+
+      pull.comments.forEach(c => c.createdAt = ParseDate(c.createdAt as any) as any);
+      pull.reviewComments.forEach(rc => rc.createdAt = ParseDate(rc.createdAt as any) as any);
+    });
   }
 
 }
