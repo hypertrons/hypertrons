@@ -200,7 +200,7 @@ function getMarkdownLint() {
     // http://www.cirosantilli.com/markdown-style-guide/#email-automatic-links.
     // Not checked.
 
-    [ require('remark-lint-no-dead-urls') ],
+    // [ require('remark-lint-no-dead-urls') ],
     require('remark-lint-final-newline'),
     require('remark-lint-list-item-bullet-indent'),
     require('remark-lint-no-duplicate-definitions'),
