@@ -126,7 +126,7 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
 
     // setup router
     const path = join(this.id.toString(), config.webhook.path);
-    this.logger.info(`Goona add webhook to "installation/${path}" for hosting ${this.name}`);
+    this.logger.info(`Gonna add webhook to "installation/${path}" for hosting ${this.name}`);
     this.app.installation.post(path, async (ctx: Context, next: any) => {
       // pass to webhooks
       this.webhooks.verifyAndReceive({

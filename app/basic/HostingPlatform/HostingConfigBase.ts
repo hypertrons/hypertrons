@@ -224,6 +224,13 @@ export class ComponentConfig {
     defaultValue: [],
   })
   remote?: ComponentRemoteConfig[];
+
+  @configProp({
+    description: 'Indicate load the configuration from remote git url',
+    classType: ComponentRemoteConfig,
+    defaultValue: [],
+  })
+  git?: ComponentRemoteConfig[];
 }
 
 @configClass({

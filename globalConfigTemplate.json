@@ -69,6 +69,15 @@
                   "luaModule": "index.lua",
                   "versionPath": "version.json"
                 }
+              ],
+              "git": [
+                {
+                  "url": "https://github.com/owner/repo.git",
+                  "basePath": "app/component",
+                  "configModule": "config",
+                  "luaModule": "index.lua",
+                  "versionPath": "version.json"
+                }
               ]
             }
           }
