@@ -19,7 +19,7 @@
     "autod": "autod",
     "lint": "tslint --project . -c tslint.json",
     "clean": "ets clean",
-    "md-lint": "node app/utils/md-lint/index.js",
+    "md-lint": "open-md-checker",
     "filename-check": "node app/utils/filename-check/index.js",
     "license-check": "node app/utils/license-check/index.js --logInfo=false"
   },
@@ -80,6 +80,7 @@
     "husky": "^4.2.3",
     "lint-staged": "^10.0.7",
     "nock": "^11.7.0",
+    "open-md-checker": "^1.2.3",
     "remark": "^11.0.2",
     "remark-lint-no-dead-urls": "^1.0.1",
     "remark-preset-lint-markdown-style-guide": "^2.1.3",
