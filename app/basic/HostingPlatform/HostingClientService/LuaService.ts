@@ -358,7 +358,7 @@ export class LuaService<TConfig extends HostingConfigBase, TRawClient> extends C
   @luaMethod()
   protected lua_addLabels(num: number, labels: string[]): void {
     this.logger.info(
-      'Goona add label from lua, number=',
+      'Gonna add label from lua, number=',
       num,
       ',labels=',
       labels,
