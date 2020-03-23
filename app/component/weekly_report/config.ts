@@ -116,6 +116,14 @@ export default class Config {
   generateTime: string;
 
   @configProp({
+    type: 'array',
+    arrayType: 'string',
+    description: 'Where to report',
+    defaultValue: defaultConfig.receiver,
+  })
+  receiver: string[];
+
+  @configProp({
     type: 'object',
     description: 'Weekly report templates',
     classType: WeeklyReportTemplate,

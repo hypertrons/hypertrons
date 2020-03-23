@@ -14,8 +14,8 @@
 
 import IMConfig from '../../../component/im/config';
 import { EOL } from 'os';
-import { renderString, parseRepoName, getLastWeek, BotLogger, loggerWrapper } from '../../../basic/Utils';
-import { PullRequest } from '../../../basic/DataTypes';
+import { renderString, parseRepoName, getLastWeek, BotLogger, loggerWrapper } from '../../Utils';
+import { PullRequest } from '../../DataTypes';
 import { IncomingWebhookSendArguments } from '@slack/webhook/dist/IncomingWebhook';
 import { generateSlackWeeklyReport } from './slack-helper';
 import { Application } from 'egg';
@@ -63,12 +63,7 @@ export default class WeeklyReport <TConfig extends HostingConfigBase, TRawClient
       `[client-${client.getHostingBase().getName()}-${client.getFullName()}-weekly-report]`);
   }
 
-  public async genWeeklyReportForRepo(): Promise<void> {
-    this.genIssueWeeklyReportForRepo();
-    this.genSlackWeeklyReportForRepo();
-  }
-
-  private async genIssueWeeklyReportForRepo(): Promise<void> {
+  public async genIssueWeeklyReportForRepo(): Promise<void> {
     this.logger.info(`Start to generate github/gitlab weekly report for ${this.hostingBaseName}/${this.fullName}`);
 
     this.removeOldWeeklyReports();
@@ -89,7 +84,7 @@ export default class WeeklyReport <TConfig extends HostingConfigBase, TRawClient
     this.logger.info(`Generate github/gitlab weekly report for ${this.hostingBaseName}/${this.fullName} done.`);
   }
 
-  private async genSlackWeeklyReportForRepo(): Promise<void> {
+  public async genSlackWeeklyReportForRepo(): Promise<void> {
     const imConfig = this.client.getCompConfig<IMConfig>('im');
     if (!imConfig || !imConfig.slack) return;
     this.logger.info(`start to generate weekly report to slack for ${this.hostingBaseName}/${this.fullName}`);
