@@ -28,6 +28,7 @@ import { HostingClientBase } from '../HostingClientBase';
 import LabelSetupConfig from '../../../component/label_setup/config';
 import WeeklyReport from '../../helper/weekly-report/weekly-report';
 import { IssueMetaDataFormatRegExp, IssueMetaDataBegin, IssueMetaDataEnd, renderString } from '../../Utils';
+import WeeklyReportConfig from '../../../component/weekly_report/config';
 
 export class LuaService<TConfig extends HostingConfigBase, TRawClient> extends ClientServiceBase<TConfig, TRawClient> {
   private luaSubscribeEvents: Map<any, any[]>;
@@ -553,7 +554,16 @@ export class LuaService<TConfig extends HostingConfigBase, TRawClient> extends C
   // TODO Temporary method
   @luaMethod()
   protected lua_weeklyReport() {
-    new WeeklyReport(this.client, this.app).genWeeklyReportForRepo();
+    const weeklyReportConfig = this.client.getCompConfig<WeeklyReportConfig>('weekly_report');
+    if (weeklyReportConfig && weeklyReportConfig.receiver && weeklyReportConfig.receiver.length > 0) {
+      weeklyReportConfig.receiver.forEach(r => {
+        if (r === 'slack') {
+          new WeeklyReport(this.client, this.app).genSlackWeeklyReportForRepo();
+        } else if (r === 'issue') {
+          new WeeklyReport(this.client, this.app).genIssueWeeklyReportForRepo();
+        }
+      });
+    }
   }
 
   //endregion

@@ -84,6 +84,7 @@ For more details, please refer to {{contributingLink}} .
 const defaultConfig: Config = {
   jobName: 'WeeklyReport',
   generateTime: '0 0 12 * * 1',
+  receiver: [ 'slack', 'issue' ],
   weeklyReportTemplate: templateDefaultConfig,
 };
 
