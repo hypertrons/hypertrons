@@ -1,0 +1,7 @@
+{
+  "name": "hypertrons-ph-manager",
+  "description": "Global promise handler for hypertrons",
+  "eggPlugin": {
+    "name": "phManager"
+  }
+}

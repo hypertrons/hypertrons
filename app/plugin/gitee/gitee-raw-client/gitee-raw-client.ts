@@ -16,21 +16,24 @@ import { Issues } from './issues';
 import { Pulls } from './pulls';
 import { Repos } from './repos';
 import { Webhooks } from './webhooks';
+import PromiseHandler from '../../ph-manager/promise-handler';
 
 export class GiteeRawClient {
 
   token: string;
+  promiseHandler: PromiseHandler;
   webhooks: Webhooks;
   repos: Repos;
   issues: Issues;
   pulls: Pulls;
 
-  constructor(token: string) {
+  constructor(token: string, promiseHandler: PromiseHandler = new PromiseHandler()) {
     this.token = token;
-    this.webhooks = new Webhooks(token);
-    this.repos = new Repos(token);
-    this.issues = new Issues(token);
-    this.pulls = new Pulls(token);
+    this.promiseHandler = promiseHandler;
+    this.webhooks = new Webhooks(token, promiseHandler);
+    this.repos = new Repos(token, promiseHandler);
+    this.issues = new Issues(token, promiseHandler);
+    this.pulls = new Pulls(token, promiseHandler);
   }
 
 }

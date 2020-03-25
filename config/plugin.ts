@@ -31,6 +31,11 @@ const plugin: EggPlugin = {
     path: join(__dirname, '../app/plugin/installation-manager'),
   },
 
+  phManager: {
+    enable: true,
+    path: join(__dirname, '../app/plugin/ph-manager'),
+  },
+
   github: {
     enable: true,
     path: join(__dirname, '../app/plugin/github'),

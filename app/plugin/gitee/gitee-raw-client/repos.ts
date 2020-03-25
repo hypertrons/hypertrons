@@ -14,12 +14,15 @@
 
 import fetch from 'node-fetch';
 import queryString from 'query-string';
+import PromiseHandler from '../../ph-manager/promise-handler';
 
 export class Repos {
   token: string;
+  promiseHandler: PromiseHandler;
 
-  constructor(token: string) {
+  constructor(token: string, promiseHandler: PromiseHandler = new PromiseHandler()) {
     this.token = token;
+    this.promiseHandler = promiseHandler;
   }
 
   // https://gitee.com/api/v5/swagger#/getV5ReposOwnerRepoContents(Path)
@@ -29,7 +32,7 @@ export class Repos {
     path: string,
   }) {
     // GET /v5/repos/{owner}/{repo}/contents(/{path})
-    const result = await fetch(
+    const result = await this.promiseHandler.add(async () => await fetch(
       `https://gitee.com/api/v5/repos/${param.owner}/${param.repo}/contents/${param.path}`,
       {
         method: 'GET',
@@ -37,7 +40,7 @@ export class Repos {
           Authorization: `bearer ${this.token}`,
         },
       },
-    );
+    ));
     return result.json();
   }
 
@@ -51,7 +54,7 @@ export class Repos {
       per_page: 100,
     };
     // GET /v5/user/repos
-    const result = await fetch(
+    const result = await this.promiseHandler.add(async () => await fetch(
       `https://gitee.com/api/v5/user/repos?${queryString.stringify(param)}`,
       {
         method: 'GET',
@@ -59,7 +62,7 @@ export class Repos {
           Authorization: `bearer ${this.token}`,
         },
       },
-    );
+    ));
     return result.json();
   }
 
@@ -69,7 +72,7 @@ export class Repos {
     repo: string,
   }) {
     // GET /v5/repos/{owner}/{repo}
-    const result = await fetch(
+    const result = await this.promiseHandler.add(async () => await fetch(
       `https://gitee.com/api/v5/repos/${param.owner}/${param.repo}`,
       {
         method: 'GET',
@@ -77,7 +80,7 @@ export class Repos {
           Authorization: `bearer ${this.token}`,
         },
       },
-    );
+    ));
     return result.json();
   }
 
@@ -87,7 +90,7 @@ export class Repos {
     repo: string,
   }) {
     // GET /v5/repos/{owner}/{repo}/contributors
-    const result = await fetch(
+    const result = await this.promiseHandler.add(async () => await fetch(
       `https://gitee.com/api/v5/repos/${param.owner}/${param.repo}/contributors`,
       {
         method: 'GET',
@@ -95,7 +98,7 @@ export class Repos {
           Authorization: `bearer ${this.token}`,
         },
       },
-    );
+    ));
     return result.json();
   }
 
@@ -105,7 +108,7 @@ export class Repos {
     repo: string,
   }) {
     // GET /v5/repos/{owner}/{repo}/forks
-    const result = await fetch(
+    const result = await this.promiseHandler.add(async () => await fetch(
       `https://gitee.com/api/v5/repos/${param.owner}/${param.repo}/forks`,
       {
         method: 'GET',
@@ -113,7 +116,7 @@ export class Repos {
           Authorization: `bearer ${this.token}`,
         },
       },
-    );
+    ));
     return result.json();
   }
 

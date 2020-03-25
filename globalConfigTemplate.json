@@ -1,4 +1,27 @@
 {
+  "phManager": {
+    "client": {
+      "queue": {
+        "concurrency": 50,
+        "autoStart": true,
+        "intervalCap": 600000,
+        "interval": 0,
+        "carryoverConcurrencyCount": false,
+        "timeout": 60000,
+        "throwOnTimeout": false
+      },
+      "retry": {
+        "retries": 10,
+        "factor": 2,
+        "minTimeout": 1000,
+        "maxTimeout": 60000,
+        "randomize": false,
+        "forever": false,
+        "unref": false,
+        "maxRetryTime": 600000
+      }
+    }
+  },
   "installation": {
     "client": {
       "configs": [
