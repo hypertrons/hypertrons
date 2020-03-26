@@ -30,7 +30,7 @@ export class GiteeApp extends HostingBase<GiteeConfig, GiteeClient, GiteeRawClie
 
   constructor(id: number, config: GiteeConfig, app: Application) {
     super('gitee', id, config, app);
-    this.client = new GiteeRawClient(this.config.primaryToken);
+    this.client = new GiteeRawClient(this.config.primaryToken, this.app.phManager.getPromiseHandler());
   }
 
   public async getInstalledRepos(): Promise<Array<{fullName: string, payload: any}>> {

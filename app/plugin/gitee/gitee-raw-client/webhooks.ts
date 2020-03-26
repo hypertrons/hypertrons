@@ -14,12 +14,15 @@
 
 import fetch from 'node-fetch';
 import queryString from 'query-string';
+import PromiseHandler from '../../ph-manager/promise-handler';
 
 export class Webhooks {
   token: string;
+  promiseHandler: PromiseHandler;
 
-  constructor(token: string) {
+  constructor(token: string, promiseHandler: PromiseHandler = new PromiseHandler()) {
     this.token = token;
+    this.promiseHandler = promiseHandler;
   }
 
   // https://gitee.com/api/v5/swagger#/getV5ReposOwnerRepoHooks
@@ -29,10 +32,10 @@ export class Webhooks {
     repo: string,
   }) {
     // GET /v5/repos/{owner}/{repo}/hooks
-    const result = await fetch(
+    const result = await this.promiseHandler.add(async () => await fetch(
       `https://gitee.com/api/v5/repos/${param.owner}/${param.repo}/hooks`,
       { headers: { Authorization: `bearer ${this.token}` } },
-    );
+    ));
     return await result.json();
   }
 
@@ -43,7 +46,7 @@ export class Webhooks {
     url: string,
   }) {
     // POST /v5/repos/{owner}/{repo}/hooks
-    const result = await fetch(
+    const result = await this.promiseHandler.add(async () => await fetch(
       `https://gitee.com/api/v5/repos/${param.owner}/${param.repo}/hooks`,
       {
         method: 'POST',
@@ -60,7 +63,7 @@ export class Webhooks {
           merge_requests_events: true,
         }),
       },
-    );
+    ));
     return await result.json();
   }
 
