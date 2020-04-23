@@ -75,6 +75,13 @@ export class JenkinsConfig {
     defaultValue: jenkinsDefaultConfig.repoToJobMap,
   })
   repoToJobMap: RepoJobMap[];
+
+  @configProp({
+    description: 'Jenkins request timeout',
+    type: 'number',
+    defaultValue: jenkinsDefaultConfig.timeout,
+  })
+  timeout: number;
 }
 
 /**

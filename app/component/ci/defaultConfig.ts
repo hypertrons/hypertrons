@@ -22,6 +22,7 @@ export const jenkinsDefaultConfig: JenkinsConfig = {
   user: '',
   token: '',
   repoToJobMap: [ ],
+  timeout: 30000,
 };
 
 const defaultConfig: Config = {

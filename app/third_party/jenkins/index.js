@@ -71,7 +71,7 @@ class Jenkins {
 
   async _getCrumb() {
     const url = `${this.baseUrl}/crumbIssuer/api/json`;
-    const result = await get(url);
+    const result = await get(url, this.headers);
     this.crumb = result;
     return result;
   }

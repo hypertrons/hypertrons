@@ -44,6 +44,7 @@ describe('AppCIManager', () => {
         user: 'a',
         token: 'a',
         repoToJobMap: null as any,
+        timeout: 10,
       });
     });
   });

@@ -41,7 +41,7 @@ export class AppCIManager extends AppPluginBase<null> {
       const url = config.endpoint + join('job', jobName, 'view/change-requests', 'job', 'PR-' + pullNum);
       this.logger.info(url);
 
-      const jenkinsCli = new Jenkins(config.user, config.token, config.endpoint);
+      const jenkinsCli = new Jenkins(config.user, config.token, config.endpoint, { timeout: config.timeout });
       await jenkinsCli.build(url).then(res => {
         this.logger.info(res.status);
       }).catch(e => {
