@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import { RepoEventBase } from '../../plugin/event-manager/events';
-import { RawDataStatus, RawData } from './HostingClientService/ConfigService';
+import { RawData } from './HostingClientService/ConfigService';
 import { Repo } from '../DataTypes';
 export type HostingPlatformTypes = 'github' | 'gitlab' | 'gitee';
 
@@ -58,12 +58,15 @@ export class HostingClientSyncDataEvent extends RepoEventBase {
 }
 
 export class HostingClientSyncConfigEvent extends RepoEventBase {
-  status: RawDataStatus;
+}
+
+export class HostingClientOnConfigFileChangedEvent extends RepoEventBase {
+  option: 'remove' | 'update';
 }
 
 export class HostingClientConfigInitedEvent extends RepoEventBase {
   rawData: RawData;
-  status: RawDataStatus | undefined;
+  version: number;
 }
 
 export class HostingClientRepoDataInitedEvent extends RepoEventBase {

@@ -174,7 +174,6 @@ export async function initWebhooks(app: Application): Promise<any[]> {
         tokens: [ 'YOUR TOKEN' ],
       },
       config: {
-        updateInterval: '0 */1 * * * *',
         remote: {
           filePath: '.github/hypertrons.json',
           luaScriptPath: './github/lua/',
@@ -206,7 +205,6 @@ export async function initWebhooks(app: Application): Promise<any[]> {
     id: 0,
     ...githubConfig,
   });
-
   // wait until client inited
   let githubClient;
   let retryTime = 0;

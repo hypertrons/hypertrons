@@ -167,3 +167,8 @@ export function parsePrivateConfigFileName(configFileName: string): string {
 
   return join(paths[paths.length - 2], paths[paths.length - 1]);
 }
+
+export function getNanoTimeStamp(): number {
+  const [ sec, nano ] = process.hrtime();
+  return sec * 1e9 + nano;
+}

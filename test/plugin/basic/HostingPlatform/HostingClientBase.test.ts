@@ -121,14 +121,14 @@ describe('HostingClientBase', () => {
 
   describe('getLuaScript()', () => {
     it('right case', async () => {
-      (client.configService as any).config = { foo: { luaScript: 'lua' } };
+      (client.configService as any).luaScript = { weekly_report: 'weekly_report lua code' };
       const res = client.getLuaScript();
-      const compare = `local foo = function ()
-  local compName = 'foo'
-  local compConfig = config.foo
-lua
+      const compare = `local weekly_report = function ()
+  local compName = 'weekly_report'
+  local compConfig = config.weekly_report
+weekly_report lua code
 end
-foo()
+weekly_report()
 `;
       assert(res === compare);
     });

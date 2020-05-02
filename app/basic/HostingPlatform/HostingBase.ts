@@ -21,13 +21,10 @@ import { ComponentService } from './ComponentService';
 import {
   HostingPlatformComponentInitedEvent, HostingPlatformInitRepoEvent,
   HostingPlatformRepoRemovedEvent, HostingPlatformTypes, HostingPlatformRepoAddedEvent,
-  HostingPlatformUninstallEvent, HostingPlatformSyncDataEvent, HostingClientSyncDataEvent,
-  HostingClientSyncConfigEvent,
+  HostingPlatformUninstallEvent, HostingPlatformSyncDataEvent, HostingClientSyncDataEvent, HostingClientOnConfigFileChangedEvent,
 } from './event';
 import watch from 'node-watch';
 import { statSync } from 'fs';
-import { ISchedulerJobHandler } from '../../plugin/scheduler-manager/types';
-import { RawDataStatus } from './HostingClientService/ConfigService';
 
 export abstract class HostingBase<TConfig extends HostingConfigBase,
                                   TClient extends HostingClientBase<TConfig, TRawClient>,
@@ -41,8 +38,6 @@ export abstract class HostingBase<TConfig extends HostingConfigBase,
   protected clientMap: Map<string, () => Promise<TClient>>;
   protected config: TConfig;
   public compService: ComponentService;
-  private updateConfigSched: ISchedulerJobHandler;
-  private repoConfigStatus: Map<string, RawDataStatus>;
 
   constructor(hostingType: HostingPlatformTypes, id: number, config: TConfig, app: Application) {
     this.id = id;
@@ -53,7 +48,6 @@ export abstract class HostingBase<TConfig extends HostingConfigBase,
     this.logger = loggerWrapper(app.logger, `[host-${this.name}]`);
     this.clientMap = new Map<string, () => Promise<TClient>>();
     this.compService = new ComponentService(this.name, config.component, app);
-    this.repoConfigStatus = new Map<string, RawDataStatus>();
     this.initWebhook(config);
     this.onStart();
   }
@@ -121,20 +115,22 @@ export abstract class HostingBase<TConfig extends HostingConfigBase,
       });
     });
 
+    // TODO, the filename needs to be changed to repoId
     // init private-file config watcher
     if (this.config.config.private.file) {
       this.logger.info('Start to watch file config');
       const options = { recursive: true, filter: /\.json$/ };
       watch(this.config.config.private.file.rootPath, options, async (event, file) => {
-        if (event === 'update') {
+        if (event === 'update' || event === 'remove') {
           const basePathInfo = statSync(file);
           if (!basePathInfo.isDirectory()) { // Only concern about file changed
             const fullName = parsePrivateConfigFileName(file);
-            this.updateConfigStatus(fullName, { config: { file: 'updated' } } as any);
+            this.app.event.publish('worker', HostingClientOnConfigFileChangedEvent, {
+              installationId: this.id,
+              fullName,
+              option: event,
+            });
           }
-        } else if (event === 'remove') {
-          const fullName = parsePrivateConfigFileName(file);
-          this.updateConfigStatus(fullName, { config: { file: 'deleted' } } as any);
         }
       });
     }
@@ -181,30 +177,9 @@ export abstract class HostingBase<TConfig extends HostingConfigBase,
         this.logger.error(`Add client error, client ${fullName} is undefined!`);
       }
     });
-
-    // start update config schedule
-    this.logger.info(`Start to update config schedule ${this.config.config.updateInterval}`);
-    this.updateConfigSched = this.app.sched.register(
-      `${this.id}_sync_config`,
-      this.config.config.updateInterval,
-      'worker',
-      () => {
-        this.repoConfigStatus.forEach((status, fullName) => {
-          this.repoConfigStatus.delete(fullName);
-          this.app.event.publish('worker', HostingClientSyncConfigEvent, {
-            installationId: this.id,
-            fullName,
-            status,
-          });
-        });
-      },
-    );
   }
 
   public async onDispose(): Promise<void> {
-    if (this.updateConfigSched !== undefined) {
-      this.updateConfigSched.cancel();
-    }
     this.clientMap.forEach(async(_, fullName) => {
       const client = await this.getClient(fullName);
       if (client) client.onDispose();
@@ -225,35 +200,6 @@ export abstract class HostingBase<TConfig extends HostingConfigBase,
 
   public getConfig(): TConfig {
     return this.config;
-  }
-
-  public getRepoConfigStatus(): Map<string, RawDataStatus> {
-    return this.repoConfigStatus;
-  }
-
-  public updateConfigStatus(fullName: string, changedStatus: RawDataStatus) {
-    let status: RawDataStatus | undefined = this.repoConfigStatus.get(fullName);
-    if (status === undefined) {
-      status = {
-        config: { file: 'clear', mysql: 'clear', remote: 'clear' },
-        luaScript: { remote: 'clear' },
-      };
-    }
-    if (changedStatus.config) {
-      Object.keys(changedStatus.config).forEach(key => {
-        if (status && changedStatus.config[key] !== undefined) {
-          status.config[key] = changedStatus.config[key];
-        }
-      });
-    }
-    if (changedStatus.luaScript) {
-      Object.keys(changedStatus.luaScript).forEach(key => {
-        if (status && changedStatus.luaScript[key] !== undefined) {
-          status.luaScript[key] = changedStatus.luaScript[key];
-        }
-      });
-    }
-    this.repoConfigStatus.set(fullName, status);
   }
 
   protected post(path: string, middleware: any): string {

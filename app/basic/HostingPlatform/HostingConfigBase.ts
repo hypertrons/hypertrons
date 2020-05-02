@@ -102,11 +102,6 @@ class HostingConfigCompConfigPrivate {
   description: 'Config description of current config',
 })
 class HostingConfigCompConfig {
-  @configProp({
-    description: 'Auto update configuration interval',
-    defaultValue: '0 */1 * * * *',
-  })
-  updateInterval: string;
 
   @configProp({
     description: 'The remote config path stored on hosting platform',

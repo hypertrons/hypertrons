@@ -127,6 +127,7 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
       const content = (res.data as any).content;
       return Buffer.from(content, 'base64').toString('ascii');
     } catch (e) {
+      this.logger.error(e);
       return undefined;
     }
   }
