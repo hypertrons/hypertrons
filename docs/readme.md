@@ -8,7 +8,7 @@ Hypertrons framework is written in [TypeScript](https://github.com/Microsoft/Typ
 
 ### Platform configuration
 
-Run `npm install` after cloning the repository and add a `globalConfig.json` file to configure the robot account, the content of the file should be like below, and you can find a sample config in [`globalConfigTemplate.json`](./globalConfigTemplate.json).
+Run `npm install` after cloning the repository and add a `globalConfig.json` file to configure the robot account, the content of the file should be like below, and you can find a sample config in [`globalConfigTemplate.json`](https://github.com/hypertrons/hypertrons/blob/master/globalConfigTemplate.json).
 
 For config details, please refer to [robot config](./docs/configs/README.md).
 
@@ -24,7 +24,7 @@ Further configuration should be configured in specific repo or private local fil
 
 ## Start developing Hypertrons
 
-Before developing Hypertrons, please make sure you read [the contributing guide](./CONTRIBUTING.md) to understand the basic process and requirement of the project.
+Before developing Hypertrons, please make sure you read [the contributing guide](https://github.com/hypertrons/hypertrons/blob/master/CONTRIBUTING.md) to understand the basic process and requirement of the project.
 
 ### Architecture
 
@@ -32,15 +32,15 @@ The underlying developing framework is [eggjs](https://eggjs.org/) which does a 
 
 The upper layer is written in TypeScript and implement the event manager, schedule manager, hosting platform manager, etc.
 
-On the client layer, [fengari](https://github.com/fengari-lua/fengari/) is used to provide a Lua VM approach using Node.js. [Limited Lua binding](./app/lua-vm/LuaVm.ts) is written to provide Lua code execution alibity in TypeScript.
+On the client layer, [fengari](https://github.com/fengari-lua/fengari/) is used to provide a Lua VM approach using Node.js. [Limited Lua binding](https://github.com/hypertrons/hypertrons/blob/master/app/lua-vm/LuaVm.ts) is written to provide Lua code execution alibity in TypeScript.
 
 The components are all written in Lua to provide hot fix/reload and logic customization.
 
-For more details, please refer to [architecture](./docs/ARCHITECTURE.md).
+For more details, please refer to [architecture](/architecture.md).
 
 ## Community
 
-Hypertrons also use hypertrons(play as menbotics) to manage community, the community roles can be found in [config file](./.github/hypertrons.json).
+Hypertrons also use hypertrons(play as menbotics) to manage community, the community roles can be found in [config file](https://github.com/hypertrons/hypertrons/blob/master/.github/hypertrons.json).
 
 ## Support
 
