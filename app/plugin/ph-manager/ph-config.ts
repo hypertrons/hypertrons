@@ -117,7 +117,7 @@ export class RetryConfig {
   unref: boolean = false;
 
   @configProp({
-    description: 'The maximum time (in milliseconds) that the retried operation is allowed to run. Default is Infinity.',
+    description: 'The maximum time (in milliseconds) that the retried operation is allowed to run. Default is 600000ms.',
     defaultValue: 600000,
   })
   maxRetryTime: number = 600000;
