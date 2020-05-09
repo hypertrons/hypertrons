@@ -16,3 +16,11 @@
         - [Mail](/plugin/external/mail.md)
         - [IM](/plugin/external/im.md)
         - [Translation](/plugin/external/translation.md)
+        - [CI](/plugin/external/ci.md)
+
+-   [Component](/component/index.md)
+  
+    - [ci](/component/ci.md)
+    - [complete_checklist](/component/complete_checklist.md)
+    - [im](/component/im.md)
+    - [rerun](/component/rerun.md)

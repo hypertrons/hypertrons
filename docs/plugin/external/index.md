@@ -9,3 +9,4 @@ Currently, we have following external plugins
 - [Mail](/plugin/external/mail.md)
 - [IM](/plugin/external/im.md)
 - [Translation](/plugin/external/translation.md)
+- [CI](/plugin/external/ci.md)
