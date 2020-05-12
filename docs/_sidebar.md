@@ -20,7 +20,13 @@
 
 -   [Component](/component/index.md)
   
+    - [approve](/component/approve.md)
+    - [auto_label](/component/auto_label.md)
     - [ci](/component/ci.md)
+    - [command](/component/command.md)
     - [complete_checklist](/component/complete_checklist.md)
     - [im](/component/im.md)
+    - [label_setup](/component/label_setup.md)
     - [rerun](/component/rerun.md)
+    - [role](/component/role.md)
+    - [self_assign](/component/self_assign.md)

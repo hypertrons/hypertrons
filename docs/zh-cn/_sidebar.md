@@ -20,7 +20,14 @@
 
 -   [组件](/zh-cn/component/index.md)
 
+    - [approve](/zh-cn/component/approve.md)
+    - [auto_label](/zh-cn/component/auto_label.md)
+    - [approve](/zh-cn/component/approve.md)
     - [ci](/zh-cn/component/ci.md)
+    - [command](/zh-cn/component/command.md)
     - [complete_checklist](/zh-cn/component/complete_checklist.md)
     - [im](/zh-cn/component/im.md)
+    - [label_setup](/zh-cn/component/label_setup.md)
     - [rerun](/zh-cn/component/rerun.md)
+    - [role](/zh-cn/component/role.md)
+    - [self_assign](/zh-cn/component/self_assign.md)
