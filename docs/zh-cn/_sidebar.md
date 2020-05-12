@@ -14,5 +14,13 @@
         - [代码托管平台](/zh-cn/plugin/external/hosting_platform.md)
         - [视频会议](/zh-cn/plugin/external/video_meeting.md)
         - [邮件](/zh-cn/plugin/external/mail.md)
-        - [聊天软件](/zh-cn/plugin/external/im.md)
+        - [即时通信](/zh-cn/plugin/external/im.md)
         - [翻译](/zh-cn/plugin/external/translation.md)
+        - [持续集成](/zh-cn/plugin/external/ci.md)
+
+-   [组件](/zh-cn/component/index.md)
+
+    - [ci](/zh-cn/component/ci.md)
+    - [complete_checklist](/zh-cn/component/complete_checklist.md)
+    - [im](/zh-cn/component/im.md)
+    - [rerun](/zh-cn/component/rerun.md)
