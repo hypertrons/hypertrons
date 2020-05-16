@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { EggAppConfig, EggAppInfo, PowerPartial } from 'egg';
+import { EggAppConfig, EggAppInfo, PowerPartial, Context } from 'egg';
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -29,6 +29,16 @@ export default (appInfo: EggAppInfo) => {
   config.security = {
     csrf: {
       enable: false,
+    },
+  };
+
+  config.onerror = {
+    all(err: any, ctx: Context) {
+      try {
+        ctx.app.errorManager.handleError('Global Onerror Uncatched Error', err);
+      } catch (error) {
+        ctx.logger.error(error);
+      }
     },
   };
 
