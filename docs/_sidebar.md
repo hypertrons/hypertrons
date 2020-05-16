@@ -30,3 +30,4 @@
     - [rerun](/component/rerun.md)
     - [role](/component/role.md)
     - [self_assign](/component/self_assign.md)
+    - [vote](/component/vote.md)

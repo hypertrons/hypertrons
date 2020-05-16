@@ -31,3 +31,4 @@
     - [rerun](/zh-cn/component/rerun.md)
     - [role](/zh-cn/component/role.md)
     - [self_assign](/zh-cn/component/self_assign.md)
+    - [vote](/zh-cn/component/vote.md)

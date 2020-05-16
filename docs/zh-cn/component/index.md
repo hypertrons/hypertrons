@@ -23,3 +23,4 @@ hypertrons 组件的触发主要包含以下两种：
 - [rerun](/zh-cn/component/rerun.md)
 - [role](/zh-cn/component/role.md)
 - [self_assign](/zh-cn/component/self_assign.md)
+- [vote](/zh-cn/component/vote.md)
