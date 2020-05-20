@@ -41,6 +41,7 @@
     "egg": "^2.6.1",
     "egg-scripts": "^2.6.0",
     "eventsource": "^1.0.7",
+    "execa": "^1.0.0",
     "extend2": "^1.0.0",
     "fengari": "^0.1.4",
     "github-data-cat": "^1.0.2",
@@ -60,8 +61,7 @@
     "smee-client": "^1.1.0",
     "svgdom": "0.0.21",
     "vfile-reporter": "^6.0.0",
-    "xml2js": "^0.4.19",
-    "execa": "^1.0.0"
+    "xml2js": "^0.4.19"
   },
   "devDependencies": {
     "@commitlint/cli": "^8.3.5",
@@ -77,11 +77,13 @@
     "egg-bin": "^4.11.0",
     "egg-ci": "^1.8.0",
     "egg-mock": "^3.16.0",
+    "egg-onerror": "^2.1.0",
     "gulp": "^4.0.2",
     "gulp-license-check": "^1.2.1",
     "gulp-util": "^3.0.8",
     "husky": "^4.2.3",
     "lint-staged": "^10.0.7",
+    "moment": "^2.25.3",
     "nock": "^11.7.0",
     "open-md-checker": "^1.2.3",
     "remark": "^11.0.2",

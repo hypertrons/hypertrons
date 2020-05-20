@@ -66,6 +66,11 @@ const plugin: EggPlugin = {
     path: join(__dirname, '../app/plugin/translate'),
   },
 
+  errorManager: {
+    enable: true,
+    path: join(__dirname, '../app/plugin/error-manager'),
+  },
+
 };
 
 export default plugin;
