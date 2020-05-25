@@ -35,8 +35,14 @@ Hypertrons 社区为参加该项目的同学设立了如下题目，供同学选
 -   导师
     - 赵生宇
 
+-   导师邮箱
+    - frank_zsy@hypertrons.io
+
 -   难度
     - 中
+
+-   项目仓库
+    - [https://github.com/hypertrons/hypertrons](https://github.com/hypertrons/hypertrons)
 
 ### 2. 文档协作平台交互接入
 
@@ -54,5 +60,37 @@ Hypertrons 社区为参加该项目的同学设立了如下题目，供同学选
 -   导师
     - 吴绍岭
 
+-   导师邮箱
+    - wsl@hypertrons.io
+
 -   难度
     - 高
+
+-   项目仓库
+    - [https://github.com/hypertrons/hypertrons](https://github.com/hypertrons/hypertrons)
+
+### 3. 迷你项目看板项目
+
+-   描述
+    - Hypertrons 作为一个跨平台的 RPA 平台，在提供跨平台交互能力的同时，为了能更好的做出决策，也采集了各平台的开放数据作为决策基础。而这些数据同时也为社区的数字化运营分析提供了有效的支撑，我们不希望深度改变用户的使用习惯，故发起一个浏览器插件项目，通过在特定网址的网页中插入迷你看板的方式为开放组织提供有效的监控和运营手段，这个项目是 Hypertrons 一大创新，也是重要的一部分。
+
+-   预计产出
+    - 一个高可配的浏览器插件项目，用于进行项目相关信息展示
+    - 至少实现 GitHub、GitLab、Gitee 的插件适配
+
+-   所需技能
+    - 有面向对象编程语言基础，熟悉 JavaScript，HTML，JQuery，echarts 优先
+    - 有较好的英文文字交流能力
+
+-   导师
+    - 赵生宇
+
+-   导师邮箱
+    - frank_zsy@hypertrons.io
+
+-   难度
+    - 高
+
+-   项目仓库
+    - [https://github.com/hypertrons/hypertrons](https://github.com/hypertrons/hypertrons)
+    - [https://github.com/hypertrons/hypertrons-crx](https://github.com/hypertrons/hypertrons)
