@@ -1,5 +1,9 @@
 -   [Home](/)
 
+-   Events
+
+    - [Summer 2020](/event/summer2020.md)
+
 -   [Plugins](/plugin/index.md)
 
     -   [Core](/plugin/core/index.md)

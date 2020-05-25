@@ -1,5 +1,9 @@
 -   [主页](/zh-cn/)
 
+-   活动
+
+    - [Summer2020](/zh-cn/event/summer2020.md)
+
 -   [插件](/zh-cn/plugin/index.md)
 
     -   [核心插件](/zh-cn/plugin/core/index.md)
