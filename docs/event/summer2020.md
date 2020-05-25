@@ -32,16 +32,22 @@ Hypertrons community provides several ideas for students to choose.
     - Experience in Object Oriented Programming, prefer familiarity of JavaScript or TypeScript
     - Written communication ablity in English
 
--   Possible Mentor
+-   Mentor
     - Shengyu Zhao
+
+-   Mentor contact
+    - frank_zsy@hypertrons.io
 
 -   Difficulty
     - Medium
 
+-   Repositories
+    - [https://github.com/hypertrons/hypertrons](https://github.com/hypertrons/hypertrons)
+
 ### 2. Open document platforms integration
 
 -   Description
-    - As a cross-platform RPA, Hypertrons need to integrate all kinds of open platforms, like source code platform(GitHub, GitLab, Gitee), CI platform(Jenkins), IM(Slack) and etc. And document collaboration is also very important to open orgnization like Google Docs, shimo, yuque, lark, QQ docs and etc. So it is a very important part for the project on how to abstract document platform interaction APIs and integrate mainstream document platforms.
+    - As a cross-platform RPA, Hypertrons needs to integrate all kinds of open platforms, like source code platform(GitHub, GitLab, Gitee), CI platform(Jenkins), IM(Slack) and etc. And document collaboration is also very important to open orgnization like Google Docs, shimo, yuque, lark, QQ docs and etc. So it is a very important part for the project on how to abstract document platform interaction APIs and integrate mainstream document platforms.
 
 -   Expected outcomes
     - A comprehensive document collaboration interface design includes docs, sheets and other document formats.
@@ -51,8 +57,40 @@ Hypertrons community provides several ideas for students to choose.
     - Experience in Object Oriented Programming, prefer familiarity of JavaScript or TypeScript
     - Written communication ablity in English
 
--   Prossible Mentor
+-   Mentor
     - Shaoling Wu
+
+-   Mentor contact
+    - wsl@hypertrons.io
 
 -   Difficulty
     - High
+
+-   Repositories
+    - [https://github.com/hypertrons/hypertrons](https://github.com/hypertrons/hypertrons)
+
+### 3. Mini dashboard
+
+-   Description
+    - As a cross-platform RPA platform, Hypertrons provides interaction ablities and collects open data as same time to support user decision. These data will support community operation and used to analysis community health. We start the project of browser plugin as we don't want to change user's habbit. With the project, we can embed mini dashboard into certain platforms for monitor and operation purpose, so the project will be an important part of Hypertrons.
+
+-   Expected outcome
+    - A highly configurable browser extension used to display project data
+    - At least support GitHub, GitLab, Gitee
+
+-   Skills required
+    - Experience in Object Oriented Programming, prefer familiarity of JavaScript, HTML, JQuery, echarts
+    - Written communication ablity in English
+
+-   Mentor
+    - Shengyu Zhao
+
+-   Mentor contact
+    - frank_zsy@hypertrons.io
+
+-   Difficulty
+    - High
+
+-   Repositories
+    - [https://github.com/hypertrons/hypertrons](https://github.com/hypertrons/hypertrons)
+    - [https://github.com/hypertrons/hypertrons-crx](https://github.com/hypertrons/hypertrons-crx)
