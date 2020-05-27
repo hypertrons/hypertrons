@@ -23,7 +23,6 @@
               "secret": ""
             },
             "config": {
-              "updateInterval": "0 */1 * * * *",
               "remote": {
                 "filePath": ".github/hypertrons.json"
               },

@@ -13,150 +13,169 @@
 // limitations under the License.
 
 import { Application } from 'egg';
-import { customizerMerge, customizerMergeWithType } from '../../Utils';
+import { customizerMerge, customizerMergeWithType, getNanoTimeStamp } from '../../Utils';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 import { PushEvent } from '../../../plugin/event-manager/events';
-import { HostingClientConfigInitedEvent, HostingClientSyncConfigEvent } from '../event';
+import {
+  HostingClientConfigInitedEvent, HostingClientSyncConfigEvent, HostingClientOnConfigFileChangedEvent,
+} from '../event';
 import { HostingClientBase } from '../HostingClientBase';
 import { HostingConfigBase } from '../HostingConfigBase';
 import { ClientServiceBase } from './ClientServiceBase';
 import { cloneDeep } from 'lodash';
-import { diff } from 'deep-diff';
 
 export class ConfigService<TConfig extends HostingConfigBase, TRawClient>
                           extends ClientServiceBase<TConfig, TRawClient> {
 
   private config: any;
+  private luaScript: any;
   private rawData: RawData;
+  private version: number;
 
   constructor(app: Application, client: HostingClientBase<TConfig, TRawClient>) {
     super(app, client, 'configService');
     this.config = {};
+    this.luaScript = {};
     this.rawData = {
       config: { file: {}, mysql: {}, remote: {} },
       luaScript: { remote: {} },
     };
+    this.version = 0;
   }
 
   public async onStart(): Promise<any> {
+    // On remote config or lua script changed
     this.client.eventService.subscribeAll(PushEvent, async e => {
       const hostingConfig = this.client.getHostingBase().getConfig();
       const filePath = hostingConfig.config.remote.filePath;
-      if (e.push.commits.some(c => c.modified.includes(filePath) || c.added.includes(filePath))) {
-        this.client.getHostingBase().updateConfigStatus(e.fullName, { config: { remote: 'updated' } } as any);
-      } else if (e.push.commits.some(c => c.removed.includes(filePath))) {
-        this.client.getHostingBase().updateConfigStatus(e.fullName, { config: { remote: 'deleted' } } as any);
+
+      // On remote config changed
+      if (e.push.commits.some(c => c.modified.includes(filePath) || // update remote config
+                                   c.added.includes(filePath))) {
+        this.client.eventService.publish('all', HostingClientConfigInitedEvent, {
+          installationId: this.client.getHostId(),
+          fullName: this.client.getFullName(),
+          rawData: {
+            config: {
+              remote: await this.loadConfigFromRemote(),
+            },
+          } as any,
+          version: getNanoTimeStamp(),
+        });
+      } else if (e.push.commits.some(c => c.removed.includes(filePath))) { // delete remote config
+        this.client.eventService.publish('all', HostingClientConfigInitedEvent, {
+          installationId: this.client.getHostId(),
+          fullName: this.client.getFullName(),
+          rawData: {
+            config: {
+              remote: {},
+            },
+          } as any,
+          version: getNanoTimeStamp(),
+        });
       }
 
+      // On remote lua script changed
       if (hostingConfig.component.enableRepoLua) {
+        // Update remote user defined lua script
         const luaFilePath = hostingConfig.config.remote.luaScriptPath;
         if (e.push.commits.some(c => c.added.find(f => f.startsWith(luaFilePath)) ||
-                                    c.modified.find(f => f.startsWith(luaFilePath)) ||
-                                    c.removed.find(f => f.startsWith(luaFilePath)))) {
-          this.client.getHostingBase().updateConfigStatus(e.fullName, { luaScript: { remote: 'updated' } } as any);
+                                     c.modified.find(f => f.startsWith(luaFilePath)) ||
+                                     c.removed.find(f => f.startsWith(luaFilePath)))) {
+          this.client.eventService.publish('all', HostingClientConfigInitedEvent, {
+            installationId: this.client.getHostId(),
+            fullName: this.client.getFullName(),
+            rawData: {
+              luaScript: {
+                remote: await this.loadLuaScriptFromRemote(),
+              },
+            } as any,
+            version: getNanoTimeStamp(),
+          });
         }
       }
     });
 
+    // On file config changed
+    this.client.eventService.subscribeOne(HostingClientOnConfigFileChangedEvent, async fileEvent => {
+      this.logger.info('On file config changed');
+      const e: HostingClientConfigInitedEvent = {
+        installationId: this.client.getHostId(),
+        fullName: this.client.getFullName(),
+        rawData: {
+          config: {
+            file: {},
+          },
+        } as any,
+        version: getNanoTimeStamp(),
+      };
+      if (fileEvent.option === 'update') {
+        e.rawData.config.file = await this.loadConfigFromFile();
+      }
+      this.client.eventService.publish('all', HostingClientConfigInitedEvent, e);
+    });
+
+    /*
+     * Update process local configuration after receiving synchronization event
+     * In order to prevent the old configuration overwriting the new configuration,
+     * version information is added here, and the update operation will only be performed if
+     * the current version is empty or the current version number is less than the new configuration version number.
+     * The version is represented by a timestamp in string format
+     */
     this.client.eventService.subscribeAll(HostingClientConfigInitedEvent, async e => {
       this.logger.info('Hosting client config inited, update local config');
-      this.client.getHostingBase().getRepoConfigStatus().clear();
-      if (e.status) this.client.getHostingBase().updateConfigStatus(e.fullName, e.status);
-      let needUpdateConfig = false;
-      if (e.rawData.config) {
-        Object.keys(e.rawData.config).forEach(key => {
-          if (e.rawData.config[key]) {
-            needUpdateConfig = true;
+      if (this.version < e.version) {
+        this.version = e.version;
+        if (e.rawData.config) {
+          Object.keys(e.rawData.config).forEach(key => {
             this.rawData.config[key] = e.rawData.config[key];
-          }
-        });
-        if (needUpdateConfig) await this.mergeConfig();
-      }
-      let needUpdateLuaScript = false;
-      if (e.rawData.luaScript) {
-        Object.keys(e.rawData.luaScript).forEach(key => {
-          if (e.rawData.luaScript[key]) {
-            needUpdateLuaScript = true;
+          });
+          await this.mergeConfig();
+        }
+        if (e.rawData.luaScript) {
+          Object.keys(e.rawData.luaScript).forEach(key => {
             this.rawData.luaScript[key] = e.rawData.luaScript[key];
-          }
-        });
-      }
-      if (needUpdateConfig || needUpdateLuaScript) {
+          });
+        }
         await this.mergeLuaScript();
         this.client.onConfigLoaded();
       }
     });
 
-    this.client.eventService.subscribeOne(HostingClientSyncConfigEvent, async e => this.syncData(e.status));
+    // Only one work load config, and then publish to all.
+    this.client.eventService.subscribeOne(HostingClientSyncConfigEvent, () => this.syncData());
   }
 
   public async onDispose(): Promise<any> { }
 
   public async onConfigLoaded(): Promise<any> { }
 
-  public async syncData(status= { config: { file: 'updated', mysql: 'updated', remote: 'init' },
-                                  luaScript: { remote: 'updated' },
-                                }): Promise<void> {
-    this.logger.info('Start to load and sync config');
+  public async syncData(): Promise<void> {
+    // load config
+    this.rawData.config.file = await this.loadConfigFromFile();
+    this.rawData.config.mysql = await this.loadConfigFromMysql();
+    this.rawData.config.remote = await this.loadConfigFromRemote();
+    await this.mergeConfig();
 
-    // do not need update
-    if (!Object.values(status.config).find(v => v !== 'clear') &&
-        !Object.values(status.luaScript).find(v => v !== 'clear')) return;
+    // load user defined lua script if enableRepoLua=true
+    const hostingConfig = this.client.getHostingBase().getConfig();
+    if (hostingConfig.component.enableRepoLua) {
+      this.rawData.luaScript.remote = await this.loadLuaScriptFromRemote();
+    }
 
-    const event: HostingClientConfigInitedEvent = {
+    // publish to all to sync config
+    this.client.eventService.publish('all', HostingClientConfigInitedEvent, {
       installationId: this.client.getHostId(),
       fullName: this.client.getFullName(),
-      rawData: {
-        config: {  file: undefined, mysql: undefined, remote: undefined },
-        luaScript: { remote: undefined },
-      },
-      status: undefined,
-    };
-
-    // config.file
-    if (status.config.file === 'deleted') {
-      this.rawData.config.file = {};
-      event.rawData.config.file = this.rawData.config.file;
-    } else if (status.config.file === 'updated') {
-      this.rawData.config.file = await this.loadConfigFromFile();
-      event.rawData.config.file = this.rawData.config.file;
-    }
-    // config.mysql
-    if (status.config.mysql === 'deleted') {
-      this.rawData.config.mysql = {};
-      event.rawData.config.mysql = this.rawData.config.mysql;
-    } else if (status.config.mysql === 'updated') {
-      this.rawData.config.mysql = await this.loadConfigFromMysql();
-      event.rawData.config.mysql = this.rawData.config.mysql;
-    }
-    // config.remote
-    if (status.config.remote === 'deleted') {
-      this.rawData.config.remote = {};
-      event.rawData.config.remote = this.rawData.config.remote;
-    } else if (status.config.remote === 'updated') {
-      const remote = await this.loadConfigFromRemote();
-      if (diff(remote, this.rawData.config.remote) === undefined) {
-        event.status = { config: { remote: 'updated' } } as any;
-      } else {
-        this.rawData.config.remote = remote;
-        event.rawData.config.remote = this.rawData.config.remote;
-      }
-    } else if (status.config.remote === 'init') {
-      this.rawData.config.remote = await this.loadConfigFromRemote();
-      event.rawData.config.remote = this.rawData.config.remote;
-    }
-    await this.mergeConfig();
-    // luaScript.remote
-    if (status.luaScript.remote === 'updated') {
-      this.rawData.luaScript.remote = await this.loadLuaScriptFromRemote();
-      event.rawData.luaScript.remote = this.rawData.luaScript.remote;
-    }
-    this.client.eventService.publish('all', HostingClientConfigInitedEvent, event);
+      rawData: this.rawData,
+      version: getNanoTimeStamp(),
+    });
   }
 
+  /**************************** config ****************************/
   private async mergeConfig() {
-    const mergeConfig = customizerMerge(...Object.values(this.rawData.config).map(v => v));
+    const mergeConfig = customizerMerge(this.rawData.config.file, this.rawData.config.mysql, this.rawData.config.remote);
     const defaultConfig = await this.client.getHostingBase().compService.getDefaultConfig(mergeConfig);
     this.config = customizerMergeWithType(defaultConfig, mergeConfig);
   }
@@ -191,13 +210,31 @@ export class ConfigService<TConfig extends HostingConfigBase, TRawClient>
     return {};
   }
 
+  // rootPath/owner/repoName.json
+  private genRepoConfigFilePath(rootPath: string): string {
+    return join(rootPath, this.client.getFullName() + '.json');
+  }
+
+  public getConfig(): any {
+    return this.config;
+  }
+
+  public getCompConfig<TConfig>(comp: string): TConfig | undefined {
+    if (this.config[comp]) {
+      return this.config[comp] as TConfig;
+    }
+    return undefined;
+  }
+
+  /**************************** luaScript ****************************/
   private async mergeLuaScript(): Promise<void> {
     const defaultLuaComps = await this.client.getHostingBase().compService.getDefaultLuaScript(this.config);
     const mergedLuaScript = customizerMergeWithType(defaultLuaComps, this.rawData.luaScript.remote);
     if (mergedLuaScript) {
+      this.luaScript = {};
       Object.keys(mergedLuaScript).forEach(compName => {
         if (this.config[compName] && mergedLuaScript[compName]) {
-          this.config[compName].luaScript = cloneDeep(mergedLuaScript[compName]);
+          this.luaScript[compName] = cloneDeep(mergedLuaScript[compName]);
         }
       });
     }
@@ -212,7 +249,8 @@ export class ConfigService<TConfig extends HostingConfigBase, TRawClient>
       const compNames = Object.keys(this.config);
       for (const i in compNames) {
         const luaCompPath = this.genRepoLuaFilePath(hostingConfig.config.remote.luaScriptPath, compNames[i]);
-        repoLuaComps[compNames[i]] = await this.client.getFileContent(luaCompPath);
+        const content = await this.client.getFileContent(luaCompPath);
+        if (content) repoLuaComps[compNames[i]] = content;
       }
     } catch (error) {
       this.logger.error(error);
@@ -220,25 +258,9 @@ export class ConfigService<TConfig extends HostingConfigBase, TRawClient>
     return repoLuaComps;
   }
 
-  // rootPath/owner/repoName.json
-  private genRepoConfigFilePath(rootPath: string): string {
-    return join(rootPath, this.client.getFullName() + '.json') ;
-  }
-
   // rootPath/componentName.lua
   private genRepoLuaFilePath(rootPath: string, componentName: string): string {
     return join(rootPath, componentName + '.lua');
-  }
-
-  public getConfig(): any {
-    return this.config;
-  }
-
-  public getCompConfig<TConfig>(comp: string): TConfig | undefined {
-    if (this.config[comp]) {
-      return this.config[comp] as TConfig;
-    }
-    return undefined;
   }
 
   public getLuaScript(): string {
@@ -249,39 +271,24 @@ export class ConfigService<TConfig extends HostingConfigBase, TRawClient>
     return this.getLuaScriptAndOffset().offset;
   }
 
-  public getLuaScriptAndOffset(): { luaScript: string,
-                                    offset: Array<{ compName: string, offset: number }>} {
+  public getLuaScriptAndOffset(): { luaScript: string, offset: Array<{ compName: string, offset: number }> } {
     let luaScript = '';
     const luaScriptOffset: Array<{ compName: string, offset: number }> = [];
-    Object.keys(this.config).forEach(compName => {
-      if (this.config[compName] && this.config[compName].luaScript) {
-        const head = `local ${compName} = function ()
+    Object.keys(this.luaScript).forEach(compName => {
+      const head = `local ${compName} = function ()
   local compName = '${compName}'
   local compConfig = config.${compName}
 `;
-        const tail = `
+      const tail = `
 end
 ${compName}()
 `;
-        const compScript = head + this.config[compName].luaScript + tail;
-        luaScript += compScript;
-        luaScriptOffset.push({ compName, offset: compScript.split('\n').length - 1 });
-      }
+      const compScript = head + this.luaScript[compName] + tail;
+      luaScript += compScript;
+      luaScriptOffset.push({ compName, offset: compScript.split('\n').length - 1 });
     });
     return { luaScript, offset: luaScriptOffset };
   }
-}
-
-export type Status = 'clear' | 'updated' | 'deleted';
-export interface RawDataStatus {
-  config: {
-    file: Status;
-    mysql: Status;
-    remote: Status | 'init';
-  };
-  luaScript: {
-    remote: Status;
-  };
 }
 
 export interface RawData {
