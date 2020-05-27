@@ -39,6 +39,7 @@
     "delay": "^4.3.0",
     "dingtalk-robot-sender": "^1.2.0",
     "egg": "^2.6.1",
+    "egg-mongoose": "^3.2.0",
     "egg-scripts": "^2.6.0",
     "eventsource": "^1.0.7",
     "execa": "^1.0.0",

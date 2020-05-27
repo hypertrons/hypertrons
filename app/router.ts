@@ -26,4 +26,6 @@ export default (app: Application) => {
   router.get('/component/:installationName', controller.component.getComponentConfig);
 
   router.get('/component/:installationName/:name/:version', controller.component.getComponentConfigByNameVersion);
+
+  router.get('/user/:userName', controller.user.getUserByName);
 };

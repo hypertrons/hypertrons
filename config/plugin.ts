@@ -71,6 +71,11 @@ const plugin: EggPlugin = {
     path: join(__dirname, '../app/plugin/error-manager'),
   },
 
+  mongoose: {
+    enable: true,
+    package: 'egg-mongoose',
+    env: [ 'local' ],
+  },
 };
 
 export default plugin;
