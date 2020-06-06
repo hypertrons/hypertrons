@@ -172,4 +172,17 @@ export class GitLabClient extends HostingClientBase<GitLabConfig, Gitlab> {
     this.logger.info(check);
     return new Promise(() => {});
   }
+
+  public async newBranch(newBranchName: string, baseBranchName: string): Promise<void> {
+    // todo: test
+    this.logger.info(newBranchName, baseBranchName);
+    await this.rawClient.Branches.create(this.id, newBranchName, baseBranchName);
+  }
+
+  public async createOrUpdateFile(filePath: string, content: string, commitMessgae: string, branchName: string): Promise<void> {
+    // todo: test
+    this.logger.info(filePath, content, commitMessgae, branchName);
+    await this.rawClient.RepositoryFiles.create(this.id, filePath, branchName, content, commitMessgae);
+  }
+
 }

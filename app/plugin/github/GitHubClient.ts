@@ -270,4 +270,36 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
     });
   }
 
+  public async newBranch(newBranchName: string, baseBranchName: string): Promise<void> {
+    this.logger.info('new a branch', newBranchName, 'from' , baseBranchName);
+    const res = await this.rawClient.git.getRef({
+      repo: this.repo,
+      owner: this.owner,
+      ref: 'heads/' + baseBranchName,
+    });
+    this.logger.info(res);
+
+    const created = await this.rawClient.git.createRef({
+      repo: this.repo,
+      owner: this.owner,
+      ref: 'refs/heads/' + newBranchName,
+      sha: res.data.object.sha,
+    });
+    this.logger.info(created);
+  }
+
+  public async createOrUpdateFile(filePath: string, content: string, commitMessgae: string, branchName: string): Promise<void> {
+    this.logger.info('createOrUpdateFile:', filePath);
+    const content64 = Buffer.from(content).toString('base64');
+    const res = await this.rawClient.repos.createOrUpdateFile({
+      repo: this.repo,
+      owner: this.owner,
+      content: content64,
+      message: commitMessgae,
+      path: filePath,
+      branch: branchName,
+    });
+    this.logger.info(res);
+  }
+
 }
