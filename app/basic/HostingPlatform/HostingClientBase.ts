@@ -142,7 +142,7 @@ export abstract class HostingClientBase<TConfig extends HostingConfigBase, TRawC
 
   public abstract async assign(num: number, login: string): Promise<void>;
 
-  public abstract async newBranch(newBranchName: string, baseBranchName: string): Promise<void>;
+  public abstract async newBranch(newBranchName: string, baseBranchName: string, cb: () => void): Promise<void>;
 
   public abstract async createOrUpdateFile(filePath: string, content: string, commitMessgae: string, branchName: string): Promise<void>;
 

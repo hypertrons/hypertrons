@@ -173,8 +173,9 @@ export class GitLabClient extends HostingClientBase<GitLabConfig, Gitlab> {
     return new Promise(() => {});
   }
 
-  public async newBranch(newBranchName: string, baseBranchName: string): Promise<void> {
+  public async newBranch(newBranchName: string, baseBranchName: string, cb: () => void): Promise<void> {
     // todo: test
+    cb();
     this.logger.info(newBranchName, baseBranchName);
     await this.rawClient.Branches.create(this.id, newBranchName, baseBranchName);
   }

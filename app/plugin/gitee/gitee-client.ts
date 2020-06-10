@@ -301,9 +301,10 @@ export class GiteeClient extends HostingClientBase<GiteeConfig, GiteeRawClient> 
     });
   }
 
-  public async newBranch(newBranchName: string, baseBranchName: string): Promise<void> {
+  public async newBranch(newBranchName: string, baseBranchName: string, cb: () => void): Promise<void> {
     // TODO
     this.logger.info(newBranchName, baseBranchName);
+    cb();
     return new Promise(() => {});
   }
 

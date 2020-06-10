@@ -23,7 +23,9 @@ on('CommandEvent', function (e)
       ['repoName'] = getData().name
     })
     -- checkout a new branch, then create file on the new branch.
-    newBranch(newBranchName, compConfig.defaultBranch)
-    createOrUpdateFile(filePath, guideContentRender, commitMessage, newBranchName)
+    local cb = function ()
+      return createOrUpdateFile(filePath, guideContentRender, commitMessage, newBranchName)
+    end
+    newBranch(newBranchName, compConfig.defaultBranch, cb)
   end
 end)

@@ -373,8 +373,8 @@ export class LuaService<TConfig extends HostingConfigBase, TRawClient> extends C
   }
 
   @luaMethod()
-  protected lua_newBranch(newBranchName: string, baseBranchName: string): void {
-    this.client.newBranch(newBranchName, baseBranchName);
+  protected lua_newBranch(newBranchName: string, baseBranchName: string, cb: () => void): void {
+    this.client.newBranch(newBranchName, baseBranchName, cb);
   }
 
   @luaMethod()

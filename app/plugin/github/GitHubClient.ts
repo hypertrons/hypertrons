@@ -270,7 +270,7 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
     });
   }
 
-  public async newBranch(newBranchName: string, baseBranchName: string): Promise<void> {
+  public async newBranch(newBranchName: string, baseBranchName: string, cb: () => void): Promise<void> {
     this.logger.info('new a branch', newBranchName, 'from' , baseBranchName);
     const res = await this.rawClient.git.getRef({
       repo: this.repo,
@@ -286,6 +286,9 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
       sha: res.data.object.sha,
     });
     this.logger.info(created);
+
+    const cbs = cb();
+    this.logger.info(cbs);
   }
 
   public async createOrUpdateFile(filePath: string, content: string, commitMessgae: string, branchName: string): Promise<void> {
