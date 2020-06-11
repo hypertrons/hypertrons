@@ -173,17 +173,24 @@ export class GitLabClient extends HostingClientBase<GitLabConfig, Gitlab> {
     return new Promise(() => {});
   }
 
-  public async newBranch(newBranchName: string, baseBranchName: string, cb: () => void): Promise<void> {
+  public async newBranch(newBranchName: string, baseBranchName: string, cb?: () => void): Promise<void> {
     // todo: test
-    cb();
     this.logger.info(newBranchName, baseBranchName);
     await this.rawClient.Branches.create(this.id, newBranchName, baseBranchName);
+    if (cb) cb();
   }
 
-  public async createOrUpdateFile(filePath: string, content: string, commitMessgae: string, branchName: string): Promise<void> {
+  public async createOrUpdateFile(filePath: string, content: string, commitMessgae: string, branchName: string, cb?: () => void): Promise<void> {
     // todo: test
     this.logger.info(filePath, content, commitMessgae, branchName);
     await this.rawClient.RepositoryFiles.create(this.id, filePath, branchName, content, commitMessgae);
+    if (cb) cb();
   }
 
+  public async newPullRequest(title: string, head: string, base: string): Promise<void> {
+    // todo: test
+    this.logger.info(title, 'from', head, 'to', base);
+    this.rawClient.MergeRequests.create(this.id, head, base, title);
+    return new Promise(() => { });
+  }
 }

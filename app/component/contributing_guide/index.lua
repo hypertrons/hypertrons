@@ -15,6 +15,7 @@
 on('CommandEvent', function (e)
   if (e.command == compConfig.contributingGuideCommand) then
     -- some variables
+    local defaultBranch = compConfig.defaultBranch
     local newBranchName = compConfig.newBranchName
     local filePath = compConfig.filePath
     local commitMessage = compConfig.commitMessage
@@ -22,10 +23,15 @@ on('CommandEvent', function (e)
     local guideContentRender = rendStr(guideContent, {
       ['repoName'] = getData().name
     })
-    -- checkout a new branch, then create file on the new branch.
-    local cb = function ()
-      return createOrUpdateFile(filePath, guideContentRender, commitMessage, newBranchName)
+
+    -- checkout a new branch, then create file on the new branch
+    -- and finally new a pull request.
+    local newPRCallBack = function()
+      return newPullRequest(compConfig.prTitle, newBranchName, defaultBranch)
     end
-    newBranch(newBranchName, compConfig.defaultBranch, cb)
+    local createFileCallBack = function ()
+      return createOrUpdateFile(filePath, guideContentRender, commitMessage, newBranchName, newPRCallBack)
+    end
+    newBranch(newBranchName, defaultBranch, createFileCallBack)
   end
 end)

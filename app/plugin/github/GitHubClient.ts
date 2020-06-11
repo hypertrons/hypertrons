@@ -270,31 +270,30 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
     });
   }
 
-  public async newBranch(newBranchName: string, baseBranchName: string, cb: () => void): Promise<void> {
+  public async newBranch(newBranchName: string, baseBranchName: string, cb?: () => void): Promise<void> {
     this.logger.info('new a branch', newBranchName, 'from' , baseBranchName);
     const res = await this.rawClient.git.getRef({
       repo: this.repo,
       owner: this.owner,
       ref: 'heads/' + baseBranchName,
     });
-    this.logger.info(res);
 
-    const created = await this.rawClient.git.createRef({
+    await this.rawClient.git.createRef({
       repo: this.repo,
       owner: this.owner,
       ref: 'refs/heads/' + newBranchName,
       sha: res.data.object.sha,
     });
-    this.logger.info(created);
 
-    const cbs = cb();
-    this.logger.info(cbs);
+    if (cb) {
+      cb();
+    }
   }
 
-  public async createOrUpdateFile(filePath: string, content: string, commitMessgae: string, branchName: string): Promise<void> {
+  public async createOrUpdateFile(filePath: string, content: string, commitMessgae: string, branchName: string, cb?: () => void): Promise<void> {
     this.logger.info('createOrUpdateFile:', filePath);
     const content64 = Buffer.from(content).toString('base64');
-    const res = await this.rawClient.repos.createOrUpdateFile({
+    await this.rawClient.repos.createOrUpdateFile({
       repo: this.repo,
       owner: this.owner,
       content: content64,
@@ -302,7 +301,21 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
       path: filePath,
       branch: branchName,
     });
-    this.logger.info(res);
+
+    if (cb) {
+      cb();
+    }
+  }
+
+  public async newPullRequest(title: string, head: string, base: string): Promise<void> {
+    this.logger.info('new pull request, from', head, 'to', base);
+    await this.rawClient.pulls.create({
+      owner: this.owner,
+      repo: this.repo,
+      title,
+      head,
+      base,
+    });
   }
 
 }

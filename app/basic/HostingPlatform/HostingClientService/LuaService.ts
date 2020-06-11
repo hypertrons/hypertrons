@@ -378,8 +378,13 @@ export class LuaService<TConfig extends HostingConfigBase, TRawClient> extends C
   }
 
   @luaMethod()
-  protected lua_createOrUpdateFile(filePath: string, content: string, commitMessgae: string, branchName: string): void {
-    this.client.createOrUpdateFile(filePath, content, commitMessgae, branchName);
+  protected lua_createOrUpdateFile(filePath: string, content: string, commitMessgae: string, branchName: string, cb: () => void): void {
+    this.client.createOrUpdateFile(filePath, content, commitMessgae, branchName, cb);
+  }
+
+  @luaMethod()
+  protected lua_newPullRequest(title: string, head: string, base: string): void {
+    this.client.newPullRequest(title, head, base);
   }
 
   @luaMethod()

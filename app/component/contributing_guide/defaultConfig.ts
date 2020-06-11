@@ -20,6 +20,7 @@ const contributingDefaultConfig: ContributingTemplate = {
     commitMessage: 'create template contibuting guide',
     defaultBranch: 'master',
     contributingGuideCommand: '/add-contributing-guide',
+    prTitle: 'feat: add contributing guide',
     header: `# How To Contribute
 `,
     body : `

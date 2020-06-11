@@ -50,6 +50,12 @@ export default class ContributingTemplate {
     contributingGuideCommand: string;
 
     @configProp({
+        description: 'the title of a new pull request',
+        defaultValue: contributingDefaultConfig.prTitle,
+    })
+    prTitle: string;
+
+    @configProp({
         description: 'contributing guide header.',
         defaultValue: contributingDefaultConfig.header,
     })
