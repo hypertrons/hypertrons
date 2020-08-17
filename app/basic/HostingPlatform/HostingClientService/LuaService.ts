@@ -14,7 +14,7 @@
 
 import { Application } from 'egg';
 import RoleConfig from '../../../component/role/config';
-import { LuaVm } from '../../../lua-vm/LuaVm';
+import { LuaVm } from '../../../lua-vm/lua-vm';
 import { luaMethod, luaEvents } from '../../../lua-vm/decorators';
 import { Repo } from '../../DataTypes';
 import IMConfig from '../../../component/im/config';

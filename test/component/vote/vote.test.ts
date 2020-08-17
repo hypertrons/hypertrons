@@ -16,7 +16,7 @@
 
 import assert from 'power-assert';
 import { prepareLuaTest, LuaVmWrapper } from '../LuaTestUtil';
-import { LuaVm } from '../../../app/lua-vm/LuaVm';
+import { LuaVm } from '../../../app/lua-vm/lua-vm';
 
 describe('vote component', () => {
   let luaVmWrapper: LuaVmWrapper;

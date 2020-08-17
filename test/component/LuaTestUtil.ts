@@ -14,7 +14,7 @@
 
 'use strict';
 
-import { LuaVm } from '../../app/lua-vm/LuaVm';
+import { LuaVm } from '../../app/lua-vm/lua-vm';
 import { readFileSync } from 'fs';
 import { join, basename } from 'path';
 
