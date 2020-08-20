@@ -51,3 +51,8 @@ local splitByComma = function(s)
   end
   return res
 end
+
+local wrap = function(f)
+  local co = coroutine.create(f)
+  coroutine.resume(co)
+end

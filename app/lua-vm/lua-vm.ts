@@ -17,7 +17,7 @@ import { luaopen_base } from 'fengari/src/lbaselib';
 import { luaopen_math } from 'fengari/src/lmathlib';
 import { luaopen_string } from 'fengari/src/lstrlib';
 import { luaopen_table } from 'fengari/src/ltablib';
-import { TextDecoder } from 'text-encoding';
+import { luaopen_coroutine } from 'fengari/src/lcorolib';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
@@ -30,31 +30,33 @@ export class LuaVm {
 
   private L: any;
   private ctx: Map<string, any>;
-  private decoder: any;
 
   constructor() {
     this.L = lauxlib.luaL_newstate();
     // only load basic apis to vm
     const map = new Map<string, any>();
-    map.set('_G', luaopen_base).set('string', luaopen_string).set('table', luaopen_table).set('math', luaopen_math);
+    map.set('_G', luaopen_base)
+      .set('string', luaopen_string)
+      .set('table', luaopen_table)
+      .set('math', luaopen_math)
+      .set('coroutine', luaopen_coroutine);
     map.forEach((lib, name) => {
       lauxlib.luaL_requiref(this.L, fengari.to_luastring(name), lib, 1);
       lua.lua_pop(this.L, 1);
     });
     this.ctx = new Map<string, any>();
-    this.decoder = new TextDecoder('utf-8');
   }
 
   public run(source: string): any {
     source = luaBuidinCode + source;
     for (const [ key, value ] of this.ctx) {
-      const n = this.pushStackValue(value);
+      const n = this.pushStackValue(this.L, value);
       if (n !== 0) {
         lua.lua_setglobal(this.L, key);
       }
     }
     lauxlib.luaL_dostring(this.L, fengari.to_luastring(source));
-    return this.getStackValue(-1);
+    return this.getStackValue(this.L, -1);
   }
 
   public set(key: string, value: any, target?: any): this {
@@ -66,103 +68,126 @@ export class LuaVm {
   }
 
   private wrapFunc(key: string, func: (...args: any[]) => any, target?: any): any {
-    const wrapped = (): any => {
+    const wrapped = (L: any): any => {
       // call in ts
-      const nArgs = lua.lua_gettop(this.L);
-      const args: any[] = [];
-      for (let i = 0 ; i < nArgs; i++) {
-        args.push(this.getStackValue(i + 1));
-      }
+      const getArgs = (): any[] => {
+        const nArgs = lua.lua_gettop(L);
+        const args: any[] = [];
+        for (let i = 0 ; i < nArgs; i++) {
+          const value = this.getStackValue(L, i + 1);
+          args.push(value);
+        }
+        return args;
+      };
+      const args = getArgs();
       // use call function to inject this object
       const res = func.call(target, ...args);
-      // set return value
-      return this.pushStackValue(res);
+      if (res instanceof Promise && lua.lua_isyieldable(L)) {
+        // if a coroutine happened, yield and resume when promise return
+        Promise.resolve(res).then(r => {
+          if (r === undefined) {
+            // no return value
+            lua.lua_resume(L, this.L, 0);
+          } else {
+            this.pushStackValue(L, r);
+            lua.lua_resume(L, this.L, 1);
+          }
+        });
+        return lua.lua_yield(L, 0);
+      } else {
+        // set return value
+        return this.pushStackValue(L, res);
+      }
     };
     // save key as function name for debugging use
     Object.defineProperty(func, 'name', { value: key });
     return wrapped;
   }
 
-  private getStackValue(index: number): any {
-    if (lua.lua_gettop(this.L) === 0) {
-      // has no value on stack
+  private getStackValue(L: any, index: number): any {
+    if (lua.lua_gettop(L) === 0) {
+      // no value, return undefined first
+      // otherwise, absindex will fail
       return undefined;
     }
-    index = lua.lua_absindex(this.L, index);
-    const type = this.getStackType(index);
+    index = lua.lua_absindex(L, index); // change to abs index in case iterate call error
+    const type = lua.lua_type(L, index);
     switch (type) {
-      case 'number':
-        return lua.lua_tonumber(this.L, index);
-      case 'string':
-        return lua.lua_tojsstring(this.L, index);
-      case 'boolean':
-        return lua.lua_toboolean(this.L, index);
-      case 'userdata':
-        return lua.lua_touserdata(this.L, index);
-      case 'function':
+      case lua.LUA_TNUMBER:
+        return lua.lua_tonumber(L, index);
+      case lua.LUA_TSTRING:
+        return lua.lua_tojsstring(L, index);
+      case lua.LUA_TBOOLEAN:
+        return lua.lua_toboolean(L, index);
+      case lua.LUA_TUSERDATA:
+        return lua.lua_touserdata(L, index);
+      case lua.LUA_TFUNCTION:
         // lua_pushvalue will load index value on stack top
         // luaL_ref will pop the value and store as a ref for later use
-        lua.lua_pushvalue(this.L, index);
-        const cbRef = lauxlib.luaL_ref(this.L, lua.LUA_REGISTRYINDEX);
+        lua.lua_pushvalue(L, index);
+        const cbRef = lauxlib.luaL_ref(L, lua.LUA_REGISTRYINDEX);
         return (...args: any[]): any => {
           // get callback funtion and push to stack top
-          const oldStackTop = lua.lua_gettop(this.L);
-          lua.lua_rawgeti(this.L, lua.LUA_REGISTRYINDEX, cbRef);
+          const oldStackTop = lua.lua_gettop(L);
+          lua.lua_rawgeti(L, lua.LUA_REGISTRYINDEX, cbRef);
           args.forEach(p => {
             // push all args in sequence
-            this.pushStackValue(p);
+            this.pushStackValue(L, p);
           });
           // call current function
-          let ret = lua.lua_pcall(this.L, args.length, lua.LUA_MULTRET, 0);
+          let ret = lua.lua_pcall(L, args.length, lua.LUA_MULTRET, 0);
           if (ret !== lua.LUA_OK) {
             // If ret !=== lua.LUA_OK, means there are errors while executing the function
-            console.log(`Error when exec function, ret=${ret}, msg=${this.getStackValue(-1)}`);
+            console.log(`Error when exec function, ret=${ret}, msg=${this.getStackValue(L, -1)}`);
           }
           ret = undefined;
-          if (lua.lua_gettop(this.L) !== oldStackTop) {
+          if (lua.lua_gettop(L) !== oldStackTop) {
             // after function call, stack top not equal means have return value
             // get the last return value from stack
-            ret = this.getStackValue(-1);
+            ret = this.getStackValue(L, -1);
           }
           return ret;
         };
-      case 'table':
+      case lua.LUA_TTABLE:
+        // only support array and object
         let v: any;
         try {
-          lua.lua_rawgeti(this.L, index, 1);
-          v = this.getStackValue(-1);
-          lua.lua_pop(this.L, 1);
+          lua.lua_rawgeti(L, index, 1);
+          v = this.getStackValue(L, -1);
+          lua.lua_pop(L, 1);
         // tslint:disable-next-line: no-empty
         } catch { }
         if (v !== null && v !== undefined) {  // need to check like this
           // array
           const arr: any[] = [];
           for (let i = 1; ; i++) {
-            lua.lua_rawgeti(this.L, index, i);
-            const v = this.getStackValue(-1);
-            lua.lua_pop(this.L, 1);
+            lua.lua_rawgeti(L, index, i);
+            const v = this.getStackValue(L, -1);
+            lua.lua_pop(L, 1);
             if (!v) break;
             arr.push(v);
           }
           return arr;
         } else {
           const ret: any = {};
-          lua.lua_pushnil(this.L);
-          while (lua.lua_next(this.L, index) !== 0) {
+          lua.lua_pushnil(L);
+          while (lua.lua_next(L, index) !== 0) {
             // iterate keys and values from table at index
             // lua_next will push key and value on stack
-            const value = this.getStackValue(-1);
-            const key = this.getStackValue(-2);
+            const value = this.getStackValue(L, -1);
+            const key = this.getStackValue(L, -2);
             if (value && key) {
               ret[key] = value;
             }
-            lua.lua_pop(this.L, 1);
+            lua.lua_pop(L, 1);
           }
           return ret;
         }
-      case 'no value':
+      case lua.LUA_TTHREAD:
+        return lua.lua_tothread(L, index);
+      case lua.LUA_TNONE:
         return undefined;
-      case 'nil':
+      case lua.LUA_TNIL:
         return null;
       default:
         console.log(`Not supported type=${type}, index=${index}`);
@@ -170,73 +195,61 @@ export class LuaVm {
     }
   }
 
-  private pushStackValue(value: any): number {
+  private pushStackValue(L: any, value: any, target?: any): number {
     const type = typeof value;
     switch (type) {
       case 'number':
-        lua.lua_pushnumber(this.L, value);
+        lua.lua_pushnumber(L, value);
         break;
       case 'string':
-        lua.lua_pushstring(this.L, value);
+        lua.lua_pushstring(L, value);
         break;
       case 'boolean':
-        lua.lua_pushboolean(this.L, value);
+        lua.lua_pushboolean(L, value);
         break;
       case 'object':
-        if (value === null) {
+        if (value === null || value === undefined) {
           return 0;
-        } else if (value instanceof Map) {
-          // if pass in a Map, push as a table, so can use it in lua
-          // the key must be in string type, the value can be any type
-          lua.lua_newtable(this.L);
-          for (const [ k, v ] of value) {
-            if (typeof k === 'string') {
-              lua.lua_pushstring(this.L, k);
-              const n = this.pushStackValue(v);
-              if (n === 0) {
-                // not support type or not push into stack
-                // pop out the key
-                lua.lua_pop(this.L, 1);
-              } else {
-                // set table value into table
-                lua.lua_settable(this.L, -3);
-              }
-            }
-          }
         } else if (Array.isArray(value)) {
           // if pass in an array, push as a table, set index and value
-          lua.lua_newtable(this.L);
+          lua.lua_newtable(L);
           (value as any[]).forEach((v, i) => {
-            const n = this.pushStackValue(v);
+            const n = this.pushStackValue(L, v);
             if (n !== 0) {
-              lua.lua_rawseti(this.L, -2, i + 1);
+              lua.lua_rawseti(L, -2, i + 1);
             } else {
-              lua.lua_pop(this.L, 1);
+              lua.lua_pop(L, 1);
             }
           });
         } else if (value instanceof Date) {
-          lua.lua_pushstring(this.L, value.toDateString());
+          lua.lua_pushstring(L, value.toDateString());
           break;
         } else {
-          lua.lua_newtable(this.L);
+          lua.lua_newtable(L);
           Object.keys(value).forEach(key => {
-            if (typeof key === 'string') {
-              lua.lua_pushstring(this.L, key);
-              const n = this.pushStackValue(value[key]);
-              if (n === 0) {
-                // not support type or not push into stack
-                // pop out the key
-                lua.lua_pop(this.L, 1);
-              } else {
-                // set table value into table
-                lua.lua_settable(this.L, -3);
-              }
+            lua.lua_pushstring(L, key);
+            const v = value[key];
+            let n = 0;
+            if (typeof v === 'function') {
+              // if the value is function, wrap and bind target and push back
+              const f = this.wrapFunc(v.name, v, target);
+              n = this.pushStackValue(L, f, value);
+            } else {
+              n = this.pushStackValue(L, value[key]);
+            }
+            if (n === 0) {
+              // not support type or not push into stack
+              // pop out the key
+              lua.lua_pop(L, 1);
+            } else {
+              // set table value into table
+              lua.lua_settable(L, -3);
             }
           });
         }
         break;
       case 'function':
-        lua.lua_pushjsfunction(this.L, value);
+        lua.lua_pushjsfunction(L, value);
         break;
       case 'undefined':
         return 0;
@@ -245,12 +258,6 @@ export class LuaVm {
         return 0;
     }
     return 1;
-  }
-
-  private getStackType(index: number): string {
-    const luaType = lua.lua_type(this.L, index);
-    const type = lua.lua_typename(this.L, luaType);
-    return this.decoder.decode(type);
   }
 
   public getLuaBuidinCodeLines(): number {

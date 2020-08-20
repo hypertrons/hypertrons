@@ -15,7 +15,7 @@
 'use strict';
 
 import assert from 'power-assert';
-import { LuaVm } from '../../app/lua-vm/LuaVm';
+import { LuaVm } from '../../app/lua-vm/lua-vm';
 import { prepareTestApplication, testClear, waitFor } from '../Util';
 import { Application, Agent } from 'egg';
 
@@ -25,15 +25,6 @@ describe('LuaVm', () => {
 
   beforeEach(() => {
     luaVm = new LuaVm();
-  });
-
-  it('Should run simple print', () => {
-    luaVm.run('print("Lua test internal string")');
-  });
-
-  it('Should get passed string', () => {
-    luaVm.set('var', 'Lua test with passed string');
-    luaVm.run('print(var)');
   });
 
   it('Should get return value', () => {
@@ -63,56 +54,6 @@ c[3] = 5;
 return c
 `);
     assert(result[2] === 5);
-  });
-
-  it('Should exec injected functions', () => {
-    const a = 2, b = 3;
-    const add = (a: number, b: number): number => {
-      return a + b;
-    };
-    luaVm.set('add', add).set('a', a).set('b', b);
-    const result = luaVm.run('return add(a, b)');
-    assert(result === a + b);
-  });
-
-  it('Should exec inject functions with callback', () => {
-    const a = 2, b = 3, c = 4;
-    let res = 0;
-    const func = (a: number, b: number, cb: (r: number) => void): void => {
-      cb(a - b);
-    };
-    const cb = (r: number): void => {
-      res = r;
-    };
-    luaVm.set('func', func).set('cb', cb).set('a', a).set('b', b).set('c', c);
-    luaVm.run(`
-func(a, b, function (r)
-  cb(r + c)
-end)`);
-    assert(res === a - b + c);
-  });
-
-  it('Should exec inject functions with multiple callbacks', () => {
-    const a = 2, b = 3, c = 4;
-    let res1 = 0, res2 = 0;
-    const func = (a: number, b: number, cb1: (r: number) => void, cb2: (r: number) => void): void => {
-      cb1(a - b);
-      cb2(a + b);
-    };
-    const cb1 = (r: number): void => {
-      res1 = r;
-    };
-    const cb2 = (r: number): void => {
-      res2 = r;
-    };
-    luaVm.set('func', func).set('cb1', cb1).set('cb2', cb2).set('a', a).set('b', b).set('c', c);
-    luaVm.run(`
-func(a, b, function (r)
-  cb1(r + c)
-end, function (r)
-  cb2(r - c)
-end)`);
-    assert((res1 === a - b + c) && (res2 === a + b - c));
   });
 
   it('Should exec inject functions with multiple callbacks with return value', () => {
@@ -168,12 +109,54 @@ set(t)
     assert(res.a === 'test' && res.d.e === -1);
   });
 
+  it('Should support ts promise call', async () => {
+    let res = 0;
+    const test = async (a: number, b: number) => {
+      await waitFor(10); // some async stuff
+      return a + b;
+    };
+    const set = (num: number) => {
+      res = num;
+    };
+    luaVm.set('test', test).set('set', set);
+    luaVm.run(`
+wrap(function()
+  local res = test(1, 2)
+  local res2 = test(res, 4)
+  set(res2)
+end)
+`);
+    await waitFor(30);
+    assert(res === 7);
+  });
+
+  it('Should support object will async member function', async () => {
+    let res = 0;
+    const num = 3;
+    const obj = {
+      num: 5,
+      async asyncAdd(num: number) {
+        await waitFor(5);
+        res = obj.num + num;
+      },
+    };
+    luaVm.set('obj', obj).set('num', num);
+    luaVm.run(`
+wrap(function()
+  obj.asyncAdd(num)
+end)
+`);
+    await waitFor(10);
+    assert(res === (obj.num + num));
+  });
+
   describe('Integrate test with app', () => {
     let app: Application;
     let agent: Agent;
 
     class TestEvent {
-      num: number;
+      num1: number;
+      num2: number;
     }
 
     beforeEach(async () => {
@@ -193,17 +176,24 @@ set(t)
           });
         }
       };
-      const test = (e: TestEvent): void => {
-        res = e.num;
+      const test = async (e: TestEvent): Promise<void> => {
+        await waitFor(5);
+        res = e.num1;
       };
-      luaVm.set('on', on).set('test', test);
+      const test2 = (e: TestEvent) => {
+        res = e.num2;
+      };
+      luaVm.set('on', on).set('test', test).set('test2', test2);
       luaVm.run(`
 on('TestEvent', function (e)
-  test(e)
+  wrap(function()
+    test(e)
+    test2(e)
+  end)
 end)`);
-      agent.event.publish('worker', TestEvent, { num: 5 });
+      agent.event.publish('worker', TestEvent, { num1: 5, num2: 3 });
       await waitFor(20);
-      assert(res === 5);
+      assert(res === 3);
     });
   });
 
