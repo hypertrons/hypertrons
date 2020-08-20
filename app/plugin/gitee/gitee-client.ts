@@ -301,4 +301,24 @@ export class GiteeClient extends HostingClientBase<GiteeConfig, GiteeRawClient> 
     });
   }
 
+  public async newBranch(newBranchName: string, baseBranchName: string, cb?: () => void): Promise<void> {
+    // TODO
+    this.logger.info(newBranchName, baseBranchName);
+    if (cb) cb();
+    return new Promise(() => {});
+  }
+
+  public async createOrUpdateFile(filePath: string, content: string, commitMessgae: string, branchName: string, cb?: () => void): Promise<void> {
+    // TODO
+    this.logger.info(filePath, content, commitMessgae, branchName);
+    if (cb) cb();
+    return new Promise(() => {});
+  }
+
+  public async newPullRequest(title: string, head: string, base: string): Promise<void> {
+    // TODO
+    this.logger.info(title, 'from', head, 'to', base);
+    return new Promise(() => { });
+  }
+
 }

@@ -373,6 +373,21 @@ export class LuaService<TConfig extends HostingConfigBase, TRawClient> extends C
   }
 
   @luaMethod()
+  protected lua_newBranch(newBranchName: string, baseBranchName: string, cb: () => void): void {
+    this.client.newBranch(newBranchName, baseBranchName, cb);
+  }
+
+  @luaMethod()
+  protected lua_createOrUpdateFile(filePath: string, content: string, commitMessgae: string, branchName: string, cb: () => void): void {
+    this.client.createOrUpdateFile(filePath, content, commitMessgae, branchName, cb);
+  }
+
+  @luaMethod()
+  protected lua_newPullRequest(title: string, head: string, base: string): void {
+    this.client.newPullRequest(title, head, base);
+  }
+
+  @luaMethod()
   protected lua_toNow(time: string): number {
     return new Date().getTime() - new Date(time).getTime();
   }
