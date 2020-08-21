@@ -317,6 +317,13 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
   public async createOrUpdateFile(filePath: string, content: string, commitMessgae: string, branchName: string, cb?: () => void): Promise<void> {
     this.logger.info('createOrUpdateFile:', filePath);
     const content64 = Buffer.from(content).toString('base64');
+
+    // need to get file first, if exist, need to pass sha in
+    const originFile = await this.getFileContent(filePath);
+    let sha: string | undefined;
+    if (originFile) {
+      sha = originFile.sha;
+    }
     await this.rawClient.repos.createOrUpdateFile({
       repo: this.repo,
       owner: this.owner,
@@ -324,6 +331,7 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
       message: commitMessgae,
       path: filePath,
       branch: branchName,
+      sha,
     });
 
     if (cb) {
