@@ -22,6 +22,7 @@ import { deepEqual } from 'assert';
 import { HostingClientConfigInitedEvent } from '../../../../../app/basic/HostingPlatform/event';
 import assert from 'power-assert';
 import * as path from 'path';
+import { RepoFile } from '../../../../../app/basic/DataTypes';
 
 describe('ConfigService', () => {
   let app: Application;
@@ -385,8 +386,8 @@ describe('ConfigService', () => {
           config: { remote: { filePath: 'path' } },
         };
       };
-      client.getFileContent = async (_: string): Promise<string | undefined> => {
-        return '{"key": "value"}';
+      client.getFileContent = async (_: string): Promise<RepoFile | undefined> => {
+        return { content: '{"key": "value"}' } as any;
       };
       const res = await (client.configService as any).loadConfigFromRemote();
       deepEqual({ key: 'value' }, res);
@@ -399,7 +400,9 @@ describe('ConfigService', () => {
       client = new GitHubClient('wsl/test', 0, app, null as any, new MockHostingBase() as any);
       await waitUntil(() => client.getStarted(), { interval: 5 });
       (client.configService as any).config = { comp1: {}, comp2: {} };
-      client.getFileContent = (async (path: string): Promise<string | undefined> => `this is lua script in ${path}`);
+      client.getFileContent = (async (path: string): Promise<RepoFile | undefined> => {
+        return { content: `this is lua script in ${path}` } as any;
+      });
     });
     after(() => {
       testClear(app, agent);

@@ -137,7 +137,7 @@ describe('GitHubClient', () => {
       create: check => this.testResult.check = check,
     };
     repos: any = {
-      getContents: () => ({ data: { content: this.testResult.content } }),
+      getContents: () => ({ data: { content: this.testResult.content, encoding: 'base64' } }),
     };
   }
 
@@ -145,12 +145,7 @@ describe('GitHubClient', () => {
     it('getFileContent', async () => {
       // the base64 form of string "test" is "dGVzdA=="
       testResult.content = 'dGVzdA==';
-      assert.deepStrictEqual(await client.getFileContent('path'), 'test');
-    });
-
-    it('catch error', async () => {
-      testResult.content = undefined;
-      assert.deepStrictEqual(await client.getFileContent('path'), undefined);
+      assert.deepStrictEqual(await client.getFileContent('path'), { content: 'test' });
     });
   });
 

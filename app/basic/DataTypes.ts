@@ -196,3 +196,23 @@ export interface Pusher {
 export enum CIPlatform {
   Jenkins = 'jenkins',
 }
+
+export interface RepoFile {
+  type: string;
+  content: string;
+  encoding: string;
+  name: string;
+  path: string;
+  sha: string;
+  url: string;
+  size: number;
+}
+
+export interface RepoDir {
+  type: string;
+  name: string;
+  path: string;
+  sha: string;
+  url: string;
+  size: number;
+}

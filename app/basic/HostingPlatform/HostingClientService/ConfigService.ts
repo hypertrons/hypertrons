@@ -203,7 +203,7 @@ export class ConfigService<TConfig extends HostingConfigBase, TRawClient>
       const hostingConfig = this.client.getHostingConfig();
       // load config from remote
       const remoteConfig = await this.client.getFileContent(hostingConfig.config.remote.filePath);
-      if (remoteConfig) return JSON.parse(remoteConfig);
+      if (remoteConfig) return JSON.parse(remoteConfig.content);
     } catch (error) {
       this.logger.error(error);
     }
@@ -249,8 +249,8 @@ export class ConfigService<TConfig extends HostingConfigBase, TRawClient>
       const compNames = Object.keys(this.config);
       for (const i in compNames) {
         const luaCompPath = this.genRepoLuaFilePath(hostingConfig.config.remote.luaScriptPath, compNames[i]);
-        const content = await this.client.getFileContent(luaCompPath);
-        if (content) repoLuaComps[compNames[i]] = content;
+        const file = await this.client.getFileContent(luaCompPath);
+        if (file && file.content) repoLuaComps[compNames[i]] = file.content;
       }
     } catch (error) {
       this.logger.error(error);

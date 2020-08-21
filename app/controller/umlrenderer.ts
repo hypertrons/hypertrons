@@ -29,12 +29,12 @@ export default class UmlRenderer extends Controller {
       this.ctx.body = 'Client not found';
       return;
     }
-    const content = await client.getFileContent(path[0]);
-    if (!content) {
+    const file = await client.getFileContent(path[0]);
+    if (!file || !file.content) {
       this.ctx.body = 'UML file not found';
       return;
     }
-    const url = genPlantUmlUrl(content);
+    const url = genPlantUmlUrl(file.content);
     this.ctx.redirect(url);
   }
 }

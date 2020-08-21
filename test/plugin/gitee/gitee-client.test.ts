@@ -143,9 +143,9 @@ describe('GiteeClient', () => {
       },
       getContents: (param: { owner, repo, path }) => {
         if (param.path === 'correct') {
-          return { content: 'dGVzdA==' };
+          return { content: 'dGVzdA==', encoding: 'base64' };
         } else {
-          return { content: undefined };
+          throw new Error('File not exist');
         }
       },
     };
@@ -162,7 +162,7 @@ describe('GiteeClient', () => {
     it('getFileContent', async () => {
       // the base64 form of string "test" is "dGVzdA=="
       testResult.push('dGVzdA==');
-      assert.deepStrictEqual(await client.getFileContent('correct'), 'test');
+      assert.deepStrictEqual(await client.getFileContent('correct'), { content: 'test' });
     });
 
     it('catch error', async () => {

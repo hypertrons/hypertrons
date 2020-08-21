@@ -34,7 +34,7 @@ describe('Umlrenderer Controller', () => {
     it('should status 302 and redirect', async () => {
       const client = await app.github.getClient(0, 'owner/repo');
       const fileContent = await (client as any).getFileContent('path');
-      const plantUmlUrl = genPlantUmlUrl(fileContent);
+      const plantUmlUrl = genPlantUmlUrl(fileContent.content);
       return app.httpRequest()
         .get('/umlrenderer/github/owner/repo?path=path')
         .expect(302)
