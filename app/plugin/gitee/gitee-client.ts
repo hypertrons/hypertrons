@@ -19,7 +19,7 @@ import { Application } from 'egg';
 import { HostingBase } from '../../basic/HostingPlatform/HostingBase';
 import { parseRepoName } from '../../basic/Utils';
 import { convertIssueNumber2Number, convertIssueNumber2String } from './util';
-import { CreatePullRequestOption } from '../../basic/DataTypes';
+import { CreatePullRequestOption, RepoFile, RepoDir } from '../../basic/DataTypes';
 
 export class GiteeClient extends HostingClientBase<GiteeConfig, GiteeRawClient> {
 
@@ -154,18 +154,26 @@ export class GiteeClient extends HostingClientBase<GiteeConfig, GiteeRawClient> 
     this.repoDataService.setRepoData(formatRepoData);
   }
 
-  public async getFileContent(path: string): Promise<string | undefined> {
+  public async getFileContent(path: string): Promise<RepoFile | undefined> {
     /// API doc: https://gitee.com/api/v5/swagger#/getV5ReposOwnerRepoContents(Path)
     try {
       const res = await this.rawClient.repos.getContents({
         ...this.repoName,
         path,
       });
-      const content = (res as any).content;
-      return Buffer.from(content, 'base64').toString('ascii');
+      if (res.content && res.encoding === 'base64') {
+        res.content = Buffer.from(res.content, 'base64').toString('ascii');
+        delete res.encoding;
+      }
+      return res;
     } catch (e) {
       return undefined;
     }
+  }
+
+  public getDirectoryContent(_: string): Promise<RepoDir[] | undefined> {
+    // TODO
+    throw new Error('Method not implemented.');
   }
 
   public async addIssueComment(number: number, body: string): Promise<void> {

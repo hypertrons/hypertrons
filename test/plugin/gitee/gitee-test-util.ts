@@ -25,7 +25,7 @@ import { waitFor } from '../../Util';
 import { waitUntil } from '../../../app/basic/Utils';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { Repo } from '../../../app/basic/DataTypes';
+import { Repo, RepoFile } from '../../../app/basic/DataTypes';
 
 /**
  * Mock Gitee App
@@ -71,7 +71,7 @@ export class MockGiteeClient extends GiteeClient {
     this.repoDataService.setRepoData(this.mockRepoData);
   }
 
-  public async getFileContent(path: string): Promise<string | undefined> {
+  public async getFileContent(path: string): Promise<RepoFile | undefined> {
     this.testResult.push([ 'getFileContent', path ]);
     return;
   }

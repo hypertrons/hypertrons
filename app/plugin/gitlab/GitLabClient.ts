@@ -15,7 +15,7 @@
 import { HostingClientBase } from '../../basic/HostingPlatform/HostingClientBase';
 import { Gitlab } from 'gitlab';
 import { Application } from 'egg';
-import { CheckRun, CreatePullRequestOption } from '../../basic/DataTypes';
+import { CheckRun, CreatePullRequestOption, RepoDir, RepoFile } from '../../basic/DataTypes';
 import { getAll } from './data/getAll';
 import { GitlabGraphqlClient } from './client/GitlabGraphqlClient';
 import { GitLabConfig } from './GitLabConfig';
@@ -39,9 +39,17 @@ export class GitLabClient extends HostingClientBase<GitLabConfig, Gitlab> {
     this.repoDataService.setRepoData(await getAll(this.gitlabGraphqlClient, this.fullName));
   }
 
-  public async getFileContent(path: string): Promise<string | undefined> {
-    const res = await this.rawClient.RepositoryFiles.showRaw(this.id, path, 'master');
-    return res as any;
+  public async getFileContent(path: string, ref?: string): Promise<RepoFile | undefined> {
+    const res: any = await this.rawClient.RepositoryFiles.show(this.id, path, ref ?? 'master');
+    if (res.content && res.encoding === 'base64') {
+      res.content = Buffer.from(res.content, 'base64').toString('ascii');
+      delete res.encoding;
+    }
+    return res;
+  }
+
+  public async getDirectoryContent(): Promise<RepoDir[] | undefined> {
+    throw new Error('Method not implemented.');
   }
 
   public async addIssue(title: string, body: string, labels?: string[] | undefined): Promise<void> {

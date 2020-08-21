@@ -14,7 +14,7 @@
 
 import { BotLogger, loggerWrapper, waitUntil, parseRepoName } from '../Utils';
 import { Application } from 'egg';
-import { CheckRun, CIPlatform, Repo, CreatePullRequestOption } from '../DataTypes';
+import { CheckRun, CIPlatform, Repo, CreatePullRequestOption, RepoFile, RepoDir } from '../DataTypes';
 import CIConfig from '../../component/ci/config';
 import { LuaService } from './HostingClientService/LuaService';
 import { HostingBase } from './HostingBase';
@@ -114,7 +114,9 @@ export abstract class HostingClientBase<TConfig extends HostingConfigBase, TRawC
 
   protected abstract async updateData(): Promise<void>;
 
-  public abstract async getFileContent(path: string): Promise<string | undefined>;
+  public abstract async getFileContent(path: string, ref?: string): Promise<RepoFile | undefined>;
+
+  public abstract async getDirectoryContent(path: string, ref?: string): Promise<RepoDir[] | undefined>;
 
   public abstract async addIssue(title: string, body: string, labels?: string[] | undefined): Promise<void>;
 

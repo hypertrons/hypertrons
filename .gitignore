@@ -23,5 +23,5 @@ test/**/*.map
 config/**/*.map
 typings/**/*
 .travis.yml
-private-key.pem
-globalConfig.json
+*.pem
+globalConfig.json*

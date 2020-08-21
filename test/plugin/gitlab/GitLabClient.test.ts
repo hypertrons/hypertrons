@@ -89,14 +89,19 @@ describe('GitLabClient', () => {
       all: () => this.testResult.labels,
     };
     RepositoryFiles: any = {
-      showRaw: () => this.testResult.content,
+      show: () => {
+        return {
+          content: this.testResult.content,
+          encoding: 'base64',
+        };
+      },
     };
   }
 
   describe('getFileContent', () => {
     it('getFileContent', async () => {
-      testResult.content = 'fileContent';
-      assert.deepStrictEqual(await client.getFileContent('path'), 'fileContent');
+      testResult.content = 'dGVzdA==';
+      assert.deepStrictEqual(await client.getFileContent('path'), { content: 'test' });
     });
   });
 

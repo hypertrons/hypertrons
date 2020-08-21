@@ -15,7 +15,7 @@
 import { HostingClientBase } from '../../basic/HostingPlatform/HostingClientBase';
 import { parseRepoName, ParseDate, waitUntil } from '../../basic/Utils';
 import Octokit = require('@octokit/rest');
-import { CheckRun, CreatePullRequestOption } from '../../basic/DataTypes';
+import { CheckRun, CreatePullRequestOption, RepoDir, RepoFile } from '../../basic/DataTypes';
 import { Application } from 'egg';
 import { DataCat } from 'github-data-cat';
 import { RepoDataService } from '../../basic/HostingPlatform/HostingClientService/RepoDataService';
@@ -109,7 +109,7 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
     });
   }
 
-  public async getFileContent(path: string, ref?: string): Promise<string | undefined> {
+  public async getFileContent(path: string, ref?: string): Promise<RepoFile | undefined> {
     try {
       let res;
       if (ref) {
@@ -124,10 +124,34 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
           path,
         });
       }
-      const content = (res.data as any).content;
-      return Buffer.from(content, 'base64').toString('ascii');
+      res = res.data;
+      if (res.content && res.encoding === 'base64') {
+        res.content = Buffer.from(res.content, 'base64').toString('ascii');
+        delete res.encoding;
+      }
+      return res;
     } catch (e) {
-      this.logger.error(e);
+      return undefined;
+    }
+  }
+
+  public async getDirectoryContent(path: string, ref?: string): Promise<RepoDir[] | undefined> {
+    try {
+      let res;
+      if (ref) {
+        res = await this.rawClient.repos.getContents({
+          ...this.repoName,
+          path,
+          ref,
+        });
+      } else {
+        res = await this.rawClient.repos.getContents({
+          ...this.repoName,
+          path,
+        });
+      }
+      return res.data;
+    } catch (e) {
       return undefined;
     }
   }

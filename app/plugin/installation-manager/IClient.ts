@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import { RepoEventBase } from '../event-manager/events';
+import { RepoFile } from '../../basic/DataTypes';
 
 export interface IClient {
 
@@ -20,7 +21,7 @@ export interface IClient {
     consume<T extends RepoEventBase>(className: string, type: 'worker' | 'workers' | 'agent' | 'all', param: T): Promise<void>;
   };
 
-  getFileContent(filePath: string): Promise<string | undefined>;
+  getFileContent(filePath: string): Promise<RepoFile | undefined>;
 
   communitySvgImage(): string;
 
