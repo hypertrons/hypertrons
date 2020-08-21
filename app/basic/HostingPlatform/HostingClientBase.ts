@@ -14,7 +14,7 @@
 
 import { BotLogger, loggerWrapper, waitUntil, parseRepoName } from '../Utils';
 import { Application } from 'egg';
-import { CheckRun, CIPlatform, Repo } from '../DataTypes';
+import { CheckRun, CIPlatform, Repo, CreatePullRequestOption } from '../DataTypes';
 import CIConfig from '../../component/ci/config';
 import { LuaService } from './HostingClientService/LuaService';
 import { HostingBase } from './HostingBase';
@@ -146,7 +146,7 @@ export abstract class HostingClientBase<TConfig extends HostingConfigBase, TRawC
 
   public abstract async createOrUpdateFile(filePath: string, content: string, commitMessgae: string, branchName: string, cb?: () => void): Promise<void>;
 
-  public abstract async newPullRequest(title: string, head: string, base: string): Promise<void>;
+  public abstract async newPullRequest(option: CreatePullRequestOption): Promise<void>;
 
   //endregion
 

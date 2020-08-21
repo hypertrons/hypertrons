@@ -232,7 +232,7 @@ export class ComponentService {
       this.componentLoaded = true;
       return this.components;
     } catch (e) {
-      this.logger.error(`Error while load components, e=${e}`);
+      this.logger.error(`Error while load components, e=${JSON.stringify(e)}`);
     }
   }
 
@@ -284,7 +284,7 @@ export class ComponentService {
         }
       } catch (e) {
         if (e.code === 'MODULE_NOT_FOUND') return;
-        this.logger.warn(`Error loading config of ${name}, e=`, e);
+        this.logger.warn(`Error loading config of ${name}, e=${JSON.stringify(e)}`);
       }
 
       // read lua script
@@ -294,7 +294,7 @@ export class ComponentService {
           componentBody.luaScript = readFileSync(luaScriptPath, 'utf8');
         }
       } catch (e) {
-        this.logger.warn(`Error loading lua of ${name}, e=`, e);
+        this.logger.warn(`Error loading lua of ${name}, e=${JSON.stringify(e)}`);
       }
 
       // save
@@ -305,7 +305,7 @@ export class ComponentService {
       this.components[name][version.version] = componentBody;
       this.configStructure[name][version.version] = componentBody.configStructure;
     } catch (e) {
-      this.logger.error(`Error while load component ${name}, e=${e}`);
+      this.logger.error(`Error while load component ${name}, e=${JSON.stringify(e)}`);
     }
   }
 
@@ -381,7 +381,7 @@ export class ComponentService {
         }),
       );
     } catch (e) {
-      this.logger.error(`Error while save component ${name} local files, e=${e}`);
+      this.logger.error(`Error while save component ${name} local files, e=${JSON.stringify(e)}`);
     }
 
     // get file content by github api

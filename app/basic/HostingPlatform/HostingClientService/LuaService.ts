@@ -16,7 +16,7 @@ import { Application } from 'egg';
 import RoleConfig from '../../../component/role/config';
 import { LuaVm } from '../../../lua-vm/lua-vm';
 import { luaMethod, luaEvents } from '../../../lua-vm/decorators';
-import { Repo } from '../../DataTypes';
+import { Repo, CreatePullRequestOption } from '../../DataTypes';
 import IMConfig from '../../../component/im/config';
 import { IncomingWebhookSendArguments } from '@slack/webhook/dist/IncomingWebhook';
 import * as Nodemailer from 'nodemailer';
@@ -383,8 +383,8 @@ export class LuaService<TConfig extends HostingConfigBase, TRawClient> extends C
   }
 
   @luaMethod()
-  protected lua_newPullRequest(title: string, head: string, base: string): void {
-    this.client.newPullRequest(title, head, base);
+  protected lua_newPullRequest(option: CreatePullRequestOption): void {
+    this.client.newPullRequest(option);
   }
 
   @luaMethod()
