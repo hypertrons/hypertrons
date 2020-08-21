@@ -95,6 +95,14 @@ export interface PullRequest {
   deletions: number;
 }
 
+export interface CreatePullRequestOption {
+  title: string;
+  body?: string;
+  head: string;
+  base: string;
+  allowModify?: boolean;
+}
+
 export interface Review {
   id: number;
   login: string;

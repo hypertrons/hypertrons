@@ -15,7 +15,7 @@
 import { HostingClientBase } from '../../basic/HostingPlatform/HostingClientBase';
 import { parseRepoName, ParseDate, waitUntil } from '../../basic/Utils';
 import Octokit = require('@octokit/rest');
-import { CheckRun } from '../../basic/DataTypes';
+import { CheckRun, CreatePullRequestOption } from '../../basic/DataTypes';
 import { Application } from 'egg';
 import { DataCat } from 'github-data-cat';
 import { RepoDataService } from '../../basic/HostingPlatform/HostingClientService/RepoDataService';
@@ -307,14 +307,16 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
     }
   }
 
-  public async newPullRequest(title: string, head: string, base: string): Promise<void> {
-    this.logger.info('new pull request, from', head, 'to', base);
+  public async newPullRequest(option: CreatePullRequestOption): Promise<void> {
+    this.logger.info(option);
     await this.rawClient.pulls.create({
       owner: this.owner,
       repo: this.repo,
-      title,
-      head,
-      base,
+      base: option.base,
+      head: option.head,
+      maintainer_can_modify: option.allowModify,
+      title: option.title,
+      body: option.body,
     });
   }
 

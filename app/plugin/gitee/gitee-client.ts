@@ -19,6 +19,7 @@ import { Application } from 'egg';
 import { HostingBase } from '../../basic/HostingPlatform/HostingBase';
 import { parseRepoName } from '../../basic/Utils';
 import { convertIssueNumber2Number, convertIssueNumber2String } from './util';
+import { CreatePullRequestOption } from '../../basic/DataTypes';
 
 export class GiteeClient extends HostingClientBase<GiteeConfig, GiteeRawClient> {
 
@@ -315,9 +316,9 @@ export class GiteeClient extends HostingClientBase<GiteeConfig, GiteeRawClient> 
     return new Promise(() => {});
   }
 
-  public async newPullRequest(title: string, head: string, base: string): Promise<void> {
+  public async newPullRequest(option: CreatePullRequestOption): Promise<void> {
     // TODO
-    this.logger.info(title, 'from', head, 'to', base);
+    this.logger.info(option);
     return new Promise(() => { });
   }
 

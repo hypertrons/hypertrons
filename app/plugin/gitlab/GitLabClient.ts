@@ -15,7 +15,7 @@
 import { HostingClientBase } from '../../basic/HostingPlatform/HostingClientBase';
 import { Gitlab } from 'gitlab';
 import { Application } from 'egg';
-import { CheckRun } from '../../basic/DataTypes';
+import { CheckRun, CreatePullRequestOption } from '../../basic/DataTypes';
 import { getAll } from './data/getAll';
 import { GitlabGraphqlClient } from './client/GitlabGraphqlClient';
 import { GitLabConfig } from './GitLabConfig';
@@ -187,10 +187,13 @@ export class GitLabClient extends HostingClientBase<GitLabConfig, Gitlab> {
     if (cb) cb();
   }
 
-  public async newPullRequest(title: string, head: string, base: string): Promise<void> {
+  public async newPullRequest(option: CreatePullRequestOption): Promise<void> {
     // todo: test
-    this.logger.info(title, 'from', head, 'to', base);
-    this.rawClient.MergeRequests.create(this.id, head, base, title);
+    this.logger.info('New pull request', option);
+    this.rawClient.MergeRequests.create(this.id, option.head, option.base, option.title, {
+      description: option.body,
+      allow_collaboration: option.allowModify,
+    });
     return new Promise(() => { });
   }
 }
