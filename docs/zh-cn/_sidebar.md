@@ -26,7 +26,6 @@
 
     - [approve](/zh-cn/component/approve.md)
     - [auto_label](/zh-cn/component/auto_label.md)
-    - [approve](/zh-cn/component/approve.md)
     - [ci](/zh-cn/component/ci.md)
     - [command](/zh-cn/component/command.md)
     - [complete_checklist](/zh-cn/component/complete_checklist.md)
