@@ -35,9 +35,6 @@ export default (appInfo: EggAppInfo) => {
   };
 
   config.logger = {
-    // level: 'DEBUG',
-    allowDebugAtProd: true,
-    consoleLevel: 'DEBUG',
     dir: process.env.APP_LOG_DIR || join(__dirname, '../', 'logs/'),
   };
 
