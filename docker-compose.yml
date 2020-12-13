@@ -24,6 +24,6 @@ services:
     volumes:
       - ./_conf/private-key.pem:/hypertrons/private-key.pem
       - ./_conf/globalConfig.json:/hypertrons/globalConfig.json
-      - ./_datadir/app/logs:/hypertrons/logs
-      - ./_datadir/npm/:/home/node/.npm/
+      - ./_datadir/app/logs:/hypertrons/logs:rw
+      - ./_datadir/npm/:/home/node/.npm/:rw
     command: npm start

@@ -21,7 +21,8 @@ $ git clone https://github.com/hypertrons/hypertrons.git
 $ cd hypertrons
 
 # Get private-key.pem, appId from you github app page
-$ mkdir -pv _conf
+$ mkdir -pv _datadir _conf
+$ chmod 777 _datadir
 $ cp globalConfigTemplate.json _conf/globalConfig.json
 $ touch _conf/private-key.pem
 
