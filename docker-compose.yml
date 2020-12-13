@@ -1,0 +1,29 @@
+version: "3"
+networks:
+  hypertrons:
+
+services:
+  hypertrons:
+    networks:
+      hypertrons:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      args:
+        - BASE_IMAGE=node:12.20.0-buster
+    container_name: hypertrons
+    hostname: hypertrons
+    image: hypertrons/hypertrons
+    environment:
+      - EGG_SERVER_ENV=prod
+      - GLOBAL_CONFIG=./globalConfig.json
+      - APP_LOG_DIR=/hypertrons/logs
+      - APP_LISTEN_HOST=0.0.0.0
+    ports:
+      - 7001:7001
+    volumes:
+      - ./_conf/private-key.pem:/hypertrons/private-key.pem
+      - ./_conf/globalConfig.json:/hypertrons/globalConfig.json
+      - ./_datadir/app/logs:/hypertrons/logs
+      - ./_datadir/npm/:/home/node/.npm/
+    command: npm start

@@ -1,0 +1,24 @@
+.git/
+.github/
+.idea/
+.vscode/
+.travis.yml
+
+logs/
+node_modules/
+
+**/LICENSE
+**/*.md
+**/*.log
+.DS_Store
+*.swp
+
+*.pem
+globalConfig.json*
+
+# docker
+Dockerfile
+docker-compose.yml
+**/_datadir/
+**/_conf/
+

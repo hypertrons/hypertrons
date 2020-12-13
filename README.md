@@ -4,9 +4,33 @@
 
 Hypertrons is an open source robot hosting platform which supports [GitHub](https://www.github.com) and [GitLab](https://www.gitlab.com).
 
+Hypertrons framework is written in [TypeScript](https://github.com/Microsoft/TypeScript) to improve development quality and the components are written in [Lua](https://www.lua.org) to improve security and support component hot fix/reload.
+
 ## Start using Hypertrons
 
-Hypertrons framework is written in [TypeScript](https://github.com/Microsoft/TypeScript) to improve development quality and the components are written in [Lua](https://www.lua.org) to improve security and support component hot fix/reload.
+### Quick start with docker
+
+* Pre-requirement
+  * Install [Git](https://git-scm.com/downloads)
+  * Install [Docker](https://docs.docker.com/desktop/)
+  * Register [GitHub App](https://github.com/settings/apps)
+
+```sh
+$ git clone https://github.com/hypertrons/hypertrons.git
+
+$ cd hypertrons
+
+# Get private-key.pem, appId from you github app page
+$ mkdir -pv _conf
+$ cp globalConfigTemplate.json _conf/globalConfig.json
+$ touch _conf/private-key.pem
+
+$ docker-compose build
+
+$ docker-compose up -d
+
+$ open http://127.0.0.1:7001/installation/github
+```
 
 ### Platform configuration
 
