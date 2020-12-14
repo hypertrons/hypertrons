@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // tslint:disable: no-bitwise
-const deflate = require('../app/third_party/deflate/deflate');
+import deflate from '../app/third_party/deflate/deflate';
 
 export function genPlantUmlUrl(s: string): string {
 

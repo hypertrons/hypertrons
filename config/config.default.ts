@@ -41,7 +41,7 @@ export default (appInfo: EggAppInfo) => {
   config.cluster = {
     listen: {
       hostname: process.env.APP_LISTEN_HOST || '127.0.0.1',
-    }
+    },
   };
 
   config.onerror = {
