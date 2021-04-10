@@ -33,7 +33,7 @@ const plugin: EggPlugin = {
 
   phManager: {
     enable: true,
-    path: join(__dirname, '../app/plugin/ph-manager'),
+    path: join(__dirname, '../app/plugin/ph-manager'),  // promiseHandler
   },
 
   github: {
@@ -57,13 +57,13 @@ const plugin: EggPlugin = {
   },
 
   imManager: {
-    enable: true,
-    path: join(__dirname, '../app/plugin/im-manager'),
+    enable: false,
+    path: join(__dirname, '../app/plugin/im-manager'),  // private-config
   },
 
   translate: {
-    enable: true,
-    path: join(__dirname, '../app/plugin/translate'),
+    enable: false,
+    path: join(__dirname, '../app/plugin/translate'),   // google translate plugin, private-config
   },
 
   errorManager: {
