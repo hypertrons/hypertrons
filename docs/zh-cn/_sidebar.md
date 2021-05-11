@@ -3,6 +3,7 @@
 -   活动
 
     - [Summer2020](/zh-cn/event/summer2020.md)
+    - [Summer2021](/zh-cn/event/summer2021.md)
 
 -   [插件](/zh-cn/plugin/index.md)
 
