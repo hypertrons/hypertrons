@@ -16,6 +16,8 @@ import { EggAppConfig, EggAppInfo, PowerPartial, Context } from 'egg';
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
+// require('events').EventEmitter.defaultMaxListeners = 15;
+
 export default (appInfo: EggAppInfo) => {
   const config = {} as PowerPartial<EggAppConfig>;
 
@@ -29,6 +31,16 @@ export default (appInfo: EggAppInfo) => {
   config.security = {
     csrf: {
       enable: false,
+    },
+  };
+
+  config.logger = {
+    dir: process.env.APP_LOG_DIR || join(__dirname, '../', 'logs/'),
+  };
+
+  config.cluster = {
+    listen: {
+      hostname: process.env.APP_LISTEN_HOST || '127.0.0.1',
     },
   };
 
@@ -48,7 +60,7 @@ export default (appInfo: EggAppInfo) => {
   };
 
   let pluginConfig = {};
-  const globalConfigPath = process.env.GLOBAL_CONFIG;
+  const globalConfigPath = process.env.GLOBAL_CONFIG || './globalConfig.json';
   if (globalConfigPath) {
     const globalConfigFilePath = join(appInfo.baseDir, globalConfigPath);
     if (existsSync(globalConfigFilePath)) {
