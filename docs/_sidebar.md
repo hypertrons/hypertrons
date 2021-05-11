@@ -3,6 +3,7 @@
 -   Events
 
     - [Summer 2020](/event/summer2020.md)
+    - [Summer 2021](/event/summer2021.md)
 
 -   [Plugins](/plugin/index.md)
 
