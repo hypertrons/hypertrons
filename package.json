@@ -59,7 +59,7 @@
     "pope": "^2.0.2",
     "reflect-metadata": "^0.1.13",
     "smee-client": "^1.1.0",
-    "svgdom": "0.0.21",
+    "svgdom": "0.1.10",
     "vfile-reporter": "^6.0.0",
     "xml2js": "^0.4.19"
   },
