@@ -21,6 +21,8 @@ config/**/*.js
 app/**/*.map
 test/**/*.map
 config/**/*.map
+config/config.prod.*
+config/config.local.*
 typings/**/*
 .travis.yml
 *.pem
