@@ -98,10 +98,10 @@
     "yargs": "^15.1.0"
   },
   "engines": {
-    "node": ">=8.9.0"
+    "node": ">=14.3.0"
   },
   "ci": {
-    "version": "8"
+    "version": "14"
   },
   "repository": {
     "type": "git",
