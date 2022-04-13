@@ -59,7 +59,8 @@ export class IMManager extends AppPluginBase<null> {
           await client.sendMail(message);
           return;
         } catch (e) {
-          if (e.code !== 'ETIMEDOUT') {
+          if (!(e instanceof Error)) throw e;
+          if (e.message !== 'ETIMEDOUT') {
             this.logger.error('Error when send mail ', e);
             return;
           }

@@ -85,6 +85,7 @@ export class GitlabGraphqlClient {
         return this.internalQuery(_query, _param, retryTimes + 1);
       }
     } catch (e) {
+      if (!(e instanceof Error)) throw e;
       this.logger.error(e.message);
       this.logger.info('retryTimes =', retryTimes);
       if (e.message.includes('ETIMEDOUT') || e.message.includes('ECONNRESET')) {
