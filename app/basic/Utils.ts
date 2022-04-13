@@ -71,7 +71,7 @@ export function customizerMerge(...objs: any[]): any {
   const res = cloneDeep(objs[0]);
   try {
     for (let i = 1; i < objs.length; i++) {
-      mergeWith(res, objs[i], (objValue: any, srcValue: any, _: string) => {
+      mergeWith(res, objs[i], (objValue: any, srcValue: any) => {
         if (typeof objValue !== typeof srcValue) return srcValue !== undefined ? srcValue : objValue;
         if (isArray(srcValue)) {
           if (srcValue[0] && srcValue[0].__merge__ === true) {
@@ -92,16 +92,16 @@ export function customizerMergeWithType(...objs: any[]): any {
   const res = cloneDeep(objs[0]);
   try {
     for (let i = 1; i < objs.length; i++) {
-      mergeWith(res, objs[i], (objValue: any, srcValue: any, _: string) => {
+      mergeWith(res, objs[i], (objValue: any, srcValue: any) => {
         if (typeof objValue !== typeof srcValue) {
           return objValue ? objValue : srcValue;
         }
         if (isArray(srcValue)) {
           if (srcValue[0] && srcValue[0].__merge__ === true) {
             return objValue.concat(srcValue.slice(1).filter(v => !objValue.includes(v)));
-          } else {
-            return srcValue;
           }
+          return srcValue;
+
         }
       });
     }
@@ -143,7 +143,7 @@ export function waitUntil(func: () => boolean, options?: object): Promise<void> 
 
 export function uniqueArray<T>(arr: T[]): T[] {
   const unique = (value: T, index: number, self: T[]) => {
-      return self.indexOf(value) === index;
+    return self.indexOf(value) === index;
   };
   return arr.filter(unique);
 }

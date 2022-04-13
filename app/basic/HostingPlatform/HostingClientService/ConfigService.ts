@@ -26,7 +26,7 @@ import { ClientServiceBase } from './ClientServiceBase';
 import { cloneDeep } from 'lodash';
 
 export class ConfigService<TConfig extends HostingConfigBase, TRawClient>
-                          extends ClientServiceBase<TConfig, TRawClient> {
+  extends ClientServiceBase<TConfig, TRawClient> {
 
   private config: any;
   private luaScript: any;
@@ -173,7 +173,7 @@ export class ConfigService<TConfig extends HostingConfigBase, TRawClient>
     });
   }
 
-  /**************************** config ****************************/
+  /** ************************** config ****************************/
   private async mergeConfig() {
     const mergeConfig = customizerMerge(this.rawData.config.file, this.rawData.config.mysql, this.rawData.config.remote);
     const defaultConfig = await this.client.getHostingBase().compService.getDefaultConfig(mergeConfig);
@@ -226,7 +226,7 @@ export class ConfigService<TConfig extends HostingConfigBase, TRawClient>
     return undefined;
   }
 
-  /**************************** luaScript ****************************/
+  /** ************************** luaScript ****************************/
   private async mergeLuaScript(): Promise<void> {
     const defaultLuaComps = await this.client.getHostingBase().compService.getDefaultLuaScript(this.config);
     const mergedLuaScript = customizerMergeWithType(defaultLuaComps, this.rawData.luaScript.remote);

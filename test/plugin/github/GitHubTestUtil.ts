@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/* eslint-disable @typescript-eslint/no-use-before-define */
+
 import { MockApplication } from 'egg-mock';
 import { Application } from 'egg';
 import { GitHubApp } from '../../../app/plugin/github/GitHubApp';
@@ -26,7 +28,7 @@ import { waitUntil } from '../../../app/basic/Utils';
  * Mock GitHub DataCat
  */
 export class MockDataCat {
-  inited: boolean = true;
+  inited = true;
   repo: any = {
     full: () => ({
       stars: [
@@ -146,7 +148,7 @@ export class MockGitHubApp extends GitHubApp {
     return ret;
   }
 
-  public async addRepo(name: string, _payload: any): Promise<void> {
+  public async addRepo(name: string): Promise<void> {
     // set token before any request
     const githubClient = new GitHubClient(name, this.id, this.app, this.dataCat, this);
     githubClient.setRawClient(new MockRawClient() as any);
@@ -197,7 +199,7 @@ export async function initWebhooks(app: Application): Promise<any[]> {
     },
   };
   // replace getNewHostingPlatform method, generate mock github app
-  (app.github as any).getNewHostingPlatform = async function (id: number, config: GitHubConfig): Promise<GitHubApp> {
+  (app.github as any).getNewHostingPlatform = async function(id: number, config: GitHubConfig): Promise<GitHubApp> {
     return new MockGitHubApp(id, config, this.app);
   };
   // manually add hosting platform

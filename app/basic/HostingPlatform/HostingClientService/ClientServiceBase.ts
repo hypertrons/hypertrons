@@ -30,12 +30,12 @@ export abstract class ClientServiceBase <TConfig extends HostingConfigBase, TRaw
       `[client-${client.getHostingBase().getName()}-${client.getFullName()}-${serviceName}]`);
   }
 
-  public abstract async onStart(): Promise<any>;
+  public abstract onStart(): Promise<any>;
 
-  public abstract async onDispose(): Promise<any>;
+  public abstract onDispose(): Promise<any>;
 
-  public abstract async onConfigLoaded(): Promise<any>;
+  public abstract onConfigLoaded(): Promise<any>;
 
-  public abstract async syncData(): Promise<any>;
+  public abstract syncData(): Promise<any>;
 
 }

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import fetch from 'node-fetch';
 import { waitUntil, BotLogger } from '../../../basic/Utils';
+import fetch from 'node-fetch';
 
 export interface ClientOption {
   host: string;
@@ -27,7 +27,7 @@ export class GitlabGraphqlClient {
   private host: string;
   private token: string;
   private logger: BotLogger;
-  private maxConcurrentReqNumber: number = 10;
+  private maxConcurrentReqNumber = 10;
   private concurrentReqNumber: number;
   private maxRetryTimes = 10;
   private filterStatusCode: number[] = [ 400, 401, 403, 404, 443 ];
@@ -49,10 +49,10 @@ export class GitlabGraphqlClient {
     await waitUntil(() => {
       if (this.concurrentReqNumber >= this.maxConcurrentReqNumber) {
         return false;
-      } else {
-        this.concurrentReqNumber += 1;
-        return true;
       }
+      this.concurrentReqNumber += 1;
+      return true;
+
     });
     return this.internalQuery(_query, _param, 0);
   }
@@ -90,10 +90,10 @@ export class GitlabGraphqlClient {
       if (e.message.includes('ETIMEDOUT') || e.message.includes('ECONNRESET')) {
         if (retryTimes < this.maxRetryTimes) {
           return this.internalQuery(_query, _param, retryTimes + 1);
-        } else {
-          this.concurrentReqNumber -= 1;
-          return '{}';
         }
+        this.concurrentReqNumber -= 1;
+        return '{}';
+
       }
     }
     this.concurrentReqNumber -= 1;

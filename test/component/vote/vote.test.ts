@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-'use strict';
 
 import assert from 'power-assert';
 import { prepareLuaTest, LuaVmWrapper } from '../LuaTestUtil';
@@ -24,14 +23,14 @@ describe('vote component', () => {
   before(async () => {
     luaVmWrapper = await prepareLuaTest(__dirname, {
       injectMap: new Map()
-      .set('getIssuesNumber', () => [ 0 ])
-      .set('getIssueMetaData', (n: number) => {
-        return {
-          launchTime: n + 1,
-          duration: 0,
-        };
-      })
-      .set('toNowNumber', (n: number) => n),
+        .set('getIssuesNumber', () => [ 0 ])
+        .set('getIssueMetaData', (n: number) => {
+          return {
+            launchTime: n + 1,
+            duration: 0,
+          };
+        })
+        .set('toNowNumber', (n: number) => n),
     });
   });
   afterEach(() => {

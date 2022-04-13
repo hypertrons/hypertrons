@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// tslint:disable: no-bitwise
+/* eslint-disable no-bitwise */
+
 import deflate from '../app/third_party/deflate/deflate';
 
 export function genPlantUmlUrl(s: string): string {

@@ -73,7 +73,7 @@ export class LuaVm {
       const getArgs = (): any[] => {
         const nArgs = lua.lua_gettop(L);
         const args: any[] = [];
-        for (let i = 0 ; i < nArgs; i++) {
+        for (let i = 0; i < nArgs; i++) {
           const value = this.getStackValue(L, i + 1);
           args.push(value);
         }
@@ -94,10 +94,10 @@ export class LuaVm {
           }
         });
         return lua.lua_yield(L, 0);
-      } else {
-        // set return value
-        return this.pushStackValue(L, res);
       }
+      // set return value
+      return this.pushStackValue(L, res);
+
     };
     // save key as function name for debugging use
     Object.defineProperty(func, 'name', { value: key });
@@ -155,9 +155,9 @@ export class LuaVm {
           lua.lua_rawgeti(L, index, 1);
           v = this.getStackValue(L, -1);
           lua.lua_pop(L, 1);
-        // tslint:disable-next-line: no-empty
+        // eslint-disable-next-line no-empty
         } catch { }
-        if (v !== null && v !== undefined) {  // need to check like this
+        if (v !== null && v !== undefined) { // need to check like this
           // array
           const arr: any[] = [];
           for (let i = 1; ; i++) {
@@ -168,21 +168,21 @@ export class LuaVm {
             arr.push(v);
           }
           return arr;
-        } else {
-          const ret: any = {};
-          lua.lua_pushnil(L);
-          while (lua.lua_next(L, index) !== 0) {
-            // iterate keys and values from table at index
-            // lua_next will push key and value on stack
-            const value = this.getStackValue(L, -1);
-            const key = this.getStackValue(L, -2);
-            if (value && key) {
-              ret[key] = value;
-            }
-            lua.lua_pop(L, 1);
-          }
-          return ret;
         }
+        const ret: any = {};
+        lua.lua_pushnil(L);
+        while (lua.lua_next(L, index) !== 0) {
+          // iterate keys and values from table at index
+          // lua_next will push key and value on stack
+          const value = this.getStackValue(L, -1);
+          const key = this.getStackValue(L, -2);
+          if (value && key) {
+            ret[key] = value;
+          }
+          lua.lua_pop(L, 1);
+        }
+        return ret;
+
       case lua.LUA_TTHREAD:
         return lua.lua_tothread(L, index);
       case lua.LUA_TNONE:

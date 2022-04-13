@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-'use strict';
 
 import assert from 'assert';
 import { configClass, configProp, getConfigMeta } from '../../app/config-generator/decorators';
@@ -152,10 +151,10 @@ describe('ConfigGenerator', () => {
     let ret = '';
     if (Array.isArray(obj)) {
       const arr = obj as any[];
-      ret += '[' + arr.sort((a, b) => a.name > b.name ? 1 : -1).map(stringify).join(',') + ']';
+      ret += '[' + arr.sort((a, b) => (a.name > b.name ? 1 : -1)).map(stringify).join(',') + ']';
     } else if (type === 'object') {
       let properties = '';
-      const keys = Object.keys(obj).sort((a, b) => a > b ? 1 : -1);
+      const keys = Object.keys(obj).sort((a, b) => (a > b ? 1 : -1));
       keys.forEach((key, index) => {
         properties += `"${key}":${stringify(obj[key])}`;
         if (index !== keys.length - 1) {

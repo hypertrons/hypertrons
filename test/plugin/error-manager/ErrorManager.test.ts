@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // tslint:disable: no-bitwise
-'use strict';
+
 
 import { prepareTestApplication, testClear } from '../../Util';
 import { Application, Agent } from 'egg';

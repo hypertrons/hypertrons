@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-'use strict';
 
 import { Application, Agent } from 'egg';
 import { prepareTestApplication, testClear } from '../../../Util';
@@ -131,7 +130,7 @@ describe('ComponentService', () => {
     });
 
     it('right case', async () => {
-      (componentService as any).loadComponent = async () => {};
+      (componentService as any).loadComponent = async () => null;
       const dir = path.join('test', 'plugin', 'basic', 'HostingPlatform', 'components');
       (componentService as any).config = { file: { basePath: dir } };
       const res = await componentService.loadComponents();

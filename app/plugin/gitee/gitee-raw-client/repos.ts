@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import fetch from 'node-fetch';
 import queryString from 'query-string';
 import PromiseHandler from '../../ph-manager/promise-handler';
+import fetch from 'node-fetch';
 
 export class Repos {
   token: string;
@@ -32,7 +32,7 @@ export class Repos {
     path: string,
   }) {
     // GET /v5/repos/{owner}/{repo}/contents(/{path})
-    const result = await this.promiseHandler.add(async () => await fetch(
+    const result = await this.promiseHandler.add(async () => fetch(
       `https://gitee.com/api/v5/repos/${param.owner}/${param.repo}/contents/${param.path}`,
       {
         method: 'GET',
@@ -54,7 +54,7 @@ export class Repos {
       per_page: 100,
     };
     // GET /v5/user/repos
-    const result = await this.promiseHandler.add(async () => await fetch(
+    const result = await this.promiseHandler.add(async () => fetch(
       `https://gitee.com/api/v5/user/repos?${queryString.stringify(param)}`,
       {
         method: 'GET',
@@ -72,7 +72,7 @@ export class Repos {
     repo: string,
   }) {
     // GET /v5/repos/{owner}/{repo}
-    const result = await this.promiseHandler.add(async () => await fetch(
+    const result = await this.promiseHandler.add(async () => fetch(
       `https://gitee.com/api/v5/repos/${param.owner}/${param.repo}`,
       {
         method: 'GET',
@@ -90,7 +90,7 @@ export class Repos {
     repo: string,
   }) {
     // GET /v5/repos/{owner}/{repo}/contributors
-    const result = await this.promiseHandler.add(async () => await fetch(
+    const result = await this.promiseHandler.add(async () => fetch(
       `https://gitee.com/api/v5/repos/${param.owner}/${param.repo}/contributors`,
       {
         method: 'GET',
@@ -108,7 +108,7 @@ export class Repos {
     repo: string,
   }) {
     // GET /v5/repos/{owner}/{repo}/forks
-    const result = await this.promiseHandler.add(async () => await fetch(
+    const result = await this.promiseHandler.add(async () => fetch(
       `https://gitee.com/api/v5/repos/${param.owner}/${param.repo}/forks`,
       {
         method: 'GET',

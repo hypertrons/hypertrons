@@ -12,17 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Application } from 'egg';
 import { AppPluginBase } from '../../basic/AppPluginBase';
 import { IncomingWebhookSendArguments } from '@slack/webhook/dist/IncomingWebhook';
 import moment from 'moment';
 import { ErrorManagerConfig } from './ErrorManagerConfig';
 
-export class AppErrorManager extends AppPluginBase<ErrorManagerConfig> {
+const divider = '--------------------------------------------------------------------------------';
 
-  constructor(config: ErrorManagerConfig, app: Application) {
-    super(config, app);
-  }
+export class AppErrorManager extends AppPluginBase<ErrorManagerConfig> {
 
   public async onReady(): Promise<void> { }
 
@@ -30,7 +27,7 @@ export class AppErrorManager extends AppPluginBase<ErrorManagerConfig> {
     process.on('uncaughtException', (error: Error) => {
       this.handleError('Hypertrons AppErrorManager Uncaught Exception', error);
     });
-    process.on('unhandledRejection', (error: any, _: Promise<any>) => {
+    process.on('unhandledRejection', (error: any) => {
       this.handleError('Hypertrons AppErrorManager Unhandled Rejection', error);
     });
   }
@@ -46,9 +43,9 @@ export class AppErrorManager extends AppPluginBase<ErrorManagerConfig> {
               type: 'section',
               text: {
                 type: 'mrkdwn',
-                text: '*From*:     ' + '`' + from + '`' + '\n' +
-                      '*Time*:     ' + '`' + moment().format() + '`' + '\n' +
-                      '*Details*:  ' + '```' + err.toString() + '\n' + divider
+                text: '*From*:     `' + from + '`\n' +
+                      '*Time*:     `' + moment().format() + '`\n' +
+                      '*Details*:  ```' + err.toString() + '\n' + divider
                                               + err.stack + '\n' + divider
                                               + JSON.stringify(err) + '```',
               },
@@ -70,4 +67,3 @@ export class AppErrorManager extends AppPluginBase<ErrorManagerConfig> {
   }
 }
 
-const divider = '--------------------------------------------------------------------------------';

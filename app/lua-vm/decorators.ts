@@ -14,7 +14,7 @@
 
 import 'reflect-metadata';
 
-export const luaEvents: Map<string, {toLuaEvent: (e: any) => any}> = new Map<string, {toLuaEvent: (e: any) => any}>();
+export const luaEvents: Map<string, {toLuaEvent: (e: any) => any}> = new Map<string, {toLuaEvent:(e: any) => any}>();
 
 const LuaFunctionPrefix = 'lua_';
 export function luaMethod(): MethodDecorator {
@@ -25,7 +25,7 @@ export function luaMethod(): MethodDecorator {
     if (typeof obj.setInjectFunction === 'function' && key.startsWith(LuaFunctionPrefix)) {
       // replace the actual function, auto try catch to avoid Lua failure when ts throws
       const fn = descriptor.value;
-      descriptor.value = function (...args: any[]) {  // not support async call right now
+      descriptor.value = function(...args: any[]) { // not support async call right now
         try {
           return fn.apply(this, args);
         } catch (e) {

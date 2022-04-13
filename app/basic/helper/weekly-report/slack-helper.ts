@@ -38,7 +38,7 @@ function generateTitle(repoName: string): KnownBlock[] {
 }
 
 function generateRepoOverview(basicDataTable: Map<string, string>,
-                              issueAndPRsTable: Map<string, string>): KnownBlock[] {
+  issueAndPRsTable: Map<string, string>): KnownBlock[] {
 
   const res: KnownBlock[] = [
     {
@@ -214,13 +214,13 @@ function generateCodeReviewsOverview(codeReviewsTable: Map<string, string>, repo
 
   // push endline
   res.push({
-      type: 'divider',
-    });
+    type: 'divider',
+  });
   return res;
 }
 
 function generateContributorsOverview(contributors: string[], repoName: string,
-                                      contributingLink: string): KnownBlock[] {
+  contributingLink: string): KnownBlock[] {
 
   const res: KnownBlock[] = [
     {

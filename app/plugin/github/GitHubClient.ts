@@ -14,7 +14,7 @@
 
 import { HostingClientBase } from '../../basic/HostingPlatform/HostingClientBase';
 import { parseRepoName, ParseDate, waitUntil } from '../../basic/Utils';
-import Octokit = require('@octokit/rest');
+import { Octokit } from '@octokit/rest';
 import { CheckRun, CreatePullRequestOption, RepoDir, RepoFile } from '../../basic/DataTypes';
 import { Application } from 'egg';
 import { DataCat } from 'github-data-cat';
@@ -30,7 +30,7 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
   private dataCat: DataCat;
 
   constructor(name: string, hostId: number, app: Application, dataCat: DataCat,
-              hostBase: HostingBase<GitHubConfig, HostingClientBase<GitHubConfig, Octokit>, Octokit>) {
+    hostBase: HostingBase<GitHubConfig, HostingClientBase<GitHubConfig, Octokit>, Octokit>) {
     super(name, hostId, app, hostBase);
     this.repoName = parseRepoName(name);
     ({ owner: this.owner, repo: this.repo } = this.repoName);
@@ -44,12 +44,12 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
     await waitUntil(() => dataCat.inited);
 
     const full = await dataCat.repo.full(this.owner, this.repo, {
-        contributors: true,
-        issues: true,
-        stars: true,
-        forks: true,
-        pulls: true,
-      });
+      contributors: true,
+      issues: true,
+      stars: true,
+      forks: true,
+      pulls: true,
+    });
 
     this.repoDataService.setRepoData({
       ...full,
@@ -188,9 +188,9 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
   }
 
   public async updatePull(number: number, update: { title?: string;
-                                                    body?: string;
-                                                    state?: 'open' | 'closed'
-                                                  }): Promise<void> {
+    body?: string;
+    state?: 'open' | 'closed'
+  }): Promise<void> {
     await this.rawClient.issues.update({
       ...this.repoName,
       issue_number: number,
@@ -250,7 +250,7 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
 
   public async updateLabels(labels: Array<{ current_name: string; name?: string; description?: string; color?: string; }>): Promise<void> {
     await Promise.all(labels.map(label => {
-      if (!label.description && !label.color) return;
+      if (!label.description && !label.color) return null;
       return this.rawClient.issues.updateLabel({
         ...this.repoName,
         ...label,
@@ -295,7 +295,7 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
   }
 
   public async newBranch(newBranchName: string, baseBranchName: string, cb?: () => void): Promise<void> {
-    this.logger.info('new a branch', newBranchName, 'from' , baseBranchName);
+    this.logger.info('new a branch', newBranchName, 'from', baseBranchName);
     const res = await this.rawClient.git.getRef({
       repo: this.repo,
       owner: this.owner,

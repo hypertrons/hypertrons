@@ -16,61 +16,61 @@ import { configClass, configProp } from '../../config-generator/decorators';
 import contributingDefaultConfig from './defaultConfig';
 
 @configClass({
-    description: 'Help to generate project contributing guide',
+  description: 'Help to generate project contributing guide',
 })
 export default class ContributingTemplate {
-    @configProp({
-        description: 'new branch name for contributing guide',
-        defaultValue: contributingDefaultConfig.newBranchName,
-    })
-    newBranchName: string;
+  @configProp({
+    description: 'new branch name for contributing guide',
+    defaultValue: contributingDefaultConfig.newBranchName,
+  })
+  newBranchName: string;
 
-    @configProp({
-        description: 'contributing guide filepath',
-        defaultValue: contributingDefaultConfig.filePath,
-    })
-    filePath: string;
+  @configProp({
+    description: 'contributing guide filepath',
+    defaultValue: contributingDefaultConfig.filePath,
+  })
+  filePath: string;
 
-    @configProp({
-        description: 'commit message',
-        defaultValue: contributingDefaultConfig.commitMessage,
-    })
-    commitMessage: string;
+  @configProp({
+    description: 'commit message',
+    defaultValue: contributingDefaultConfig.commitMessage,
+  })
+  commitMessage: string;
 
-    @configProp({
-        description: 'default branch to check out from',
-        defaultValue: contributingDefaultConfig.defaultBranch,
-    })
-    defaultBranch: string;
+  @configProp({
+    description: 'default branch to check out from',
+    defaultValue: contributingDefaultConfig.defaultBranch,
+  })
+  defaultBranch: string;
 
-    @configProp({
-        description: 'add contributing guide command',
-        defaultValue: contributingDefaultConfig.contributingGuideCommand,
-    })
-    contributingGuideCommand: string;
+  @configProp({
+    description: 'add contributing guide command',
+    defaultValue: contributingDefaultConfig.contributingGuideCommand,
+  })
+  contributingGuideCommand: string;
 
-    @configProp({
-        description: 'the title of a new pull request',
-        defaultValue: contributingDefaultConfig.prTitle,
-    })
-    prTitle: string;
+  @configProp({
+    description: 'the title of a new pull request',
+    defaultValue: contributingDefaultConfig.prTitle,
+  })
+  prTitle: string;
 
-    @configProp({
-        description: 'contributing guide header.',
-        defaultValue: contributingDefaultConfig.header,
-    })
-    header: string;
+  @configProp({
+    description: 'contributing guide header.',
+    defaultValue: contributingDefaultConfig.header,
+  })
+  header: string;
 
-    @configProp({
-        description: 'contributing guide body to welcome new contributors.',
-        defaultValue: contributingDefaultConfig.body,
-        renderParams: [ 'repoName' ],
-    })
-    body: string;
+  @configProp({
+    description: 'contributing guide body to welcome new contributors.',
+    defaultValue: contributingDefaultConfig.body,
+    renderParams: [ 'repoName' ],
+  })
+  body: string;
 
-    @configProp({
-        description: 'contributing guide content',
-        defaultValue: contributingDefaultConfig.content,
-    })
-    content: string;
+  @configProp({
+    description: 'contributing guide content',
+    defaultValue: contributingDefaultConfig.content,
+  })
+  content: string;
 }

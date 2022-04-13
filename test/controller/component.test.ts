@@ -40,10 +40,10 @@ describe('Component Controller', () => {
     app.installation.getInstallationInfoByName = (iName: string): { id: number, type: InstallationType } => {
       return { id: 0, type: iName as any };
     };
-    app.github.getHostPlatform = (_: number): any => {
+    app.github.getHostPlatform = (): any => {
       return new MockPlatform();
     };
-    app.gitlab.getHostPlatform = (_: number): any => {
+    app.gitlab.getHostPlatform = (): any => {
       return new MockPlatform();
     };
   });

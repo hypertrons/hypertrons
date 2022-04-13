@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-'use strict';
+/* eslint-disable @typescript-eslint/no-use-before-define */
 
 import { Application, Agent } from 'egg';
 import { GiteeClient } from '../../../app/plugin/gitee/gitee-client';
@@ -144,9 +144,9 @@ describe('GiteeClient', () => {
       getContents: (param: { owner, repo, path }) => {
         if (param.path === 'correct') {
           return { content: 'dGVzdA==', encoding: 'base64' };
-        } else {
-          throw new Error('File not exist');
         }
+        throw new Error('File not exist');
+
       },
     };
   }

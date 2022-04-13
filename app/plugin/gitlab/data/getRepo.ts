@@ -60,7 +60,7 @@ export async function getRepo(client: GitlabGraphqlClient, fullPath: string): Pr
       name: '',
       bio: '',
       description: '',
-      createdAt:  null,
+      createdAt: null,
       company: '',
       location: '',
       websiteUrl: null,

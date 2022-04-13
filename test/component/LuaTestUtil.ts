@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-'use strict';
 
 import { LuaVm } from '../../app/lua-vm/lua-vm';
 import { readFileSync } from 'fs';
@@ -51,10 +50,17 @@ export class LuaVmWrapper {
   }
 }
 
+const defaultMockLuaMethods = [
+  'getData', 'getRoles', 'addIssue', 'assign', 'addIssueComment',
+  'addLabels', 'toNow', 'log', 'checkAuth', 'merge', 'runCI',
+  'sendToSlack', 'sendToMail', 'sendToDingTalk', 'labelSetup', 'updateIssue', 'updatePull', 'removeLabel',
+];
+
 /**
- *
  * @param path can be the component name or `__dirname`
- * @param injectMap the ts functions that gonna injected into lua vm
+ * @param opt the ts functions that gonna injected into lua vm
+ * @param opt.customConfig custom config
+ * @param opt.injectMap inject map object
  */
 export async function prepareLuaTest(path: string, opt?: { customConfig?: any, injectMap?: Map<string, any> }): Promise<LuaVmWrapper> {
   const compName = basename(path);
@@ -69,7 +75,7 @@ export async function prepareLuaTest(path: string, opt?: { customConfig?: any, i
   const schedMap = new Map();
   const luaTestVm = new LuaVmWrapper(luaVm, onMap, schedMap);
 
-  defaultMockLuaMethods.map(m => {
+  defaultMockLuaMethods.forEach(m => {
     defaultInjectMap.set(m, (...args) => {
       // once modify the default lua method, counter will not count for it
       luaTestVm.requestParams.push([ m, ...args ]);
@@ -116,9 +122,3 @@ export async function prepareLuaTest(path: string, opt?: { customConfig?: any, i
   return luaTestVm;
 
 }
-
-const defaultMockLuaMethods = [
-  'getData', 'getRoles', 'addIssue', 'assign', 'addIssueComment',
-  'addLabels', 'toNow', 'log', 'checkAuth', 'merge', 'runCI',
-  'sendToSlack', 'sendToMail', 'sendToDingTalk', 'labelSetup', 'updateIssue', 'updatePull', 'removeLabel',
-];

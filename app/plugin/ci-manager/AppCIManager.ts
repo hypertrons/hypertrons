@@ -12,18 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Application } from 'egg';
 import { AppPluginBase } from '../../basic/AppPluginBase';
 import { JenkinsConfig } from '../../component/ci/config';
 import { join } from 'path';
-// tslint:disable-next-line: no-var-requires
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const Jenkins = require('../../third_party/jenkins/index');
 
 export class AppCIManager extends AppPluginBase<null> {
-
-  constructor(config: null, app: Application) {
-    super(config, app);
-  }
 
   public async onReady(): Promise<void> { }
 

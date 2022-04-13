@@ -23,6 +23,4 @@ export interface IClient {
 
   getFileContent(filePath: string): Promise<RepoFile | undefined>;
 
-  communitySvgImage(): string;
-
 }

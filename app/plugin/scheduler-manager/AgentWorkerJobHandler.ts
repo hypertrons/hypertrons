@@ -16,6 +16,21 @@ import { Application } from 'egg';
 import { Job, scheduleJob, cancelJob } from 'node-schedule';
 import { ISchedulerJobHandler, ISchedulerJobCallback } from './types';
 
+export class SchedulerWorkerRegisterEvent {
+  public name: string;
+  public time: string;
+}
+
+export class SchedulerAgentScheduleEvent {
+  public name: string;
+}
+
+export class SchedulerWorkerUpdateEvent {
+  public name: string;
+  public type: 'update' | 'cancel';
+  public time?: string;
+}
+
 export class AgentWorkerJobHandler implements ISchedulerJobHandler {
 
   private app: Application;
@@ -64,19 +79,4 @@ export class AgentWorkerJobHandler implements ISchedulerJobHandler {
     this.func(new Date());
   }
 
-}
-
-export class SchedulerWorkerRegisterEvent {
-  public name: string;
-  public time: string;
-}
-
-export class SchedulerAgentScheduleEvent {
-  public name: string;
-}
-
-export class SchedulerWorkerUpdateEvent {
-  public name: string;
-  public type: 'update' | 'cancel';
-  public time?: string;
 }

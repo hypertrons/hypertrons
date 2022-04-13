@@ -28,12 +28,12 @@ export function waitFor(milliseconds: number): Promise<void> {
 export function initIpc(app: MockApplication) {
   const appMessenger: any = app.messenger;
   const agentMessenger: any = (app as any).agent.messenger;
-  appMessenger.sendRandom = ((action, data) => {
+  appMessenger.sendRandom = (action, data) => {
     appMessenger.sendToAgent(action, data);
-  });
-  agentMessenger.sendRandom = ((action, data) => {
+  };
+  agentMessenger.sendRandom = (action, data) => {
     agentMessenger.sendToApp(action, data);
-  });
+  };
 }
 
 // prepare application for unit test

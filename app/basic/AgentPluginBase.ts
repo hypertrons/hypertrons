@@ -29,10 +29,9 @@ export abstract class AgentPluginBase<TConfig> {
    * Use this function to load plugin into app
    * @param name plugin name
    * @param constructor plugin class, need to derive from AgentPluginBase
-   * @param app application
+   * @param agent application
    */
-  static LoadToAgent<T extends AgentPluginBase<TConfig>, TConfig>
-    (name: string, constructor: new (...args: any) => T, agent: Agent) {
+  static LoadToAgent<T extends AgentPluginBase<TConfig>, TConfig>(name: string, constructor: new (...args: any) => T, agent: Agent) {
     // check the plugin type should derive from base
     if (!Object.prototype.isPrototypeOf.call(AgentPluginBase, constructor)) {
       throw new Error(`Invalid plugin type for ${name}`);
@@ -82,15 +81,15 @@ export abstract class AgentPluginBase<TConfig> {
   /**
    * When plugin ready
    */
-  public abstract async onReady(): Promise<void>;
+  public abstract onReady(): Promise<void>;
 
   /**
    * When server start
    */
-  public abstract async onStart(): Promise<void>;
+  public abstract onStart(): Promise<void>;
 
   /**
    * When app close
    */
-  public abstract async onClose(): Promise<void>;
+  public abstract onClose(): Promise<void>;
 }

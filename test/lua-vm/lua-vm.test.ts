@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-'use strict';
 
 import assert from 'power-assert';
 import { LuaVm } from '../../app/lua-vm/lua-vm';
@@ -28,7 +27,8 @@ describe('LuaVm', () => {
   });
 
   it('Should get return value', () => {
-    const a = 2, b = 3;
+    const a = 2,
+      b = 3;
     luaVm.set('a', a).set('b', b);
     const result = luaVm.run('return a + b');
     assert(result === a + b);
@@ -57,14 +57,18 @@ return c
   });
 
   it('Should exec inject functions with multiple callbacks with return value', () => {
-    const a = 2, b = 3, c = 4;
+    const a = 2,
+      b = 3,
+      c = 4;
     const func = (a: number, b: number, cb1: (r: number) => number, cb2: (r: number) => number): number => {
       return cb1(a - b) * cb2(a + b);
     };
     const func2 = (a: number): number => {
       return a * b;
     };
-    luaVm.set('func', func).set('func2', func2).set('a', a).set('b', b).set('c', c);
+    luaVm.set('func', func).set('func2', func2).set('a', a)
+      .set('b', b)
+      .set('c', c);
     const res = luaVm.run(`
 return func(a, b,
 function (r)
@@ -77,14 +81,20 @@ end)`);
   });
 
   it('Should support function execution within param call', () => {
-    const a = 2, b = 3, c = 4, d = 5;
+    const a = 2,
+      b = 3,
+      c = 4,
+      d = 5;
     const func = (a: number, b: number, c: number): number => {
       return a - b - c;
     };
     const add = (a: number, b: number): number => {
       return a + b;
     };
-    luaVm.set('func', func).set('add', add).set('a', a).set('b', b).set('c', c).set('d', d);
+    luaVm.set('func', func).set('add', add).set('a', a)
+      .set('b', b)
+      .set('c', c)
+      .set('d', d);
     const res = luaVm.run(`
 return func(a, add(b, c), d)
 `);

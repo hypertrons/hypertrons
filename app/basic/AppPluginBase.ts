@@ -32,8 +32,7 @@ export abstract class AppPluginBase<TConfig> {
    * @param constructor plugin class, need to derive from AppPluginBase
    * @param app application
    */
-  static LoadToApp<T extends AppPluginBase<TConfig>, TConfig>
-    (name: string, constructor: new (...args: any) => T, app: Application) {
+  static LoadToApp<T extends AppPluginBase<TConfig>, TConfig>(name: string, constructor: new (...args: any) => T, app: Application) {
     // check the plugin type should derive from base
     if (!Object.prototype.isPrototypeOf.call(AppPluginBase, constructor)) {
       throw new Error(`Invalid plugin type for ${name}`);
@@ -129,17 +128,17 @@ export abstract class AppPluginBase<TConfig> {
   /**
    * When plugin ready
    */
-  public abstract async onReady(): Promise<void>;
+  public abstract onReady(): Promise<void>;
 
   /**
    * When server start
    */
-  public abstract async onStart(): Promise<void>;
+  public abstract onStart(): Promise<void>;
 
   /**
    * When app close
    */
-  public abstract async onClose(): Promise<void>;
+  public abstract onClose(): Promise<void>;
 }
 
 /**

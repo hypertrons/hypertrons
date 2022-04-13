@@ -90,8 +90,8 @@ export class JenkinsConfig {
  * arrayType: JenkinsConfig | TravisConfig,
  */
 @configClass({
-   description: 'CI platform config',
- })
+  description: 'CI platform config',
+})
 export default class Config {
 
   @configProp({

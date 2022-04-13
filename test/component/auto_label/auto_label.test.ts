@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-'use strict';
 
 import assert from 'power-assert';
 import { prepareLuaTest } from '../LuaTestUtil';
@@ -31,7 +30,7 @@ describe('auto_label component', () => {
               description: 'Category issues or prs related to bug.',
               color: 'e11d21',
               keywords: [ 'bug', 'bugreport', 'bug-report', 'bugfix', 'cannot', 'can not', "can't",
-                          'error', 'failure', 'failed to', 'fix:' ],
+                'error', 'failure', 'failed to', 'fix:' ],
             },
             {
               name: 'kind/feature',

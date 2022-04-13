@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-'use strict';
 
 import assert from 'assert';
 import { Application, Agent } from 'egg';
@@ -73,7 +72,7 @@ describe('AppSchedulerManager', () => {
   describe('onReady', () => {
     it('should call this.scheduleAgentJob', async () => {
       let counter = 0;
-      (app.sched as any).scheduleAgentJob = (() => { counter++; });
+      (app.sched as any).scheduleAgentJob = () => { counter++; };
       agent.event.publish('worker', SchedulerAgentScheduleEvent, { name: 'testName' });
       await waitFor(5);
       assert.strictEqual(counter, 1);

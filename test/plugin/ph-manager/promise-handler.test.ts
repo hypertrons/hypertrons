@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-'use strict';
 
 import delay from 'delay';
 import PromiseHandler from '../../../app/plugin/ph-manager/promise-handler';
@@ -66,13 +65,13 @@ describe('promise-handler', () => {
     const getEmoji = async () => {
       if (n === 3) {
         return res;
-      } else {
-        n++;
-        res += '🐷 ';
-        throw new Error('plz retry');
       }
+      n++;
+      res += '🐷 ';
+      throw new Error('plz retry');
+
     };
-    const emoji = await promiseHandler.add(async () => await getEmoji());
+    const emoji = await promiseHandler.add(async () => getEmoji());
     console.log(emoji);
     assert.deepEqual(emoji, '🐷 🐷 🐷 ');
   });
@@ -84,18 +83,18 @@ describe('promise-handler', () => {
     const getPig = async () => {
       if (n === 3) {
         return res;
-      } else {
-        n++;
-        await delay(5);
-        res += '🐷 ';
-        throw new Error('plz retry');
       }
+      n++;
+      await delay(5);
+      res += '🐷 ';
+      throw new Error('plz retry');
+
     };
     const getPanda = () => {
       res += '🐼 ';
       return res;
     };
-    promiseHandler.add(async () => await getPig());
+    promiseHandler.add(async () => getPig());
     const emoji = await promiseHandler.add(() => getPanda());
     console.log(emoji);
     assert.deepEqual(emoji, '🐷 🐷 🐷 🐼 ');

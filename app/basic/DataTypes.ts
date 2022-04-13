@@ -17,21 +17,21 @@ export interface Repo {
   id: number;
   owner: string;
   ownerInfo: {
-      login: string;
-      __typename: string;
-      name: string;
-      bio: string;
-      description: string;
-      createdAt: Date | null;
-      company: string;
-      location: string;
-      websiteUrl: URL | null;
-      repositories: {
-          totalCount: number;
-      }
-      membersWithRole: {
-          totalCount: number;
-      }
+    login: string;
+    __typename: string;
+    name: string;
+    bio: string;
+    description: string;
+    createdAt: Date | null;
+    company: string;
+    location: string;
+    websiteUrl: URL | null;
+    repositories: {
+      totalCount: number;
+    }
+    membersWithRole: {
+      totalCount: number;
+    }
   };
   name: string;
   license: string | null;

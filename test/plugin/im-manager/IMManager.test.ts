@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // tslint:disable: no-bitwise
-'use strict';
+
 
 import { prepareTestApplication, testClear } from '../../Util';
 import { Application, Agent } from 'egg';
@@ -30,7 +30,7 @@ describe('IMManager', () => {
   });
 
   describe('sendToSlack', () => {
-    it('should not trigger send if slackConfig is undefined or null', async() => {
+    it('should not trigger send if slackConfig is undefined or null', async () => {
       await app.imManager.sendToSlack({ } as any, undefined as any);
       await app.imManager.sendToSlack({ } as any, null as any);
     });

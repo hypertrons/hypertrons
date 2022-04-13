@@ -15,19 +15,19 @@
 import ContributingTemplate from './config';
 
 const contributingDefaultConfig: ContributingTemplate = {
-    newBranchName: 'contributing-guide',
-    filePath: 'contributing-guide.md',
-    commitMessage: 'create template contibuting guide',
-    defaultBranch: 'master',
-    contributingGuideCommand: '/add-contributing-guide',
-    prTitle: 'feat: add contributing guide',
-    header: `# How To Contribute
+  newBranchName: 'contributing-guide',
+  filePath: 'contributing-guide.md',
+  commitMessage: 'create template contibuting guide',
+  defaultBranch: 'master',
+  contributingGuideCommand: '/add-contributing-guide',
+  prTitle: 'feat: add contributing guide',
+  header: `# How To Contribute
 `,
-    body : `
+  body: `
 It is walmly welcomed if you have interest to contribute to {{repoName}} and help make it even better than it is today!
 The following links might help you make contributions to {{repoName}}.
 `,
-    content: `
+  content: `
 - [Code of Conduct](#coc)
 - [Submitting an Issue](#issue)
 - [Submitting a Pull Request](#pr)

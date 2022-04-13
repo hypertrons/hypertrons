@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-'use strict';
 
 import { Application, Agent } from 'egg';
 import { prepareTestApplication, testClear, waitFor } from '../../../../Util';
@@ -32,10 +31,10 @@ describe('ConfigService', () => {
   let callOnConfigLoaded = 0;
 
   class MockComponentService {
-    async getDefaultConfig(_: any): Promise<any> {
+    async getDefaultConfig(): Promise<any> {
       return { default: {} };
     }
-    async getDefaultLuaScript(_: any): Promise<any> {
+    async getDefaultLuaScript(): Promise<any> {
       return { default: 'this is default lua script' };
     }
   }
@@ -53,11 +52,6 @@ describe('ConfigService', () => {
     }
   }
 
-  beforeEach(async () => {
-  });
-  afterEach(() => {
-  });
-
   describe('onStart PushEvent', () => {
 
     before(async () => {
@@ -65,15 +59,15 @@ describe('ConfigService', () => {
       client = new GitHubClient('wsl/test', 0, app, null as any, new MockHostingBase() as any);
       await waitUntil(() => client.getStarted(), { interval: 5 });
       client.eventService.publish = ((_: 'worker' | 'workers' | 'agent' | 'all',
-                                      __: new (...args: any) => any, param: Partial<any>) => {
+        __: new (...args: any) => any, param: Partial<any>) => {
         configInitedEvent = param as any;
       }) as any;
-      client.getHostingBase().getConfig = ((): any => {
+      client.getHostingBase().getConfig = (): any => {
         return {
           component: { enableRepoLua: true },
           config: { remote: { filePath: 'filePath', luaScriptPath: './github/lua/' } },
         };
-      });
+      };
     });
     after(() => {
       testClear(app, agent);
@@ -130,12 +124,12 @@ describe('ConfigService', () => {
     });
 
     it('should not update luaScript if component.enableRepoLua is false', async () => {
-      client.getHostingBase().getConfig = ((): any => {
+      client.getHostingBase().getConfig = (): any => {
         return {
           component: { enableRepoLua: false },
           config: { remote: { filePath: 'filePath', luaScriptPath: './github/lua/' } },
         };
-      });
+      };
 
       await client.eventService.consume('PushEvent', 'all', {
         push: { commits: [{ added: [], removed: [ './github/lua/a.lua' ], modified: [] }] },
@@ -247,10 +241,10 @@ describe('ConfigService', () => {
       client = new GitHubClient('wsl/test', 0, app, null as any, new MockHostingBase() as any);
       await waitUntil(() => client.getStarted(), { interval: 5 });
       (client.configService as any).loadConfigFromFile = async () => ({ auto_merge: { version: 1 } });
-      client.eventService.publish = ((_: 'worker' | 'workers' | 'agent' | 'all',
-                                      __: new (...args: any) => any, param: Partial<any>) => {
+      client.eventService.publish = (_: 'worker' | 'workers' | 'agent' | 'all',
+        __: new (...args: any) => any, param: Partial<any>) => {
         configInitedEvent = param as any;
-      });
+      };
     });
     after(() => {
       testClear(app, agent);
@@ -289,10 +283,10 @@ describe('ConfigService', () => {
       (client.configService as any).loadConfigFromMysql = async () => ({ auto_merge: {} });
       (client.configService as any).loadConfigFromRemote = async () => ({ weekly_report: {} });
       (client.configService as any).loadLuaScriptFromRemote = async () => ({ weekly_report: 'lua' });
-      client.eventService.publish = ((_: 'worker' | 'workers' | 'agent' | 'all',
-                                      __: new (...args: any) => any, param: Partial<any>) => {
+      client.eventService.publish = (_: 'worker' | 'workers' | 'agent' | 'all',
+        __: new (...args: any) => any, param: Partial<any>) => {
         configInitedEvent = param as any;
-      });
+      };
     });
     after(() => {
       testClear(app, agent);
@@ -309,9 +303,9 @@ describe('ConfigService', () => {
     });
 
     it('should call syncData and update all', async () => {
-      client.getHostingBase().getConfig = ((): any => {
+      client.getHostingBase().getConfig = (): any => {
         return { component: { enableRepoLua: true } };
-      });
+      };
       await client.eventService.consume('HostingClientSyncConfigEvent', 'worker', {
       } as any);
 
@@ -386,7 +380,7 @@ describe('ConfigService', () => {
           config: { remote: { filePath: 'path' } },
         };
       };
-      client.getFileContent = async (_: string): Promise<RepoFile | undefined> => {
+      client.getFileContent = async (): Promise<RepoFile | undefined> => {
         return { content: '{"key": "value"}' } as any;
       };
       const res = await (client.configService as any).loadConfigFromRemote();
@@ -400,9 +394,9 @@ describe('ConfigService', () => {
       client = new GitHubClient('wsl/test', 0, app, null as any, new MockHostingBase() as any);
       await waitUntil(() => client.getStarted(), { interval: 5 });
       (client.configService as any).config = { comp1: {}, comp2: {} };
-      client.getFileContent = (async (path: string): Promise<RepoFile | undefined> => {
+      client.getFileContent = async (path: string): Promise<RepoFile | undefined> => {
         return { content: `this is lua script in ${path}` } as any;
-      });
+      };
     });
     after(() => {
       testClear(app, agent);
@@ -410,20 +404,20 @@ describe('ConfigService', () => {
     });
 
     it('should return {} if hostingConfig is false', async () => {
-      client.getHostingBase().getConfig = ((): any => {
+      client.getHostingBase().getConfig = (): any => {
         return { enableRepoLua: false };
-      });
+      };
       const res = await (client.configService as any).loadLuaScriptFromRemote();
       deepEqual(res, {});
     });
 
     it('right case', async () => {
-      client.getHostingBase().getConfig = ((): any => {
+      client.getHostingBase().getConfig = (): any => {
         return {
           component: { enableRepoLua: true },
           config: { remote: { luaScriptPath: '.github/lua/' } },
         };
-      });
+      };
       const res = await (client.configService as any).loadLuaScriptFromRemote();
       deepEqual(res, {
         comp1: 'this is lua script in .github/lua/comp1.lua',
@@ -509,7 +503,7 @@ describe('ConfigService', () => {
     it('getLuaScript() right case', async () => {
       (client.configService as any).luaScript = {
         comp1: 'lua-comp1',
-        comp2: 'lua-comp2' ,
+        comp2: 'lua-comp2',
       };
       const res = client.configService.getLuaScript();
       const compare =

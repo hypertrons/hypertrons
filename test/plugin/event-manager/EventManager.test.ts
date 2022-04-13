@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// tslint:disable: no-bitwise
-'use strict';
+/* eslint-disable no-bitwise */
 
 import assert from 'assert';
 import { waitFor, prepareTestApplication, testClear } from '../../Util';
@@ -40,7 +39,7 @@ describe('EventManager', () => {
   class TestEvent { }
 
   const func = (type: consumeType) => {
-    return async (_: TestEvent) => {
+    return async () => {
       count += getScore(type);
     };
   };

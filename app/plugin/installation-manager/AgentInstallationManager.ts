@@ -12,16 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Agent } from 'egg';
 import { InstallationType } from './types';
 import { AgentPluginBase } from '../../basic/AgentPluginBase';
 import { HostingPlatformInitEvent } from '../../basic/HostingPlatform/event';
 
 export class AgentInstallationManager extends AgentPluginBase<Config> {
-
-  constructor(config: Config, agent: Agent) {
-    super(config, agent);
-  }
 
   public async onReady(): Promise<void> { }
 

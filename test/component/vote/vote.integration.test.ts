@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-'use strict';
 
 import { Application, Agent } from 'egg';
 import { prepareTestApplication, testClear, waitFor } from '../../Util';
@@ -25,8 +24,8 @@ describe('Vote Integration Test', () => {
   let testResult: any[];
 
   before(async () => {
-   ({ app, agent } = await prepareTestApplication());
-   testResult = await initWebhooks(app);
+    ({ app, agent } = await prepareTestApplication());
+    testResult = await initWebhooks(app);
   });
 
   after(() => {

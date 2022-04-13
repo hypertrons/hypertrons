@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-'use strict';
 
 import assert from 'power-assert';
 import { genPlantUmlUrl } from '../../scripts/Utils';

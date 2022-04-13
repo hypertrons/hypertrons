@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import fetch from 'node-fetch';
 import queryString from 'query-string';
 import PromiseHandler from '../../ph-manager/promise-handler';
+import fetch from 'node-fetch';
 
 export class Pulls {
   token: string;
@@ -31,11 +31,11 @@ export class Pulls {
     repo: string,
   }) {
     // GET /v5/repos/{owner}/{repo}/pulls
-    const result = await this.promiseHandler.add(async () => await fetch(
+    const result = await this.promiseHandler.add(async () => fetch(
       `https://gitee.com/api/v5/repos/${param.owner}/${param.repo}/pulls`,
       { headers: { Authorization: `bearer ${this.token}` } },
     ));
-    return await result.json();
+    return result.json();
   }
 
   // https://gitee.com/api/v5/swagger#/getV5ReposOwnerRepoPullsComments
@@ -44,7 +44,7 @@ export class Pulls {
     repo: string,
   }) {
     // GET /v5/repos/{owner}/{repo}/pulls/comments
-    const result1 = await this.promiseHandler.add(async () => await fetch(
+    const result1 = await this.promiseHandler.add(async () => fetch(
       `https://gitee.com/api/v5/repos/${param.owner}/${param.repo}/pulls/comments?${queryString.stringify({
         page: 1,
         per_page: 100,
@@ -54,7 +54,7 @@ export class Pulls {
         headers: { Authorization: `bearer ${this.token}` },
       },
     ));
-    let comments: any[] = await result1.json();
+    let comments: any[] = await result1.json() as any;
     const pageCount = parseInt(result1.headers.get('total_page') as any);
     if (pageCount > 1) {
       const requestList: any[] = [];
@@ -75,7 +75,7 @@ export class Pulls {
       const responseList = await Promise.all(requestList);
       const commentsList = await Promise.all(responseList.map(r => r.json()));
       // concat comments
-      commentsList.map(r => {
+      commentsList.forEach(r => {
         comments = comments.concat(r);
       });
     }
@@ -92,7 +92,7 @@ export class Pulls {
     state?: any,
   }) {
     // PATCH /v5/repos/{owner}/{repo}/pulls/{number}
-    const result = await this.promiseHandler.add(async () => await fetch(
+    const result = await this.promiseHandler.add(async () => fetch(
       `https://gitee.com/api/v5/repos/${param.owner}/${param.repo}/pulls/${param.number}`,
       {
         method: 'PATCH',
@@ -105,7 +105,7 @@ export class Pulls {
         }),
       },
     ));
-    return await result.json();
+    return result.json();
   }
 
   // https://gitee.com/api/v5/swagger#/putV5ReposOwnerRepoPullsNumberMerge
@@ -116,7 +116,7 @@ export class Pulls {
     merge_method?: string,
   }) {
     // PUT /v5/repos/{owner}/{repo}/pulls/{number}/merge
-    const result = await this.promiseHandler.add(async () => await fetch(
+    const result = await this.promiseHandler.add(async () => fetch(
       `https://gitee.com/api/v5/repos/${param.owner}/${param.repo}/pulls/${param.number}/merge`,
       {
         method: 'PUT',
@@ -129,7 +129,7 @@ export class Pulls {
         }),
       },
     ));
-    return await result.json();
+    return result.json();
   }
 
   // https://gitee.com/api/v5/swagger#/putV5ReposOwnerRepoPullsNumberLabels
@@ -150,7 +150,7 @@ export class Pulls {
         body: JSON.stringify(param.labels),
       },
     );
-    return await result.json();
+    return result.json();
   }
 
 }

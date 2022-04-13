@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Application } from 'egg';
 import { AppPluginBase } from '../../basic/AppPluginBase';
 import { IncomingWebhook, IncomingWebhookSendArguments } from '@slack/webhook/dist/IncomingWebhook';
 import { SlackConfig, DingTalkConfig, MailConfig } from '../../component/im/config';
@@ -21,10 +20,6 @@ import { DingTalkMessageType } from '../../basic/IMDataTypes';
 import * as Nodemailer from 'nodemailer';
 
 export class IMManager extends AppPluginBase<null> {
-
-  constructor(config: null, app: Application) {
-    super(config, app);
-  }
 
   public async onReady(): Promise<void> { }
 

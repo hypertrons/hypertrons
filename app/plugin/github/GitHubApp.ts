@@ -15,7 +15,7 @@
 import { HostingBase } from '../../basic/HostingPlatform/HostingBase';
 import { GitHubConfig } from './GitHubConfig';
 import { GitHubClient } from './GitHubClient';
-import Octokit = require('@octokit/rest');
+import { Octokit } from '@octokit/rest';
 import retry = require('@octokit/plugin-retry');
 import { Application, Context } from 'egg';
 import { App } from '@octokit/app';
@@ -45,7 +45,7 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
     super('github', id, config, app);
     const privateKeyPath = config.privateKeyPath;
     const privateKeyFilePath = config.privateKeyPathAbsolute ?
-        privateKeyPath : join(this.app.baseDir, privateKeyPath);
+      privateKeyPath : join(this.app.baseDir, privateKeyPath);
     if (!existsSync(privateKeyFilePath)) {
       this.logger.error(`Private key path ${privateKeyFilePath} not exist.`);
       return;
@@ -130,9 +130,9 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
     this.app.installation.post(path, async (ctx: Context, next: any) => {
       // pass to webhooks
       this.webhooks.verifyAndReceive({
-        id: ctx.headers['x-github-delivery'],
-        name: ctx.headers['x-github-event'],
-        signature: ctx.headers['x-hub-signature'],
+        id: ctx.headers['x-github-delivery'] as string,
+        name: ctx.headers['x-github-event'] as string,
+        signature: ctx.headers['x-hub-signature'] as string,
         payload: ctx.request.body,
       }).catch(this.logger.error);
       ctx.body = 'ok';
@@ -175,21 +175,21 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
       });
     });
     webhooks.on([ 'issues.assigned',
-                  'issues.closed',
-                  'issues.deleted',
-                  'issues.demilestoned',
-                  'issues.edited',
-                  'issues.labeled',
-                  'issues.locked',
-                  'issues.opened',
-                  'issues.milestoned',
-                  'issues.pinned',
-                  'issues.reopened',
-                  'issues.transferred',
-                  'issues.unassigned',
-                  'issues.unlabeled',
-                  'issues.unlocked',
-                  'issues.unpinned', ], e => {
+      'issues.closed',
+      'issues.deleted',
+      'issues.demilestoned',
+      'issues.edited',
+      'issues.labeled',
+      'issues.locked',
+      'issues.opened',
+      'issues.milestoned',
+      'issues.pinned',
+      'issues.reopened',
+      'issues.transferred',
+      'issues.unassigned',
+      'issues.unlabeled',
+      'issues.unlocked',
+      'issues.unpinned' ], e => {
       const ie = {
         installationId: this.id,
         fullName: e.payload.repository.full_name,
@@ -207,7 +207,7 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
       const repoData = client.getRepoData();
       if (repoData && repoData.issues &&
         repoData.issues.find(issue => issue.id === e.payload.issue.id)) {
-          isIssue = true;
+        isIssue = true;
       }
 
       const ice = {
@@ -220,9 +220,9 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
       };
       this.app.event.publish('all', CommentUpdateEvent, ice);
     });
-    webhooks.on([ 'label.created', 'label.deleted' , 'label.edited' ], e => {
+    webhooks.on([ 'label.created', 'label.deleted', 'label.edited' ], e => {
       const le: LabelUpdateEvent = {
-        installationId:  this.id,
+        installationId: this.id,
         fullName: e.payload.repository.full_name,
         action: e.payload.action,
         labelName: e.payload.label.name,
@@ -233,19 +233,19 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
       this.app.event.publish('all', LabelUpdateEvent, le);
     });
     webhooks.on([ 'pull_request.assigned',
-                  'pull_request.closed',
-                  'pull_request.edited',
-                  'pull_request.labeled',
-                  'pull_request.locked',
-                  'pull_request.opened',
-                  'pull_request.ready_for_review',
-                  'pull_request.reopened',
-                  'pull_request.review_request_removed',
-                  'pull_request.review_requested',
-                  'pull_request.unassigned',
-                  'pull_request.unlabeled',
-                  'pull_request.unlocked',
-                  'pull_request.synchronize' ], e => {
+      'pull_request.closed',
+      'pull_request.edited',
+      'pull_request.labeled',
+      'pull_request.locked',
+      'pull_request.opened',
+      'pull_request.ready_for_review',
+      'pull_request.reopened',
+      'pull_request.review_request_removed',
+      'pull_request.review_requested',
+      'pull_request.unassigned',
+      'pull_request.unlabeled',
+      'pull_request.unlocked',
+      'pull_request.synchronize' ], e => {
       const pre = {
         installationId: this.id,
         fullName: e.payload.repository.full_name,
@@ -255,8 +255,8 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
       this.app.event.publish('all', PullRequestEvent, pre);
     });
     webhooks.on([ 'pull_request_review.submitted',
-                  'pull_request_review.edited',
-                  'pull_request_review.dismissed' ], e => {
+      'pull_request_review.edited',
+      'pull_request_review.dismissed' ], e => {
       const re = {
         installationId: this.id,
         fullName: e.payload.repository.full_name,
@@ -267,8 +267,8 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
       this.app.event.publish('all', ReviewEvent, re);
     });
     webhooks.on([ 'pull_request_review_comment.created',
-                  'pull_request_review_comment.edited',
-                  'pull_request_review_comment.deleted' ], e => {
+      'pull_request_review_comment.edited',
+      'pull_request_review_comment.deleted' ], e => {
       const rce = {
         installationId: this.id,
         fullName: e.payload.repository.full_name,

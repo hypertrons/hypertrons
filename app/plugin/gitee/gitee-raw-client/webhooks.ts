@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import fetch from 'node-fetch';
 import queryString from 'query-string';
 import PromiseHandler from '../../ph-manager/promise-handler';
+import fetch from 'node-fetch';
 
 export class Webhooks {
   token: string;
@@ -30,13 +30,13 @@ export class Webhooks {
   async all(param: {
     owner: string,
     repo: string,
-  }) {
+  }): Promise<any> {
     // GET /v5/repos/{owner}/{repo}/hooks
-    const result = await this.promiseHandler.add(async () => await fetch(
+    const result = await this.promiseHandler.add(async () => fetch(
       `https://gitee.com/api/v5/repos/${param.owner}/${param.repo}/hooks`,
       { headers: { Authorization: `bearer ${this.token}` } },
     ));
-    return await result.json();
+    return result.json();
   }
 
   // https://gitee.com/api/v5/swagger#/postV5ReposOwnerRepoHooks
@@ -44,9 +44,9 @@ export class Webhooks {
     owner: string,
     repo: string,
     url: string,
-  }) {
+  }): Promise<any> {
     // POST /v5/repos/{owner}/{repo}/hooks
-    const result = await this.promiseHandler.add(async () => await fetch(
+    const result = await this.promiseHandler.add(async () => fetch(
       `https://gitee.com/api/v5/repos/${param.owner}/${param.repo}/hooks`,
       {
         method: 'POST',
@@ -64,7 +64,7 @@ export class Webhooks {
         }),
       },
     ));
-    return await result.json();
+    return result.json();
   }
 
 }

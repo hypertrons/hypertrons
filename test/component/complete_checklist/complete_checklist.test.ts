@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-'use strict';
 
 import { prepareLuaTest } from '../LuaTestUtil';
 import assert from 'power-assert';
@@ -45,10 +44,11 @@ Create new components:
       })).set('updateIssue', (num, update) => {
         newNumber = num;
         newIssue = update;
-      }).set('updatePull', (num, update) => {
-        newNumber = num;
-        newIssue = update;
-      }),
+      })
+        .set('updatePull', (num, update) => {
+          newNumber = num;
+          newIssue = update;
+        }),
     });
   });
   afterEach(() => {
@@ -107,11 +107,11 @@ Create new components:
         from: 'comment',
       });
       const compare = [ 'Create new components:',
-                        '- [x] vote(solved by #3)',
-                        '- [x] auto merge/ approve',
-                        '- [x] self assign',
-                        '- [ ] auto complete check list',
-                        '' ];
+        '- [x] vote(solved by #3)',
+        '- [x] auto merge/ approve',
+        '- [x] self assign',
+        '- [ ] auto complete check list',
+        '' ];
       const newIssueLines = newIssue.body.split(/\r?\n/);
       for (let i = 0; i < compare.length; i++) {
         assert(compare[i] === newIssueLines[i]);
@@ -127,11 +127,11 @@ Create new components:
         from: 'pull_comment',
       });
       const compare = [ 'Create new components:',
-                        '- [x] vote(solved by #1)',
-                        '- [x] auto merge/ approve',
-                        '- [x] self assign',
-                        '- [ ] auto complete check list',
-                        '' ];
+        '- [x] vote(solved by #1)',
+        '- [x] auto merge/ approve',
+        '- [x] self assign',
+        '- [ ] auto complete check list',
+        '' ];
       assert(newNumber === 3);
       const newIssueLines = newIssue.body.split(/\r?\n/);
       for (let i = 0; i < compare.length; i++) {

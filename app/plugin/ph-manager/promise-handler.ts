@@ -36,7 +36,7 @@ export default class PromiseHandler {
   }
 
   add<TaskResultType>(fn: Task<TaskResultType>): Promise<TaskResultType> {
-    return this.queue.add(async () => await pRetry(fn, this.retryConfig));
+    return this.queue.add(async () => pRetry(fn, this.retryConfig));
   }
 
   getQueue(): PQueue {

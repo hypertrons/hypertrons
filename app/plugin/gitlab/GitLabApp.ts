@@ -58,8 +58,8 @@ export class GitLabApp extends HostingBase<GitLabConfig, GitLabClient, Gitlab> {
             payload: p.id,
           });
         }
-      // tslint:disable-next-line: no-empty
-      } catch {}
+      // eslint-disable-next-line no-empty
+      } catch { }
     }));
     return ret;
   }
@@ -79,7 +79,7 @@ export class GitLabApp extends HostingBase<GitLabConfig, GitLabClient, Gitlab> {
         await next();
         return;
       }
-      const event = ctx.headers['x-gitlab-event'];
+      const event = ctx.headers['x-gitlab-event'] as string;
       const payload = ctx.request.body;
       this.triggerWebhook(event, payload);
       await next();

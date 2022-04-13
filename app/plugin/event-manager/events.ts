@@ -39,22 +39,22 @@ class LuaIssueEvent {
 })
 export class IssueEvent extends RepoEventBase {
   action:
-    | 'assigned'
-    | 'closed'
-    | 'deleted'
-    | 'demilestoned'
-    | 'edited'
-    | 'labeled'
-    | 'locked'
-    | 'milestoned'
-    | 'opened'
-    | 'pinned'
-    | 'reopened'
-    | 'transferred'
-    | 'unassigned'
-    | 'unlabeled'
-    | 'unlocked'
-    | 'unpinned';
+  | 'assigned'
+  | 'closed'
+  | 'deleted'
+  | 'demilestoned'
+  | 'edited'
+  | 'labeled'
+  | 'locked'
+  | 'milestoned'
+  | 'opened'
+  | 'pinned'
+  | 'reopened'
+  | 'transferred'
+  | 'unassigned'
+  | 'unlabeled'
+  | 'unlocked'
+  | 'unpinned';
   issue: Issue | undefined;
   changes: {};
 
@@ -126,20 +126,20 @@ class LuaPullRequestEvent {
 })
 export class PullRequestEvent extends RepoEventBase {
   action:
-    | 'assigned'
-    | 'closed'
-    | 'edited'
-    | 'labeled'
-    | 'locked'
-    | 'opened'
-    | 'ready_for_review'
-    | 'reopened'
-    | 'review_request_removed'
-    | 'review_requested'
-    | 'unassigned'
-    | 'unlabeled'
-    | 'unlocked'
-    | 'synchronize';
+  | 'assigned'
+  | 'closed'
+  | 'edited'
+  | 'labeled'
+  | 'locked'
+  | 'opened'
+  | 'ready_for_review'
+  | 'reopened'
+  | 'review_request_removed'
+  | 'review_requested'
+  | 'unassigned'
+  | 'unlabeled'
+  | 'unlocked'
+  | 'synchronize';
   pullRequest: PullRequest | undefined;
   public toLuaEvent(e: PullRequestEvent): LuaPullRequestEvent | undefined {
     if (!e.pullRequest) return undefined;

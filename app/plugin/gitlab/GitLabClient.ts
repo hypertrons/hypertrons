@@ -27,8 +27,8 @@ export class GitLabClient extends HostingClientBase<GitLabConfig, Gitlab> {
   private gitlabGraphqlClient: GitlabGraphqlClient;
 
   constructor(name: string, hostId: number, app: Application, id: number, client: Gitlab,
-              gitlabGraphqlClient: GitlabGraphqlClient,
-              hostBase: HostingBase<GitLabConfig, HostingClientBase<GitLabConfig, Gitlab>, Gitlab>) {
+    gitlabGraphqlClient: GitlabGraphqlClient,
+    hostBase: HostingBase<GitLabConfig, HostingClientBase<GitLabConfig, Gitlab>, Gitlab>) {
     super(name, hostId, app, hostBase);
     this.id = id;
     this.rawClient = client;
@@ -104,9 +104,9 @@ export class GitLabClient extends HostingClientBase<GitLabConfig, Gitlab> {
 
   // TODO please add test cases
   public async updatePull(number: number, update: { title?: string;
-                                                    body?: string;
-                                                    state?: 'open' | 'closed';
-                                                   }): Promise<void> {
+    body?: string;
+    state?: 'open' | 'closed';
+  }): Promise<void> {
     let state_event: any;
     if (update.state === 'open') state_event = 'reopen';
     if (update.state === 'closed') state_event = 'close';

@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/* eslint-disable @typescript-eslint/no-use-before-define */
+
 import { GiteeApp } from '../../../app/plugin/gitee/gitee-app';
 import { GiteeConfig } from '../../../app/plugin/gitee/gitee-config';
 import { Application } from 'egg';
@@ -50,7 +52,7 @@ export class MockGiteeApp extends GiteeApp {
     return ret;
   }
 
-  public async addRepo(name: string, _payload: any): Promise<void> {
+  public async addRepo(name: string): Promise<void> {
     // set token before any request
     const giteeClient = new MockGiteeClient(name, this.id, this.app, this, this.mockRepoData);
     this.clientMap.set(name, async () => giteeClient);
@@ -104,8 +106,8 @@ export class MockGiteeClient extends GiteeClient {
 
   // notice: pull number in gitee is a ordinal number, different from issue number.
   public async updatePull(number: number, update: { title?: string;
-                                                    body?: string;
-                                                    state?: 'open' | 'closed'
+    body?: string;
+    state?: 'open' | 'closed'
   }): Promise<void> {
     this.testResult.push([ 'updatePull', number, update ]);
     return;
@@ -163,7 +165,7 @@ export async function initWebhooks(app: Application, custom: {
   }
 
   // replace getNewHostingPlatform method, generate mock gitee app
-  (app.gitee as any).getNewHostingPlatform = async function (id: number, config: GiteeConfig): Promise<GiteeApp> {
+  (app.gitee as any).getNewHostingPlatform = async function(id: number, config: GiteeConfig): Promise<GiteeApp> {
     return new MockGiteeApp(id, config, this.app, custom.repoData);
   };
   // manually add hosting platform

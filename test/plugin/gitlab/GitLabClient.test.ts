@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-'use strict';
+/* eslint-disable @typescript-eslint/no-use-before-define */
 
 import { Application, Agent } from 'egg';
 import { prepareTestApplication, testClear } from '../../Util';
@@ -60,7 +60,7 @@ describe('GitLabClient', () => {
       labels: [],
     };
     Issues: any = {
-      create: (_id, issue) => this.testResult.issue = issue,
+      create: (_id, issue) => { this.testResult.issue = issue; },
       edit: (_id, number, issue) => {
         this.testResult.number = number;
         this.testResult.issue = issue;

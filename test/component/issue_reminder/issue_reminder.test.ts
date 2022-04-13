@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-'use strict';
 
 import assert from 'power-assert';
 import { prepareLuaTest } from '../LuaTestUtil';
@@ -95,9 +94,10 @@ describe('issue_reminder component', () => {
       })).set('getRoles', () => [
         'replier1',
         'replier2',
-      ]).set('toNow', time => {
-        return new Date().getTime() - new Date(time).getTime();
-      }),
+      ])
+        .set('toNow', time => {
+          return new Date().getTime() - new Date(time).getTime();
+        }),
     });
   });
   afterEach(() => {

@@ -24,7 +24,7 @@ import {
 } from '../../../plugin/event-manager/events';
 
 export class CommandService<TConfig extends HostingConfigBase, TRawClient>
-                          extends ClientServiceBase<TConfig, TRawClient> {
+  extends ClientServiceBase<TConfig, TRawClient> {
 
   private commandLastExecTime: Map<string, number>;
 
@@ -43,7 +43,7 @@ export class CommandService<TConfig extends HostingConfigBase, TRawClient>
           if (!e.issue) return false;
           return this.checkCommand(c.exec, e.issue.author, e.issue.author, 'issue', true, e.issue.number);
         });
-        commands.map(command => {
+        commands.forEach(command => {
           this.logger.info(`extract the command is ${command.exec}`);
           // publish new command event
           const event = Object.assign(new CommandManagerNewCommandEvent(), {
@@ -79,7 +79,7 @@ export class CommandService<TConfig extends HostingConfigBase, TRawClient>
           }
           return false;
         });
-        commands.map(command => {
+        commands.forEach(command => {
           this.logger.info(`extract the command is ${command.exec}`);
           // publish new command event
           const event = Object.assign(new CommandManagerNewCommandEvent(), {
@@ -109,7 +109,7 @@ export class CommandService<TConfig extends HostingConfigBase, TRawClient>
           if (!e.review) return false;
           return this.checkCommand(c.exec, e.review.login, pull.author, 'review', false, pull.number);
         });
-        commands.map(command => {
+        commands.forEach(command => {
           this.logger.info(`extract the command is ${command.exec}`);
           // publish new command event
           const event = Object.assign(new CommandManagerNewCommandEvent(), {
@@ -139,7 +139,7 @@ export class CommandService<TConfig extends HostingConfigBase, TRawClient>
           if (!e.comment) return false;
           return this.checkCommand(c.exec, e.comment.login, pull.author, 'review_comment', false, pull.number);
         });
-        commands.map(command => {
+        commands.forEach(command => {
           this.logger.info(`extract the command is ${command.exec}`);
           // publish new command event
           const event = Object.assign(new CommandManagerNewCommandEvent(), {
@@ -165,9 +165,9 @@ export class CommandService<TConfig extends HostingConfigBase, TRawClient>
   public async syncData(): Promise<any> { }
 
   public checkCommand(command: string,
-                      login: string, author: string,
-                      from: 'issue' | 'comment' | 'pull_comment' | 'review' | 'review_comment',
-                      isIssue: boolean, issueNumber: number): boolean {
+    login: string, author: string,
+    from: 'issue' | 'comment' | 'pull_comment' | 'review' | 'review_comment',
+    isIssue: boolean, issueNumber: number): boolean {
     return this.checkAuth(login, command, author) &&
       this.checkScope(from, command) &&
       this.checkInterval(isIssue, issueNumber, command);
@@ -200,7 +200,7 @@ export class CommandService<TConfig extends HostingConfigBase, TRawClient>
 
   // Judge whether command can be exec in the current number issue/pr.
   public checkScope(from: 'issue' | 'comment' | 'pull_comment' | 'review' | 'review_comment',
-                    command: string): boolean {
+    command: string): boolean {
     // config check
     const commandConfig: CommandConfig | undefined = this.client.getCompConfig<CommandConfig>('command');
     if (!commandConfig || !commandConfig.commands) return true;
@@ -262,7 +262,7 @@ export class CommandService<TConfig extends HostingConfigBase, TRawClient>
     // in case the system is windows
     const lines = body.split(/\r?\n/);
     const commands: Command[] = [];
-    lines.map(line => {
+    lines.forEach(line => {
       const command = this.extract(line);
       if (command != null) {
         commands.push(command);

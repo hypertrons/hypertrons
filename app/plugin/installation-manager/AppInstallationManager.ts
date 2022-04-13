@@ -65,7 +65,7 @@ export class AppInstallationManager extends AppPluginBase<Config> {
   }
 
   public getInstallationInfoByName(installationName: string): {id: number, type: InstallationType} {
-    let id: number = -1;
+    let id = -1;
     let type: InstallationType;
     this.clientMap.forEach((value, key) => {
       if (value.name === installationName) {
@@ -78,7 +78,7 @@ export class AppInstallationManager extends AppPluginBase<Config> {
 
   public async getHostingClientByInstallationName(installationName: string, fullName: string): Promise<IClient> {
     let client: any;
-    this.clientMap.forEach(async(hostingPlatform, installationId) => {
+    this.clientMap.forEach(async (hostingPlatform, installationId) => {
       if (hostingPlatform.name === installationName) {
         switch (hostingPlatform.type) {
           case 'github':
@@ -91,7 +91,7 @@ export class AppInstallationManager extends AppPluginBase<Config> {
             client = this.app.gitee.getClient(installationId, fullName);
             break;
           default:
-           break;
+            break;
         }
       }
     });

@@ -44,7 +44,7 @@ export class GiteeApp extends HostingBase<GiteeConfig, GiteeClient, GiteeRawClie
     });
   }
 
-  public async addRepo(name: string, _payload: any): Promise<void> {
+  public async addRepo(name: string): Promise<void> {
     const client = new GiteeClient(name, this.id, this.app, this.client, this);
     this.clientMap.set(name, async () => client);
     this.initWebhooksForRepo(name, this.webhooksPath);
@@ -60,7 +60,7 @@ export class GiteeApp extends HostingBase<GiteeConfig, GiteeClient, GiteeRawClie
         await next();
         return;
       }
-      const event = ctx.headers['x-gitee-event'];
+      const event = ctx.headers['x-gitee-event'] as string;
       const payload = ctx.request.body;
       this.triggerWebhook(event, payload);
       await next();

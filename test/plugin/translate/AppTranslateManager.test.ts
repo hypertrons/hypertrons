@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-'use strict';
+/* eslint-disable @typescript-eslint/no-unused-vars */
 
 import assert from 'assert';
 import { TranslateResult, DetectResult } from '../../../app/plugin/translate/AppTranslateManager';
@@ -111,12 +111,12 @@ describe('AppTranslateManager', () => {
     });
     it('translate string error', async () => {
       const res: any = await app.translate.translate('', '苹果', 'en');
-      assert.strictEqual(res, undefined);
+      assert.strictEqual(res, null);
     });
 
     it('test translate array error', async () => {
       const res = await app.translate.translate('', [ 'apple', 'banana' ], 'zh-CN');
-      assert.strictEqual(res, undefined);
+      assert.strictEqual(res, null);
     });
   });
 
@@ -147,6 +147,6 @@ describe('AppTranslateManager', () => {
       };
     };
     const res: DetectResult = await app.translate.detectLanguage('', 'apple');
-    assert.strictEqual(res, undefined);
+    assert.strictEqual(res, null);
   });
 });

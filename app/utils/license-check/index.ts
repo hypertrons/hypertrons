@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/* eslint-disable @typescript-eslint/no-var-requires */
+
 import defaultConfig from './config';
 import * as gutil from 'gulp-util';
 import { readFileSync } from 'fs';
@@ -20,7 +22,7 @@ let logInfo = true;
 
 function initParam() {
   const argv = require('yargs').argv;
-  logInfo = (argv.logInfo === 'false' ? false : true);
+  logInfo = (argv.logInfo !== 'false');
 }
 
 function doCheck(files: string[], licenseHeaderPaths: string[]) {
@@ -40,7 +42,6 @@ function doCheck(files: string[], licenseHeaderPaths: string[]) {
   files.forEach(filePath => {
     const fileContent = readFileSync(filePath).toString();
     let find = false;
-    // tslint:disable-next-line: prefer-for-of
     for (let i = 0; i < licenseHeaders.length; i++) {
       if (fileContent.indexOf(licenseHeaders[i]) === 0) {
         find = true;

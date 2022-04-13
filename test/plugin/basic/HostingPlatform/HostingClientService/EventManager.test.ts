@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-'use strict';
 
 import assert, { deepEqual } from 'assert';
 import { Application, Agent } from 'egg';
@@ -27,7 +26,7 @@ describe('EventManager', () => {
   let count = 0;
 
   class MockHostingBase {
-    getName () {
+    getName() {
       return 'name';
     }
   }
@@ -104,12 +103,20 @@ describe('EventManager', () => {
       eventService.consume('PushEvent', 'worker', {} as any);
       assert(count === 1);
       eventService.consume('PushEvent', 'all', {} as any);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       assert(count === 2);
       eventService.consume('PushEvent', 'workers', {} as any);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       assert(count === 3);
       eventService.consume('PushEvent', 'agent', {} as any);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       assert(count === 3);
       eventService.consume('PushEvent', 'others' as any, {} as any);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       assert(count === 3);
     });
   });
@@ -124,11 +131,13 @@ describe('EventManager', () => {
       };
       eventService.publish('all', PushEvent, {} as any);
       assert(type === 'all');
-      deepEqual(param , {});
+      deepEqual(param, {});
 
       eventService.publish('worker', PushEvent, { foo: 'bar' } as any);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       assert(type === 'worker');
-      deepEqual(param , { foo: 'bar' });
+      deepEqual(param, { foo: 'bar' });
     });
   });
 });

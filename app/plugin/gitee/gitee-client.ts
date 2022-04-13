@@ -34,15 +34,15 @@ export class GiteeClient extends HostingClientBase<GiteeConfig, GiteeRawClient> 
   public async updateData() {
     this.logger.info(`Start to update data for ${this.fullName}`);
     // get neccessary data from all API
-    const rawRepoData = await this.rawClient.repos.getRepoData(this.repoName);
-    const contributors = await this.rawClient.repos.getContributors(this.repoName);
-    const issues = await this.rawClient.issues.all(this.repoName);
-    const issueComments = await this.rawClient.issues.allComments(this.repoName);
+    const rawRepoData: any = await this.rawClient.repos.getRepoData(this.repoName);
+    const contributors: any = await this.rawClient.repos.getContributors(this.repoName);
+    const issues: any = await this.rawClient.issues.all(this.repoName);
+    const issueComments: any = await this.rawClient.issues.allComments(this.repoName);
     // starts has no data source
     // const stars;
-    const forks = await this.rawClient.repos.getForks(this.repoName);
-    const pulls = await this.rawClient.pulls.all(this.repoName);
-    const pullComments = await this.rawClient.pulls.allComments(this.repoName);
+    const forks: any = await this.rawClient.repos.getForks(this.repoName);
+    const pulls: any = await this.rawClient.pulls.all(this.repoName);
+    const pullComments: any = await this.rawClient.pulls.allComments(this.repoName);
     // set format repo data
     const formatRepoData = {
       id: rawRepoData.id,
@@ -157,7 +157,7 @@ export class GiteeClient extends HostingClientBase<GiteeConfig, GiteeRawClient> 
   public async getFileContent(path: string): Promise<RepoFile | undefined> {
     /// API doc: https://gitee.com/api/v5/swagger#/getV5ReposOwnerRepoContents(Path)
     try {
-      const res = await this.rawClient.repos.getContents({
+      const res: any = await this.rawClient.repos.getContents({
         ...this.repoName,
         path,
       });
@@ -171,7 +171,7 @@ export class GiteeClient extends HostingClientBase<GiteeConfig, GiteeRawClient> 
     }
   }
 
-  public getDirectoryContent(_: string): Promise<RepoDir[] | undefined> {
+  public getDirectoryContent(): Promise<RepoDir[] | undefined> {
     // TODO
     throw new Error('Method not implemented.');
   }
@@ -185,7 +185,7 @@ export class GiteeClient extends HostingClientBase<GiteeConfig, GiteeRawClient> 
     });
   }
 
-  public async updateIssueComment(_comment_id: number, _body: string): Promise<void> {
+  public async updateIssueComment(): Promise<void> {
     return;
   }
 
@@ -234,7 +234,7 @@ export class GiteeClient extends HostingClientBase<GiteeConfig, GiteeRawClient> 
 
   public async listLabels(): Promise<Array<{ name: string, description: string, color: string }>> {
     // API doc: https://gitee.com/api/v5/swagger#/getV5ReposOwnerRepoLabels
-    const res = await this.rawClient.issues.listLabelsForRepo({
+    const res: any = await this.rawClient.issues.listLabelsForRepo({
       ...this.repoName,
     });
     return res.map(r => {
@@ -258,9 +258,7 @@ export class GiteeClient extends HostingClientBase<GiteeConfig, GiteeRawClient> 
       });
     } else {
       // For MRs, API doc: https://gitee.com/api/v5/swagger#/putV5ReposOwnerRepoPullsNumberLabels
-      const pull = this.getRepoData().pulls.find(p => {
-        p.number = number;
-      });
+      const pull = this.getRepoData().pulls.find(p => p.number === number);
       if (!pull) return;
       labels.push(...pull.labels);
       await this.rawClient.pulls.addLabel({
@@ -275,7 +273,7 @@ export class GiteeClient extends HostingClientBase<GiteeConfig, GiteeRawClient> 
     // API doc: https://gitee.com/api/v5/swagger#/patchV5ReposOwnerRepoLabelsOriginalName
     await Promise.all(labels.map(label => {
       // gitee's labels have no description
-      if (!label.color) return;
+      if (!label.color) return null;
       return this.rawClient.issues.updateLabel({
         ...this.repoName,
         ...label,
@@ -283,7 +281,7 @@ export class GiteeClient extends HostingClientBase<GiteeConfig, GiteeRawClient> 
     }));
   }
 
-  public async removeLabel(_number: number, _label: string): Promise<void> {
+  public async removeLabel(): Promise<void> {
     return;
   }
 
@@ -321,7 +319,7 @@ export class GiteeClient extends HostingClientBase<GiteeConfig, GiteeRawClient> 
     // TODO
     this.logger.info(filePath, content, commitMessgae, branchName);
     if (cb) cb();
-    return new Promise(() => {});
+    return new Promise(() => { });
   }
 
   public async newPullRequest(option: CreatePullRequestOption): Promise<void> {

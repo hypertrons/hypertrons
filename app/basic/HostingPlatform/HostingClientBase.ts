@@ -27,8 +27,6 @@ import { EventManager } from './HostingClientService/EventManager';
 import { ClientServiceBase } from './HostingClientService/ClientServiceBase';
 import { IClient } from '../../plugin/installation-manager/IClient';
 import { HostingClientSyncDataEvent } from './event';
-import { SVG, Svg } from '@svgdotjs/svg.js';
-import RoleConfig from '../../component/role/config';
 
 export abstract class HostingClientBase<TConfig extends HostingConfigBase, TRawClient> implements IClient {
 
@@ -50,7 +48,7 @@ export abstract class HostingClientBase<TConfig extends HostingConfigBase, TRawC
   protected services: Array<ClientServiceBase<TConfig, TRawClient>>;
 
   constructor(fullName: string, hostId: number, app: Application,
-              hostBase: HostingBase<TConfig, HostingClientBase<TConfig, TRawClient>, TRawClient>) {
+    hostBase: HostingBase<TConfig, HostingClientBase<TConfig, TRawClient>, TRawClient>) {
     this.fullName = fullName;
     this.hostId = hostId;
     this.app = app;
@@ -79,9 +77,9 @@ export abstract class HostingClientBase<TConfig extends HostingConfigBase, TRawC
 
     this.updateData();
     this.job = this.app.sched.register(`${this.fullName}_Update_Repo_Data`,
-                                        this.hostBase.getConfig().updateRepoDataSched,
-                                        'workers',
-                                        () => this.updateData());
+      this.hostBase.getConfig().updateRepoDataSched,
+      'workers',
+      () => this.updateData());
 
     for (const index in this.services) {
       await this.services[index].onStart();
@@ -112,47 +110,47 @@ export abstract class HostingClientBase<TConfig extends HostingConfigBase, TRawC
   // region
   // abstract functions
 
-  protected abstract async updateData(): Promise<void>;
+  protected abstract updateData(): Promise<void>;
 
-  public abstract async getFileContent(path: string, ref?: string): Promise<RepoFile | undefined>;
+  public abstract getFileContent(path: string, ref?: string): Promise<RepoFile | undefined>;
 
-  public abstract async getDirectoryContent(path: string, ref?: string): Promise<RepoDir[] | undefined>;
+  public abstract getDirectoryContent(path: string, ref?: string): Promise<RepoDir[] | undefined>;
 
-  public abstract async addIssue(title: string, body: string, labels?: string[] | undefined): Promise<void>;
+  public abstract addIssue(title: string, body: string, labels?: string[] | undefined): Promise<void>;
 
-  public abstract async addIssueComment(number: number, body: string): Promise<void>;
+  public abstract addIssueComment(number: number, body: string): Promise<void>;
 
-  public abstract async listLabels(): Promise<Array<{ name: string, description: string, color: string }>>;
+  public abstract listLabels(): Promise<Array<{ name: string, description: string, color: string }>>;
 
-  public abstract async updateIssue(number: number, update: { title?: string, body?: string, state?: 'open' | 'closed' }): Promise<void>;
+  public abstract updateIssue(number: number, update: { title?: string, body?: string, state?: 'open' | 'closed' }): Promise<void>;
 
-  public abstract async updatePull(number: number, update: { title?: string, body?: string, state?: 'open' | 'closed' }): Promise<void>;
+  public abstract updatePull(number: number, update: { title?: string, body?: string, state?: 'open' | 'closed' }): Promise<void>;
 
-  public abstract async updateIssueComment(comment_id: number, body: string): Promise<void>;
+  public abstract updateIssueComment(comment_id: number, body: string): Promise<void>;
 
-  public abstract async addLabels(number: number, labels: string[]): Promise<void>;
+  public abstract addLabels(number: number, labels: string[]): Promise<void>;
 
-  public abstract async removeLabel(number: number, label: string): Promise<void>;
+  public abstract removeLabel(number: number, label: string): Promise<void>;
 
-  public abstract async updateLabels(labels: Array<{ current_name: string; name?: string; description?: string; color?: string; }>): Promise<void>;
+  public abstract updateLabels(labels: Array<{ current_name: string; name?: string; description?: string; color?: string; }>): Promise<void>;
 
-  public abstract async createLabels(labels: Array<{ name: string, description: string, color: string }>): Promise<void>;
+  public abstract createLabels(labels: Array<{ name: string, description: string, color: string }>): Promise<void>;
 
-  public abstract async createCheckRun(check: CheckRun): Promise<void>;
+  public abstract createCheckRun(check: CheckRun): Promise<void>;
 
-  public abstract async merge(num: number): Promise<void>;
+  public abstract merge(num: number): Promise<void>;
 
-  public abstract async assign(num: number, login: string): Promise<void>;
+  public abstract assign(num: number, login: string): Promise<void>;
 
-  public abstract async newBranch(newBranchName: string, baseBranchName: string, cb?: () => void): Promise<void>;
+  public abstract newBranch(newBranchName: string, baseBranchName: string, cb?: () => void): Promise<void>;
 
-  public abstract async createOrUpdateFile(filePath: string, content: string, commitMessgae: string, branchName: string, cb?: () => void): Promise<void>;
+  public abstract createOrUpdateFile(filePath: string, content: string, commitMessgae: string, branchName: string, cb?: () => void): Promise<void>;
 
-  public abstract async newPullRequest(option: CreatePullRequestOption): Promise<void>;
+  public abstract newPullRequest(option: CreatePullRequestOption): Promise<void>;
 
-  //endregion
+  // endregion
 
-  //region
+  // region
   // common functions
 
   public getRepoData(): Repo {
@@ -214,71 +212,6 @@ export abstract class HostingClientBase<TConfig extends HostingConfigBase, TRawC
       this.app.ciManager.runJenkins(jobName, pullNumber.toString(), ciConfig);
     }
   }
-
-  public communitySvgImage(): string {
-    const roleConfig = this.getCompConfig<RoleConfig>('role');
-    if (!roleConfig || !roleConfig.roles || roleConfig.roles.length === 0) return '';
-
-    const titleHeight = 60;
-    const avatarHeight = 100;
-    const avatarWidth = 100;
-    const loginHeight = 10;
-    const rolePerRow = 5;
-    const roleMargin = 20;
-    let totalHeight = 0;
-
-    const getHeightByRole = (r: any): number => {
-      const n = Math.ceil(r.users.length / rolePerRow);
-      return titleHeight + n * (loginHeight + avatarHeight) + roleMargin;
-    };
-
-    roleConfig.roles.forEach(r => {
-      totalHeight += getHeightByRole(r);
-    });
-    const roleWidth = rolePerRow * avatarWidth;
-
-    let offsetYGlobal = 0;
-    const offsetXGlobal = 20;
-
-    const window = require('svgdom');
-    const document = window.document;
-    const { registerWindow } = require('@svgdotjs/svg.js');
-
-    registerWindow(window, document);
-
-    const canvas: Svg = SVG<SVGSVGElement>(document.documentElement);
-    canvas.size(roleWidth + offsetXGlobal, totalHeight + roleMargin);
-
-    const addAvatar = (login: string, index: number, roleIndex: number) => {
-      const homeUrl = `https://www.github.com/${login}`;
-      const url = `https://avatars3.githubusercontent.com/${login}?s=${avatarWidth * 2}`;
-      const id = `r${roleIndex}l${index}`;
-      const offsetX = (index % rolePerRow) * avatarWidth + offsetXGlobal;
-      const offsetY = offsetYGlobal + titleHeight + Math.floor(index / rolePerRow) * (loginHeight + avatarHeight);
-      // pattern the image to fill circle later
-      canvas.pattern().id(id).size(1, 1).attr({ patternUnits: 'objectBoundingBox' })
-        .image(url).size(avatarWidth, avatarHeight);
-      // use corresponding image to fill the circle
-      canvas.link(homeUrl).circle(avatarHeight).cx(offsetX + avatarHeight / 2).cy(offsetY + avatarHeight / 2).fill(`url(#${id})`);
-      // render text in svg container to align to middle
-      canvas.group().translate(offsetX, offsetY + avatarHeight)
-        .text(login).move(avatarWidth / 2, 0).font({ size: 14 }).attr({ 'text-anchor': 'middle' });
-    };
-
-    const addRole = (role: any, index: number) => {
-      // if the role users is empty, not render, maybe a special user type like author or anyone
-      if (!role.users || role.users.length === 0) return;
-      canvas.text(role.name).move(offsetXGlobal, offsetYGlobal).font({ size: 25 });
-      role.users.forEach((login: string, i: number) => {
-        addAvatar(login, i, index);
-      });
-      offsetYGlobal += getHeightByRole(role);
-    };
-
-    roleConfig.roles.forEach(addRole);
-
-    return canvas.svg();
-  }
-  //endregion
+  // endregion
 
 }

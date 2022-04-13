@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-'use strict';
+/* eslint-disable @typescript-eslint/no-use-before-define */
 
 import { Application, Agent } from 'egg';
 import { prepareTestApplication, testClear } from '../../Util';
@@ -52,7 +52,7 @@ describe('GitHubClient', () => {
    * Mock GitHub DataCat
    */
   class MockDataCat {
-    inited: boolean = true;
+    inited = true;
     repo: any = {
       full: () => ({
         stars: [
@@ -124,17 +124,20 @@ describe('GitHubClient', () => {
       labels: [],
     };
     issues: any = {
-      create: issue => this.testResult.issue = issue,
-      update: issue => this.testResult.issue = issue,
-      createComment: comment => this.testResult.comment = comment,
-      addAssignees: assignees => this.testResult.assignees = assignees,
-      addLabels: labels => this.testResult.labels = labels,
+      create: issue => { this.testResult.issue = issue; },
+      update: issue => { this.testResult.issue = issue; },
+      createComment: comment => { this.testResult.comment = comment; },
+      addAssignees: assignees => { this.testResult.assignees = assignees; },
+      addLabels: labels => { this.testResult.labels = labels; },
       createLabel: label => this.testResult.labels.push(label),
       updateLabel: label => this.testResult.labels.push(label),
       listLabelsForRepo: () => ({ data: this.testResult.labels }),
     };
     checks: any = {
-      create: check => this.testResult.check = check,
+      create: check => {
+        this.testResult.check = check;
+        return { status: 200 };
+      },
     };
     repos: any = {
       getContents: () => ({ data: { content: this.testResult.content, encoding: 'base64' } }),

@@ -27,8 +27,8 @@ import watch from 'node-watch';
 import { statSync } from 'fs';
 
 export abstract class HostingBase<TConfig extends HostingConfigBase,
-                                  TClient extends HostingClientBase<TConfig, TRawClient>,
-                                  TRawClient> {
+  TClient extends HostingClientBase<TConfig, TRawClient>,
+  TRawClient> {
 
   protected app: Application;
   protected logger: BotLogger;
@@ -46,17 +46,18 @@ export abstract class HostingBase<TConfig extends HostingConfigBase,
     this.hostingType = hostingType;
     this.app = app;
     this.logger = loggerWrapper(app.logger, `[host-${this.name}]`);
+    // eslint-disable-next-line no-spaced-func
     this.clientMap = new Map<string, () => Promise<TClient>>();
     this.compService = new ComponentService(this.name, config.component, app);
     this.initWebhook(config);
     this.onStart();
   }
 
-  public abstract async getInstalledRepos(): Promise<Array<{fullName: string, payload: any}>>;
+  public abstract getInstalledRepos(): Promise<Array<{fullName: string, payload: any}>>;
 
-  public abstract async addRepo(name: string, payload: any): Promise<void>;
+  public abstract addRepo(name: string, payload: any): Promise<void>;
 
-  protected abstract async initWebhook(config: TConfig): Promise<void>;
+  protected abstract initWebhook(config: TConfig): Promise<void>;
 
   public async onStart(): Promise<any> {
 
@@ -160,7 +161,6 @@ export abstract class HostingBase<TConfig extends HostingConfigBase,
       // All worker init repo
       this.app.event.publish('all', HostingPlatformInitRepoEvent, {
         id: this.id,
-        fullName,
         ...repo,
       });
       // Only one worker load data and sync to others
@@ -180,7 +180,7 @@ export abstract class HostingBase<TConfig extends HostingConfigBase,
   }
 
   public async onDispose(): Promise<void> {
-    this.clientMap.forEach(async(_, fullName) => {
+    this.clientMap.forEach(async (_, fullName) => {
       const client = await this.getClient(fullName);
       if (client) client.onDispose();
     });
@@ -189,7 +189,7 @@ export abstract class HostingBase<TConfig extends HostingConfigBase,
   public async getClient(name: string): Promise<TClient | undefined> {
     const gen = this.clientMap.get(name);
     if (gen) {
-      return await gen();
+      return gen();
     }
     return undefined;
   }

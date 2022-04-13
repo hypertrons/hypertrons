@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import fetch from 'node-fetch';
 import queryString from 'query-string';
 import { encodeURL } from '../util';
 import PromiseHandler from '../../ph-manager/promise-handler';
+import fetch from 'node-fetch';
 
 export class Issues {
   token: string;
@@ -32,11 +32,11 @@ export class Issues {
     repo: string,
   }) {
     // GET /v5/repos/{owner}/{repo}/issues
-    const result = await this.promiseHandler.add(async () => await fetch(
+    const result = await this.promiseHandler.add(async () => fetch(
       `https://gitee.com/api/v5/repos/${param.owner}/${param.repo}/issues`,
       { headers: { Authorization: `bearer ${this.token}` } },
     ));
-    return await result.json();
+    return result.json();
   }
 
   // https://gitee.com/api/v5/swagger#/getV5ReposOwnerRepoIssuesComments
@@ -45,7 +45,7 @@ export class Issues {
     repo: string,
   }) {
     // GET /v5/repos/{owner}/{repo}/issues/comments
-    const result1 = await this.promiseHandler.add(async () => await fetch(
+    const result1 = await this.promiseHandler.add(async () => fetch(
       `https://gitee.com/api/v5/repos/${param.owner}/${param.repo}/issues/comments?${queryString.stringify({
         page: 1,
         per_page: 100,
@@ -55,7 +55,7 @@ export class Issues {
         headers: { Authorization: `bearer ${this.token}` },
       },
     ));
-    let comments: any[] = await result1.json();
+    let comments: any[] = await result1.json() as any;
     const pageCount = parseInt(result1.headers.get('total_page') as any);
     if (pageCount > 1) {
       const requestList: any[] = [];
@@ -76,7 +76,7 @@ export class Issues {
       const responseList = await Promise.all(requestList);
       const commentsList = await Promise.all(responseList.map(r => r.json()));
       // concat comments
-      commentsList.map(r => {
+      commentsList.forEach(r => {
         comments = comments.concat(r);
       });
     }
@@ -92,7 +92,7 @@ export class Issues {
     labels?: string[],
   }) {
     // POST /v5/repos/{owner}/issues
-    const result = await this.promiseHandler.add(async () => await fetch(
+    const result = await this.promiseHandler.add(async () => fetch(
       `https://gitee.com/api/v5/repos/${param.owner}/issues`,
       {
         method: 'POST',
@@ -106,7 +106,7 @@ export class Issues {
         }),
       },
     ));
-    return await result.json();
+    return result.json();
   }
 
   // https://gitee.com/api/v5/swagger#/getV5ReposOwnerRepoIssuesNumber
@@ -116,11 +116,11 @@ export class Issues {
     number: string,
   }) {
     // GET /v5/repos/{owner}/{repo}/issues/{number}
-    const result = await this.promiseHandler.add(async () => await fetch(
+    const result = await this.promiseHandler.add(async () => fetch(
       `https://gitee.com/api/v5/repos/${param.owner}/${param.repo}/issues/${param.number}`,
       { headers: { Authorization: `bearer ${this.token}` } },
     ));
-    return await result.json();
+    return result.json();
   }
 
   // https://gitee.com/api/v5/swagger#/patchV5ReposOwnerIssuesNumber
@@ -141,13 +141,13 @@ export class Issues {
      * before update it.
      */
     // select part, to get labels
-    const issue = await this.select(param);
+    const issue = await this.select(param) as any;
     const labelsName = issue.labels.map(l => {
       return l.name;
     });
     const labels = labelsName.join(',');
     // update part
-    const result = await this.promiseHandler.add(async () => await fetch(
+    const result = await this.promiseHandler.add(async () => fetch(
       `https://gitee.com/api/v5/repos/${param.owner}/issues/${param.number}`,
       {
         method: 'PATCH',
@@ -161,7 +161,7 @@ export class Issues {
         }),
       },
     ));
-    return await result.json();
+    return result.json();
   }
 
   // https://gitee.com/api/v5/swagger#/postV5ReposOwnerRepoIssuesNumberComments
@@ -172,7 +172,7 @@ export class Issues {
     body: string,
   }) {
     // POST /v5/repos/{owner}/{repo}/issues/{number}/comments
-    const result = await this.promiseHandler.add(async () => await fetch(
+    const result = await this.promiseHandler.add(async () => fetch(
       `https://gitee.com/api/v5/repos/${param.owner}/${param.repo}/issues/${param.number}/comments`,
       {
         method: 'POST',
@@ -185,7 +185,7 @@ export class Issues {
         }),
       },
     ));
-    return await result.json();
+    return result.json();
   }
 
   // https://gitee.com/api/v5/swagger#/getV5ReposOwnerRepoLabels
@@ -194,14 +194,14 @@ export class Issues {
     repo: string,
   }) {
     // GET /v5/repos/{owner}/{repo}/labels
-    const result = await this.promiseHandler.add(async () => await fetch(
+    const result = await this.promiseHandler.add(async () => fetch(
       `https://gitee.com/api/v5/repos/${param.owner}/${param.repo}/labels`,
       {
         method: 'GET',
         headers: { Authorization: `bearer ${this.token}` },
       },
     ));
-    return await result.json();
+    return result.json();
   }
 
   // https://gitee.com/api/v5/swagger#/postV5ReposOwnerRepoIssuesNumberLabels
@@ -212,7 +212,7 @@ export class Issues {
     labels: string[],
   }) {
     // POST /v5/repos/{owner}/{repo}/issues/{number}/labels
-    const result = await this.promiseHandler.add(async () => await fetch(
+    const result = await this.promiseHandler.add(async () => fetch(
       `https://gitee.com/api/v5/repos/${param.owner}/${param.repo}/issues/${param.number}/labels`,
       {
         method: 'POST',
@@ -222,7 +222,7 @@ export class Issues {
         ),
       },
     ));
-    return await result.json();
+    return result.json();
   }
 
   // https://gitee.com/api/v5/swagger#/postV5ReposOwnerRepoLabels
@@ -234,7 +234,7 @@ export class Issues {
     color: string,
   }) {
     // POST /v5/repos/{owner}/{repo}/labels
-    const result = await this.promiseHandler.add(async () => await fetch(
+    const result = await this.promiseHandler.add(async () => fetch(
       `https://gitee.com/api/v5/repos/${param.owner}/${param.repo}/labels`,
       {
         method: 'POST',
@@ -260,7 +260,7 @@ export class Issues {
     color?: string,
   }) {
     // PATCH /v5/repos/{owner}/{repo}/labels/{original_name}
-    const result = await this.promiseHandler.add(async () => await fetch(
+    const result = await this.promiseHandler.add(async () => fetch(
       `https://gitee.com/api/v5/repos/${param.owner}/${param.repo}/labels/${encodeURL(param.current_name)}`,
       {
         method: 'PATCH',

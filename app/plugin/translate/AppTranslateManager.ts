@@ -46,7 +46,7 @@ export class AppTranslateManager extends AppPluginBase<null> {
         if (err) {
           this.logger.error('Error happened when translate. ' +
             `err=${JSON.stringify(err)}, src=${src}`);
-          resolve();
+          resolve(null);
         } else {
           if (!Array.isArray(src)) {
             resolve({
@@ -79,7 +79,7 @@ export class AppTranslateManager extends AppPluginBase<null> {
       this.newTranslator(googleTranslationKey).detectLanguage(src, (err: any, result: any) => {
         if (err) {
           this.logger.error(`Error happened when detect language. err=${err}, src=${src}`);
-          resolve();
+          resolve(null as any);
         } else {
           resolve({
             language: result.language,

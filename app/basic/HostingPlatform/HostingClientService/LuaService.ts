@@ -146,7 +146,7 @@ export class LuaService<TConfig extends HostingConfigBase, TRawClient> extends C
     }
   }
 
-  //region
+  // region
   // lua functions
 
   @luaMethod()
@@ -202,7 +202,7 @@ export class LuaService<TConfig extends HostingConfigBase, TRawClient> extends C
     if (!roleConfig || !roleConfig.roles) return false;
     const roleDetail = roleConfig.roles.find(r => r.name === roleName);
     if (!roleDetail) return false;
-    else return true;
+    return true;
   }
 
   @luaMethod()
@@ -547,12 +547,12 @@ export class LuaService<TConfig extends HostingConfigBase, TRawClient> extends C
         updateCount++;
         updateTask[updateTask.length] = param;
         return;
-      } else {
-        // create new label
-        createCount++;
-        createTask[createTask.length] = param;
-        return;
       }
+      // create new label
+      createCount++;
+      createTask[createTask.length] = param;
+      return;
+
     });
 
     // exec update
@@ -581,5 +581,5 @@ export class LuaService<TConfig extends HostingConfigBase, TRawClient> extends C
     }
   }
 
-  //endregion
+  // endregion
 }

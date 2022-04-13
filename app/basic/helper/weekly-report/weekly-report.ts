@@ -75,9 +75,9 @@ export default class WeeklyReport <TConfig extends HostingConfigBase, TRawClient
     generatedContents.push(this.generateContributorOverview().contributorStr);
     const weeklyReportStr = generatedContents.join(EOL);
     const title = renderString(this.config.weeklyReportTemplate.title, {
-        alias: parseRepoName(this.fullName).repo,
-        startTime: getLastWeek().toLocaleDateString(),
-        endTime: new Date().toLocaleDateString(),
+      alias: parseRepoName(this.fullName).repo,
+      startTime: getLastWeek().toLocaleDateString(),
+      endTime: new Date().toLocaleDateString(),
     });
 
     await this.client.addIssue(title, weeklyReportStr, [ 'weekly-report' ]);
@@ -104,7 +104,7 @@ export default class WeeklyReport <TConfig extends HostingConfigBase, TRawClient
 
   private removeOldWeeklyReports(): void {
     const removeIssues = this.client.getRepoData().issues.filter(
-        issue => issue.labels.some(l => l === 'weekly-report'));
+      issue => issue.labels.some(l => l === 'weekly-report'));
 
     if (removeIssues.length === 0) return;
 
@@ -127,46 +127,46 @@ export default class WeeklyReport <TConfig extends HostingConfigBase, TRawClient
     const lastWeek = getLastWeek();
     const repoData = this.client.getRepoData();
     const currentData: WeeklyData = {
-            star: repoData.stars.length,
-            watch: repoData.watchCount,
-            contributor: repoData.contributors.length,
-            fork: repoData.forkCount,
-        };
+      star: repoData.stars.length,
+      watch: repoData.watchCount,
+      contributor: repoData.contributors.length,
+      fork: repoData.forkCount,
+    };
     const deltaData: WeeklyData = {
-            star: repoData.stars.filter(star => star.time >= lastWeek).length,
-            watch: 0,
-            contributor: repoData.contributors.filter(cont => cont.time >= lastWeek).length,
-            fork: repoData.forks.filter(fork => fork.time >= lastWeek).length,
-        };
+      star: repoData.stars.filter(star => star.time >= lastWeek).length,
+      watch: 0,
+      contributor: repoData.contributors.filter(cont => cont.time >= lastWeek).length,
+      fork: repoData.forks.filter(fork => fork.time >= lastWeek).length,
+    };
     const decorateDelta = (value: number): string => {
-            if (value > 0) {
-                return `↑${value}`;
-            } else if (value < 0) {
-                return `↓${value}`;
-            } else {
-                return '-';
-            }
-        };
+      if (value > 0) {
+        return `↑${value}`;
+      } else if (value < 0) {
+        return `↓${value}`;
+      }
+      return '-';
+
+    };
     const newIssue = repoData.issues.filter(issue => issue.createdAt >= lastWeek).length;
     const closeIssue = repoData.issues.filter(issue =>
-            issue.closedAt && issue.closedAt >= lastWeek).length;
+      issue.closedAt && issue.closedAt >= lastWeek).length;
     const newPr = repoData.pulls.filter(pr => pr.createdAt >= lastWeek).length;
     const mergedPr = repoData.pulls.filter(pr =>
-            pr.mergedAt && pr.mergedAt >= lastWeek).length;
+      pr.mergedAt && pr.mergedAt >= lastWeek).length;
 
     const overviewStr = renderString(this.config.weeklyReportTemplate.overview, {
-            star: currentData.star,
-            starDelta: decorateDelta(deltaData.star),
-            fork: currentData.fork,
-            forkDelta: decorateDelta(deltaData.fork),
-            contributor: currentData.contributor,
-            contributorDelta: decorateDelta(deltaData.contributor),
-            watch: currentData.watch,
-            newIssue,
-            closeIssue,
-            newPr,
-            mergedPr,
-        });
+      star: currentData.star,
+      starDelta: decorateDelta(deltaData.star),
+      fork: currentData.fork,
+      forkDelta: decorateDelta(deltaData.fork),
+      contributor: currentData.contributor,
+      contributorDelta: decorateDelta(deltaData.contributor),
+      watch: currentData.watch,
+      newIssue,
+      closeIssue,
+      newPr,
+      mergedPr,
+    });
     const basicDataTable: Map<string, string> = new Map<string, string>();
     basicDataTable.set('*Watch*', `${currentData.watch}`);
     basicDataTable.set('*Star*', `${currentData.star}(${decorateDelta(deltaData.star)})`);
@@ -193,22 +193,22 @@ export default class WeeklyReport <TConfig extends HostingConfigBase, TRawClient
       pr.mergedAt && pr.mergedAt >= lastWeek);
       // group by author
     const pullRequestAuthors = new Array<{
-        name: string,
-        pullRequestCount: number,
-        pulls: PullRequest[],
-      }>();
+      name: string,
+      pullRequestCount: number,
+      pulls: PullRequest[],
+    }>();
     prs.forEach(pr => {
-        const pullRequestAuthor = pullRequestAuthors.find(prAuthor => prAuthor.name === pr.author);
-        if (pullRequestAuthor) {
-            pullRequestAuthor.pullRequestCount++;
-            pullRequestAuthor.pulls.push(pr);
-        } else {
-            pullRequestAuthors.push({
-                name: pr.author,
-                pullRequestCount: 1,
-                pulls: new Array<PullRequest>(pr),
-            });
-        }
+      const pullRequestAuthor = pullRequestAuthors.find(prAuthor => prAuthor.name === pr.author);
+      if (pullRequestAuthor) {
+        pullRequestAuthor.pullRequestCount++;
+        pullRequestAuthor.pulls.push(pr);
+      } else {
+        pullRequestAuthors.push({
+          name: pr.author,
+          pullRequestCount: 1,
+          pulls: new Array<PullRequest>(pr),
+        });
+      }
     });
 
     // sort by pullRequestCount(desc)
@@ -217,36 +217,36 @@ export default class WeeklyReport <TConfig extends HostingConfigBase, TRawClient
     let pullRequestStrs = '';
     const prsTable: Map<string, string> = new Map<string, string>();
     pullRequestAuthors.forEach((pra, index) => {
-        // sort by pr number(asc)
-        pra.pulls.sort((a, b) => a.number - b.number);
-        let singlePullRequestStrs = '';
-        let singlePullRequestStrsForSlack = '';
-        pra.pulls.forEach(pr => {
-          singlePullRequestStrs += renderString(this.config.weeklyReportTemplate.singlePullRequest, {
-            title: pr.title,
-            number: pr.number,
-            linebreaker: this.getLineBreakerStr(),
-          });
-
-          if (index >= MAX_TABLE_ITEMS_FOR_SLACK) return;
-
-          singlePullRequestStrsForSlack += renderString(this.config.weeklyReportTemplate.singlePullRequest, {
-            title: pr.title,
-            number: pr.number,
-            linebreaker: this.getLineBreakerStr('slack'),
-          });
+      // sort by pr number(asc)
+      pra.pulls.sort((a, b) => a.number - b.number);
+      let singlePullRequestStrs = '';
+      let singlePullRequestStrsForSlack = '';
+      pra.pulls.forEach(pr => {
+        singlePullRequestStrs += renderString(this.config.weeklyReportTemplate.singlePullRequest, {
+          title: pr.title,
+          number: pr.number,
+          linebreaker: this.getLineBreakerStr(),
         });
-        pullRequestStrs += renderString(this.config.weeklyReportTemplate.singleAuthorPullRequest, {
-          name: pra.name,
-          count: pra.pullRequestCount,
-          singlePullRequestStrs,
-        });
+
         if (index >= MAX_TABLE_ITEMS_FOR_SLACK) return;
-        prsTable.set(`*@${pra.name}*`, singlePullRequestStrsForSlack);
+
+        singlePullRequestStrsForSlack += renderString(this.config.weeklyReportTemplate.singlePullRequest, {
+          title: pr.title,
+          number: pr.number,
+          linebreaker: this.getLineBreakerStr('slack'),
+        });
+      });
+      pullRequestStrs += renderString(this.config.weeklyReportTemplate.singleAuthorPullRequest, {
+        name: pra.name,
+        count: pra.pullRequestCount,
+        singlePullRequestStrs,
+      });
+      if (index >= MAX_TABLE_ITEMS_FOR_SLACK) return;
+      prsTable.set(`*@${pra.name}*`, singlePullRequestStrsForSlack);
     });
     const options: any = {
-        mergedPrCount: prs.length,
-        pullRequestStrs,
+      mergedPrCount: prs.length,
+      pullRequestStrs,
     };
     const pullRequestsStr = renderString(this.config.weeklyReportTemplate.pullRequests, options);
     return {
@@ -260,29 +260,29 @@ export default class WeeklyReport <TConfig extends HostingConfigBase, TRawClient
     const lastWeek = getLastWeek();
     // get prs merged last week or still in open state
     const mergedOrOpenPrs = this.client.getRepoData().pulls
-        .filter(pr => (pr.mergedAt && pr.mergedAt >= lastWeek) || !pr.closedAt);
+      .filter(pr => (pr.mergedAt && pr.mergedAt >= lastWeek) || !pr.closedAt);
     const reviewers = new Array<{
-        login: string,
-        reviewCount: number,
+      login: string,
+      reviewCount: number,
     }>();
     for (const pr of mergedOrOpenPrs) {
       pr.reviewComments.filter(review => review.createdAt &&
         new Date(review.createdAt) >= lastWeek).forEach(review => {
-            const reviewer = reviewers.find(r => r.login === review.login);
-            if (reviewer) {
-                reviewer.reviewCount++;
-            } else {
-              reviewers.push({
-                  login: review.login,
-                  reviewCount: 1,
-              });
-            }
-        });
+        const reviewer = reviewers.find(r => r.login === review.login);
+        if (reviewer) {
+          reviewer.reviewCount++;
+        } else {
+          reviewers.push({
+            login: review.login,
+            reviewCount: 1,
+          });
+        }
+      });
     }
     reviewers.sort((a, b) => b.reviewCount - a.reviewCount);
     const reviewOverviewStr = renderString(this.config.weeklyReportTemplate.review, {
-        alias:  parseRepoName(this.fullName).repo,
-        reviewerStrs: reviewers.map(r => renderString(this.config.weeklyReportTemplate.singleReview, r)).join(''),
+      alias: parseRepoName(this.fullName).repo,
+      reviewerStrs: reviewers.map(r => renderString(this.config.weeklyReportTemplate.singleReview, r)).join(''),
     });
 
     const codeReviewsTable: Map<string, string> = new Map<string, string>();
@@ -302,18 +302,18 @@ export default class WeeklyReport <TConfig extends HostingConfigBase, TRawClient
     const repo = parseRepoName(this.fullName).repo;
     const contributors = this.client.getRepoData().contributors.filter(c => c.time >= lastWeek);
     contributors.reverse();
-    let contributorStr: string = '';
-    const contributingLink: string = `https://github.com/${owner}/${repo}/blob/master/CONTRIBUTING.md`;
+    let contributorStr = '';
+    const contributingLink = `https://github.com/${owner}/${repo}/blob/master/CONTRIBUTING.md`;
     if (contributors.length > 0) {
       contributorStr = renderString(this.config.weeklyReportTemplate.newContributors, {
-            alias: repo,
-            contributingLink,
-            contributorStrs: contributors.map(c => renderString(
-              this.config.weeklyReportTemplate.singleContributor, { login: c.login })).join(EOL),
-        });
+        alias: repo,
+        contributingLink,
+        contributorStrs: contributors.map(c => renderString(
+          this.config.weeklyReportTemplate.singleContributor, { login: c.login })).join(EOL),
+      });
     } else {
       contributorStr = renderString(this.config.weeklyReportTemplate.noNewContributors,
-                                    { alias: repo, contributingLink });
+        { alias: repo, contributingLink });
     }
 
     const contributorsForSlack: string[] = [];

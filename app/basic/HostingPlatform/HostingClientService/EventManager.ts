@@ -80,7 +80,7 @@ export class EventManager<TConfig extends HostingConfigBase, TRawClient> extends
   }
 
   public publish<T>(type: 'worker' | 'workers' | 'agent' | 'all',
-                    constructor: new (...args: any) => T, param: Partial<T>): void {
+    constructor: new (...args: any) => T, param: Partial<T>): void {
     this.app.event.publish(type, constructor, param);
   }
 

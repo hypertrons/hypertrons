@@ -184,7 +184,7 @@ export class RepoDataService<TConfig extends HostingConfigBase, TRawClient> exte
       issue.createdAt = ParseDate(issue.createdAt as any) as any;
       issue.updatedAt = ParseDate(issue.updatedAt as any);
 
-      issue.comments.forEach(c => c.createdAt = ParseDate(c.createdAt as any) as any);
+      issue.comments.forEach(c => { c.createdAt = ParseDate(c.createdAt as any) as any; });
     });
 
     this.repoData.pulls.forEach(pull => {
@@ -193,8 +193,8 @@ export class RepoDataService<TConfig extends HostingConfigBase, TRawClient> exte
       pull.closedAt = ParseDate(pull.closedAt as any);
       pull.mergedAt = ParseDate(pull.mergedAt as any);
 
-      pull.comments.forEach(c => c.createdAt = ParseDate(c.createdAt as any) as any);
-      pull.reviewComments.forEach(rc => rc.createdAt = ParseDate(rc.createdAt as any) as any);
+      pull.comments.forEach(c => { c.createdAt = ParseDate(c.createdAt as any) as any; });
+      pull.reviewComments.forEach(rc => { rc.createdAt = ParseDate(rc.createdAt as any) as any; });
     });
   }
 

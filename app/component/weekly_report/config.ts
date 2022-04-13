@@ -37,7 +37,7 @@ export class WeeklyReportTemplate {
     description: 'Overview template',
     defaultValue: templateDefaultConfig.overview,
     renderParams: [ 'watch', 'star', 'startDelta', 'fork', 'forkDelta', 'contributor', 'contributorDelta',
-                    'newIssue', 'closeIssue', 'newPr', 'mergedPr' ],
+      'newIssue', 'closeIssue', 'newPr', 'mergedPr' ],
   })
   overview: string;
 
@@ -78,7 +78,7 @@ export class WeeklyReportTemplate {
 
   @configProp({
     description: 'New contributor template',
-    defaultValue:  templateDefaultConfig.newContributors,
+    defaultValue: templateDefaultConfig.newContributors,
     renderParams: [ 'alias', 'contributorStrs', 'owner', 'repo', 'branch' ],
   })
   newContributors: string;

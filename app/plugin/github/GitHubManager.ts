@@ -15,7 +15,7 @@
 import { HostingManagerBase } from '../../basic/HostingPlatform/HostingManagerBase';
 import { GitHubApp } from './GitHubApp';
 import { GitHubClient } from './GitHubClient';
-import Octokit = require('@octokit/rest');
+import { Octokit } from '@octokit/rest';
 import { GitHubConfig } from './GitHubConfig';
 import { Application } from 'egg';
 import { getConfigMeta } from '../../config-generator/decorators';

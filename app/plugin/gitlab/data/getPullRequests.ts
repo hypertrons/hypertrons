@@ -59,11 +59,11 @@ interface RawPullRequest {
       node: {
         id: string;
         login: {
-            username: string;
+          username: string;
         }
         body: string;
         url: {
-            webUrl: string;
+          webUrl: string;
         }
         createdAt: string;
       },
@@ -109,12 +109,13 @@ export async function getPullRequests(client: GitlabGraphqlClient, name: string,
   const icount = pcount ? pcount : 5;
   const arr = Array.from(Array(icount + 1).keys()).slice(1);
   let all_prs: PullRequest[] = [];
-  let base: number = 0;
+  let base = 0;
   let return_length: number = icount;
   const MAX_TOLERANCE = 3;
   let tolerance = MAX_TOLERANCE; // just in case pr is deleted.
   let tmp = '';
   while (return_length === icount || tolerance > 0) {
+    // eslint-disable-next-line no-loop-func
     const iids = arr.map(a => (a + base).toString());
     base += icount;
     try {
@@ -128,7 +129,7 @@ export async function getPullRequests(client: GitlabGraphqlClient, name: string,
       const part_prs = raw_prs.map(x => formatPullRequest(x.node));
       all_prs = all_prs.concat(part_prs);
     } catch (e) {
-      console.log(e.message);
+      console.log((e as any).message);
       console.log(tmp);
     }
     if (return_length === icount) {

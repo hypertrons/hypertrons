@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-'use strict';
 
 import assert from 'assert';
 import { prepareTestApplication, testClear } from '../../../../Util';
@@ -296,48 +295,48 @@ describe('CommandService', () => {
     });
 
     it('should return true if CompConfig is empty', async () => {
-      (commandService as any).client.getCompConfig = (<T>(_: string): T => undefined as any) as any;
+      (commandService as any).client.getCompConfig = (<T>(): T => undefined as any) as any;
       assert(commandService.checkInterval(true, 0, '/rerun') === true);
     });
 
     it('should return true if CompConfig.commands is empty', async () => {
-      (commandService as any).client.getCompConfig = (<T>(_: string): T => {
+      (commandService as any).client.getCompConfig = (<T>(): T => {
         return {} as any;
       }) as any;
       assert(commandService.checkInterval(true, 0, '/rerun') === true);
 
-      (commandService as any).client.getCompConfig = (<T>(_: string): T => {
+      (commandService as any).client.getCompConfig = (<T>(): T => {
         return { commands: [] } as any;
       }) as any;
       assert(commandService.checkInterval(true, 0, '/rerun') === true);
     });
 
     it('should return true if command not found in CompConfig.commands', async () => {
-      (commandService as any).client.getCompConfig = (<T>(_: string): T => {
+      (commandService as any).client.getCompConfig = (<T>(): T => {
         return { commands: [{ name: '/test' }] } as any;
       }) as any;
       assert(commandService.checkInterval(true, 0, '/rerun') === true);
     });
 
     it('should return true if CompConfig.command.intervalMinutes is empty or <= 0', async () => {
-      (commandService as any).client.getCompConfig = (<T>(_: string): T => {
+      (commandService as any).client.getCompConfig = (<T>(): T => {
         return { commands: [{ name: '/rerun' }] } as any;
       }) as any;
       assert(commandService.checkInterval(true, 0, '/rerun') === true);
 
-      (commandService as any).client.getCompConfig = (<T>(_: string): T => {
+      (commandService as any).client.getCompConfig = (<T>(): T => {
         return { commands: [{ name: '/rerun', intervalMinutes: 0 }] } as any;
       }) as any;
       assert(commandService.checkInterval(true, 0, '/rerun') === true);
 
-      (commandService as any).client.getCompConfig = (<T>(_: string): T => {
+      (commandService as any).client.getCompConfig = (<T>(): T => {
         return { commands: [{ name: '/rerun', intervalMinutes: -1 }] } as any;
       }) as any;
       assert(commandService.checkInterval(true, 0, '/rerun') === true);
     });
 
     it('should return true if lastExecTime is empty', async () => {
-      (commandService as any).client.getCompConfig = (<T>(_: string): T => {
+      (commandService as any).client.getCompConfig = (<T>(): T => {
         return { commands: [{ name: '/rerun', intervalMinutes: 10 }] } as any;
       }) as any;
       assert(commandService.checkInterval(true, 0, '/rerun') === true);
@@ -345,7 +344,7 @@ describe('CommandService', () => {
 
     it('should return false if now() - lastExecTime <= interval', async () => {
       (commandService as any).setCommandLastExecTime(true, 0);
-      (commandService as any).client.getCompConfig = (<T>(_: string): T => {
+      (commandService as any).client.getCompConfig = (<T>(): T => {
         return { commands: [{ name: '/rerun', intervalMinutes: 10 }] } as any;
       }) as any;
       assert(commandService.checkInterval(true, 0, '/rerun') === false);
@@ -354,7 +353,7 @@ describe('CommandService', () => {
     it('should return true if now() - lastExecTime > interval', async () => {
       // 2019-12-06 22:33:52 GMT+0800 (GMT+08:00)
       (commandService as any).commandLastExecTime.set('issue_0', 1575642832110);
-      (commandService as any).client.getCompConfig = (<T>(_: string): T => {
+      (commandService as any).client.getCompConfig = (<T>(): T => {
         return { commands: [{ name: '/rerun', intervalMinutes: 10 }] } as any;
       }) as any;
       assert(commandService.checkInterval(true, 0, '/rerun') === true);
@@ -381,7 +380,7 @@ describe('CommandService', () => {
     describe('checkAuth', () => {
       it('directly return false when config is undefined', async () => {
         const tempCommandService = new CommandService(app, new MockClient() as any);
-        (tempCommandService as any).client.getCompConfig = () => {};
+        (tempCommandService as any).client.getCompConfig = () => null;
         assert.strictEqual(tempCommandService.checkAuth('GoodMeowing', '/666', 'author'), false);
       });
 

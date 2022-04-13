@@ -34,5 +34,7 @@ export function convertIssueNumber2String(issueNumber: number): string {
 // have to replace them.
 // e.g. some labels contains '/' like 'pull/approved' will lead to labels update failure
 export function encodeURL(str: string) {
-  return escape(str).replace(/\+/g, '%2B').replace(/\"/g, '%22').replace(/\'/g, '%27').replace(/\//g, '%2F');
+  return escape(str).replace(/\+/g, '%2B').replace(/\"/g, '%22')
+    .replace(/\'/g, '%27')
+    .replace(/\//g, '%2F');
 }

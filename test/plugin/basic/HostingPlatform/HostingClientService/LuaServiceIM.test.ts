@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-'use strict';
 
 import assert, { deepEqual } from 'assert';
 import { prepareTestApplication, testClear } from '../../../../Util';
@@ -87,18 +86,18 @@ describe('LuaServiceIM', () => {
       imConfig = null;
 
       const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
-      client.getCompConfig = (<T>(_: string): T => undefined as any) as any;
+      client.getCompConfig = (<T>(): T => undefined as any) as any;
       client.luaService.lua_sendToSlack(null as any, null as any);
       assert(imNumber === 0);
     });
 
     it('should not trigger if compConfig is empty', async () => {
       const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
-      client.getCompConfig = (<T>(_: string): T => undefined as any) as any;
+      client.getCompConfig = (<T>(): T => undefined as any) as any;
       client.luaService.lua_sendToSlack('test', 1);
       assert(imNumber === 0);
 
-      client.getCompConfig = (<T>(_: string): T => {
+      client.getCompConfig = (<T>(): T => {
         return {} as any;
       }) as any;
       client.luaService.lua_sendToSlack('test', {});
@@ -108,7 +107,7 @@ describe('LuaServiceIM', () => {
     it('should not trigger if enable is false', async () => {
       const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
       const config = { enable: false };
-      client.getCompConfig = (<T>(_: string): T => config as any) as any;
+      client.getCompConfig = (<T>(): T => config as any) as any;
       client.luaService.lua_sendToSlack('test', {});
       assert(imNumber === 0);
     });
@@ -119,7 +118,7 @@ describe('LuaServiceIM', () => {
         enable: true,
         slack: [],
       };
-      client.getCompConfig = (<T>(_: string): T => config as any) as any;
+      client.getCompConfig = (<T>(): T => config as any) as any;
       client.luaService.lua_sendToSlack('test', {});
       assert(imNumber === 0);
     });
@@ -130,7 +129,7 @@ describe('LuaServiceIM', () => {
         enable: true,
         slack: [{ name: 'test' }],
       };
-      client.getCompConfig = (<T>(_: string): T => config as any) as any;
+      client.getCompConfig = (<T>(): T => config as any) as any;
       client.luaService.lua_sendToSlack('test', {});
       assert(imNumber === 1);
       deepEqual(imMessage, {});
@@ -145,18 +144,18 @@ describe('LuaServiceIM', () => {
       imConfig = null;
 
       const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
-      client.getCompConfig = (<T>(_: string): T => undefined as any) as any;
+      client.getCompConfig = (<T>(): T => undefined as any) as any;
       client.luaService.lua_sendToMail(null as any, null as any);
       assert(imNumber === 0);
     });
 
     it('should not trigger if compConfig is empty', async () => {
       const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
-      client.getCompConfig = (<T>(_: string): T => undefined as any) as any;
+      client.getCompConfig = (<T>(): T => undefined as any) as any;
       client.luaService.lua_sendToMail('test', {});
       assert(imNumber === 0);
 
-      client.getCompConfig = (<T>(_: string): T => {
+      client.getCompConfig = (<T>(): T => {
         return {} as any;
       }) as any;
       client.luaService.lua_sendToMail('test', {});
@@ -166,7 +165,7 @@ describe('LuaServiceIM', () => {
     it('should not trigger if enable is false', async () => {
       const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
       const config = { enable: false };
-      client.getCompConfig = (<T>(_: string): T => config as any) as any;
+      client.getCompConfig = (<T>(): T => config as any) as any;
       client.luaService.lua_sendToMail('test', {});
       assert(imNumber === 0);
     });
@@ -177,7 +176,7 @@ describe('LuaServiceIM', () => {
         enable: true,
         mail: [],
       };
-      client.getCompConfig = (<T>(_: string): T => config as any) as any;
+      client.getCompConfig = (<T>(): T => config as any) as any;
       client.luaService.lua_sendToMail('test', {});
       assert(imNumber === 0);
     });
@@ -188,7 +187,7 @@ describe('LuaServiceIM', () => {
         enable: true,
         mail: [{ name: 'test' }],
       };
-      client.getCompConfig = (<T>(_: string): T => config as any) as any;
+      client.getCompConfig = (<T>(): T => config as any) as any;
       client.luaService.lua_sendToMail('test', {});
       assert(imNumber === 1);
       deepEqual(imMessage, {});
@@ -203,18 +202,18 @@ describe('LuaServiceIM', () => {
       imConfig = null;
 
       const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
-      client.getCompConfig = (<T>(_: string): T => undefined as any) as any;
+      client.getCompConfig = (<T>(): T => undefined as any) as any;
       client.luaService.lua_sendToDingTalk(null as any, null as any);
       assert(imNumber === 0);
     });
 
     it('should not trigger if compConfig is empty', async () => {
       const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
-      client.getCompConfig = (<T>(_: string): T => undefined as any) as any;
+      client.getCompConfig = (<T>(): T => undefined as any) as any;
       client.luaService.lua_sendToDingTalk('test', {});
       assert(imNumber === 0);
 
-      client.getCompConfig = (<T>(_: string): T => {
+      client.getCompConfig = (<T>(): T => {
         return {} as any;
       }) as any;
       client.luaService.lua_sendToDingTalk('test', {});
@@ -224,7 +223,7 @@ describe('LuaServiceIM', () => {
     it('should not trigger if enable is false', async () => {
       const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
       const config = { enable: false };
-      client.getCompConfig = (<T>(_: string): T => config as any) as any;
+      client.getCompConfig = (<T>(): T => config as any) as any;
       client.luaService.lua_sendToDingTalk('test', {});
       assert(imNumber === 0);
     });
@@ -235,7 +234,7 @@ describe('LuaServiceIM', () => {
         enable: true,
         dingTalk: [],
       };
-      client.getCompConfig = (<T>(_: string): T => config as any) as any;
+      client.getCompConfig = (<T>(): T => config as any) as any;
       client.luaService.lua_sendToDingTalk('test', {});
       assert(imNumber === 0);
     });
@@ -246,7 +245,7 @@ describe('LuaServiceIM', () => {
         enable: true,
         dingTalk: [{ name: 'test1' }],
       };
-      client.getCompConfig = (<T>(_: string): T => config as any) as any;
+      client.getCompConfig = (<T>(): T => config as any) as any;
       client.luaService.lua_sendToDingTalk('test1', {});
       assert(imNumber === 1);
       deepEqual(imMessage, {});
@@ -257,18 +256,18 @@ describe('LuaServiceIM', () => {
   describe('lua_runCI', () => {
     it('should not trigger if configName or pullNumber is empty', async () => {
       const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
-      client.getCompConfig = (<T>(_: string): T => undefined as any) as any;
+      client.getCompConfig = (<T>(): T => undefined as any) as any;
       client.luaService.lua_runCI(null as any, null as any);
       assert(ciNumber === 0);
     });
 
     it('should not trigger if compConfig is empty', async () => {
       const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
-      client.getCompConfig = (<T>(_: string): T => undefined as any) as any;
+      client.getCompConfig = (<T>(): T => undefined as any) as any;
       client.luaService.lua_runCI('test', 1);
       assert(ciNumber === 0);
 
-      client.getCompConfig = (<T>(_: string): T => {
+      client.getCompConfig = (<T>(): T => {
         return {} as any;
       }) as any;
       client.luaService.lua_runCI('test', 1);
@@ -277,7 +276,7 @@ describe('LuaServiceIM', () => {
 
     it('should not trigger if compConfig.enable is false', async () => {
       const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
-      client.getCompConfig = (<T>(_: string): T => {
+      client.getCompConfig = (<T>(): T => {
         return { enable: false } as any;
       }) as any;
       client.luaService.lua_runCI('test', 1);
@@ -286,7 +285,7 @@ describe('LuaServiceIM', () => {
 
     it('should not trigger if compConfig.configs is empty', async () => {
       const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
-      client.getCompConfig = (<T>(_: string): T => {
+      client.getCompConfig = (<T>(): T => {
         return { enable: true, configs: [] } as any;
       }) as any;
       client.luaService.lua_runCI('test', 1);
@@ -295,7 +294,7 @@ describe('LuaServiceIM', () => {
 
     it('should not trigger if configName is not in compConfig.configs', async () => {
       const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
-      client.getCompConfig = (<T>(_: string): T => {
+      client.getCompConfig = (<T>(): T => {
         return {
           enable: true,
           configs: [
@@ -316,7 +315,7 @@ describe('LuaServiceIM', () => {
 
     it('should not trigger if fullName.repo is not in compConfig.configs.repoToJobMap', async () => {
       const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
-      client.getCompConfig = (<T>(_: string): T => {
+      client.getCompConfig = (<T>(): T => {
         return {
           enable: true,
           configs: [
@@ -337,7 +336,7 @@ describe('LuaServiceIM', () => {
 
     it('should not trigger if platform not exist', async () => {
       const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
-      client.getCompConfig = (<T>(_: string): T => {
+      client.getCompConfig = (<T>(): T => {
         return {
           enable: true, configs: [
             {
@@ -370,7 +369,7 @@ describe('LuaServiceIM', () => {
           },
         ],
       } as any;
-      client.getCompConfig = (<T>(_: string): T => config) as any;
+      client.getCompConfig = (<T>(): T => config) as any;
       client.luaService.lua_runCI('jenkins1', 1);
       assert(ciNumber === 1 && ciJobName === 'test' && ciPullNumber === '1');
       deepEqual(ciConfig, config.configs[0]);

@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/* eslint-disable @typescript-eslint/no-var-requires */
+
 import { readFileSync, existsSync } from 'fs';
-// tslint:disable-next-line: no-var-requires
 const deglob = require('deglob');
-// tslint:disable-next-line: no-var-requires
 const gutil = require('gulp-util');
 
 const moduleName = 'md-lint';

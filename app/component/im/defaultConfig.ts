@@ -18,7 +18,7 @@ const mailDefaultConfig: MailConfig = {
   name: '',
   connectOptions: {
     host: '',
-    port : 465,
+    port: 465,
     secure: true,
     auth: {
       user: '',

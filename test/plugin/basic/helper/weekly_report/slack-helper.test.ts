@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-'use strict';
 
 import * as SlackHelper from '../../../../../app/basic/helper/weekly-report/slack-helper';
 import assert from 'power-assert';
@@ -49,7 +48,7 @@ describe('Utils', () => {
       );
       assert(res.blocks !== undefined);
       if (res.blocks) {
-      assert(res.blocks.length === 18);
+        assert(res.blocks.length === 18);
       }
     });
 
@@ -70,7 +69,7 @@ describe('Utils', () => {
       );
       assert(res.blocks !== undefined);
       if (res.blocks) {
-      assert(res.blocks.length === 18);
+        assert(res.blocks.length === 18);
       }
     });
 

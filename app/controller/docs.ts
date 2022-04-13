@@ -28,7 +28,7 @@ export default class Docs extends Controller {
       return;
     }
     this.ctx.set('Content-Type', 'image/svg+xml');
-    const svg = client.communitySvgImage();
+    const svg = '';
     this.ctx.body = svg;
   }
 }
