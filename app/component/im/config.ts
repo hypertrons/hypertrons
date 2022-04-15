@@ -106,6 +106,12 @@ export class DingTalkConfig {
   name: string;
 
   @configProp({
+    description: 'Secret string for DingTalk',
+    defaultValue: dingTalkDefaultConfig.secret,
+  })
+  secret: string;
+
+  @configProp({
     description: 'DingTalk webhook',
     defaultValue: dingTalkDefaultConfig.webhook,
   })

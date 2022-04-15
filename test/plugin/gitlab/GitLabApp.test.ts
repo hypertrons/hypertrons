@@ -18,7 +18,7 @@ import { Agent } from 'egg';
 import { prepareTestApplication, testClear } from '../../Util';
 import { HostingPlatformInitEvent } from '../../../app/basic/HostingPlatform/event';
 import { MockApplication } from 'egg-mock';
-import { IssueEvent, CommentUpdateEvent, PushEvent, PullRequestEvent } from '../../../app/plugin/event-manager/events';
+import { IssueEvent, IssueCommentEvent, PushEvent, PullRequestEvent } from '../../../app/plugin/event-manager/events';
 import { waitUntil } from '../../../app/basic/Utils';
 
 describe('GitLabApp', () => {
@@ -132,7 +132,7 @@ describe('GitLabApp', () => {
       .expect(200);
 
     // Note Hook Test
-    app.event.subscribeAll(CommentUpdateEvent, async e => {
+    app.event.subscribeAll(IssueCommentEvent, async e => {
       assert(e.issueNumber === 2246);
     });
     await app

@@ -76,17 +76,17 @@ describe('RepoDataService', () => {
       await client.eventService.consume('LabelUpdateEvent', 'all', { action: '' } as any);
       assert(count === 0);
     });
-    // CommentUpdateEvent
-    it('should call updateComment if CommentUpdateEvent.comment is not empty', async () => {
-      await client.eventService.consume('CommentUpdateEvent', 'all', { comment: {} } as any);
+    // IssueCommentEvent
+    it('should call updateComment if IssueCommentEvent.comment is not empty', async () => {
+      await client.eventService.consume('IssueCommentEvent', 'all', { comment: {} } as any);
       assert(count === 1);
     });
-    it('should call updateComment if CommentUpdateEvent.comment is not empty', async () => {
-      await client.eventService.consume('CommentUpdateEvent', 'all', { isIssue: true, comment: {} } as any);
+    it('should call updateComment if IssueCommentEvent.comment is not empty', async () => {
+      await client.eventService.consume('IssueCommentEvent', 'all', { isIssue: true, comment: {} } as any);
       assert(count === 1);
     });
-    it('should not call updateComment if CommentUpdateEvent.comment is empty', async () => {
-      await client.eventService.consume('CommentUpdateEvent', 'all', { action: '' } as any);
+    it('should not call updateComment if IssueCommentEvent.comment is empty', async () => {
+      await client.eventService.consume('IssueCommentEvent', 'all', { action: '' } as any);
       assert(count === 0);
     });
     // IssueEvent

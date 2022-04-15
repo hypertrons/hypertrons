@@ -129,7 +129,8 @@ export async function getPullRequests(client: GitlabGraphqlClient, name: string,
       const part_prs = raw_prs.map(x => formatPullRequest(x.node));
       all_prs = all_prs.concat(part_prs);
     } catch (e) {
-      console.log((e as any).message);
+      if (!(e instanceof Error)) throw e;
+      console.log(e.message);
       console.log(tmp);
     }
     if (return_length === icount) {

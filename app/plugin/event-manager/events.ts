@@ -31,6 +31,7 @@ class LuaIssueEvent {
   title: string;
   body: string;
   labels: string[];
+  rawPayload: any;
 }
 
 @luaEvent({
@@ -57,8 +58,9 @@ export class IssueEvent extends RepoEventBase {
   | 'unpinned';
   issue: Issue | undefined;
   changes: {};
+  rawPayload: any;
 
-  public toLuaEvent(e: IssueEvent): LuaIssueEvent | undefined {
+  public toLuaEvent?(e: IssueEvent): LuaIssueEvent | undefined {
     if (!e.issue) return undefined;
     return {
       action: e.action,
@@ -67,6 +69,7 @@ export class IssueEvent extends RepoEventBase {
       title: e.issue.title,
       body: e.issue.body,
       labels: e.issue.labels,
+      rawPayload: e.rawPayload,
     };
   }
 }
@@ -74,11 +77,35 @@ export class IssueEvent extends RepoEventBase {
 /**
  * When update a comment
  */
-export class CommentUpdateEvent extends RepoEventBase {
+
+class LuaIssueCommentEvent {
+  action: string;
+  author: string;
+  issueNumber: number;
+  isIssue: boolean;
+  rawPayload: any;
+}
+
+@luaEvent({
+  description: 'Issue comment events for a repo',
+  luaEventType: LuaIssueCommentEvent,
+})
+export class IssueCommentEvent extends RepoEventBase {
   issueNumber: number;
   action: 'created' | 'deleted' | 'edited';
   comment: Comment | undefined;
   isIssue: boolean; // true: issue, false: PR/MR
+  rawPayload: any;
+
+  public toLuaEvent?(e: IssueCommentEvent): LuaIssueCommentEvent | undefined {
+    return {
+      action: e.action,
+      author: e.comment?.login ?? '',
+      issueNumber: e.issueNumber,
+      isIssue: e.isIssue,
+      rawPayload: e.rawPayload,
+    };
+  }
 }
 
 /**
@@ -93,6 +120,8 @@ export class LabelUpdateEvent extends RepoEventBase {
 /**
  * When update a pull request review
  */
+
+
 export class ReviewEvent extends RepoEventBase {
   prNumber: number;
   action: 'submitted' | 'dismissed' | 'edited';
@@ -102,10 +131,30 @@ export class ReviewEvent extends RepoEventBase {
 /**
  * When update a pull request comment
  */
+
+class LuaReviewCommentEvent {
+  prNumber: number;
+  action: 'created' | 'deleted' | 'edited';
+  rawPayload: any;
+}
+
+@luaEvent({
+  description: 'Review comment events for a pull request',
+  luaEventType: LuaReviewCommentEvent,
+})
 export class ReviewCommentEvent extends RepoEventBase {
   prNumber: number;
   action: 'created' | 'deleted' | 'edited';
   comment: Comment | undefined;
+  rawPayload: any;
+
+  public toLuaEvent?(e: ReviewCommentEvent): LuaReviewCommentEvent | undefined {
+    return {
+      prNumber: e.prNumber,
+      action: e.action,
+      rawPayload: e.rawPayload,
+    };
+  }
 }
 
 /**
@@ -118,6 +167,7 @@ class LuaPullRequestEvent {
   title: string;
   body: string;
   labels: string[];
+  rawPayload: any;
 }
 
 @luaEvent({
@@ -141,7 +191,9 @@ export class PullRequestEvent extends RepoEventBase {
   | 'unlocked'
   | 'synchronize';
   pullRequest: PullRequest | undefined;
-  public toLuaEvent(e: PullRequestEvent): LuaPullRequestEvent | undefined {
+  rawPayload: any;
+
+  public toLuaEvent?(e: PullRequestEvent): LuaPullRequestEvent | undefined {
     if (!e.pullRequest) return undefined;
     return {
       action: e.action,
@@ -150,6 +202,7 @@ export class PullRequestEvent extends RepoEventBase {
       title: e.pullRequest.title,
       body: e.pullRequest.body,
       labels: e.pullRequest.labels,
+      rawPayload: e.rawPayload,
     };
   }
 }

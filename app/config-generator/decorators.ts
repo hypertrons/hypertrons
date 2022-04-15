@@ -52,7 +52,8 @@ export function configClass(meta: ConfigClassMetaData): ClassDecorator {
         });
       }
     } catch (e) {
-      console.error(e);
+      if (!(e instanceof Error)) throw e;
+      console.error(`Config class decrator error, e=${e.message}`);
     }
     Reflect.defineMetadata(CLASS_META_KEY, meta, target);
     return target;

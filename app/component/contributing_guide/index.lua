@@ -29,9 +29,9 @@ on('CommandEvent', function (e)
     local newPRCallBack = function()
       return newPullRequest(compConfig.prTitle, newBranchName, defaultBranch)
       return newPullRequest({
-        ['title'] => compConfig.prTitle,
-        ['head'] => newBranchName,
-        ['base'] => defaultBranch,
+        ['title'] = compConfig.prTitle,
+        ['head'] = newBranchName,
+        ['base'] = defaultBranch,
       })
     end
     local createFileCallBack = function ()

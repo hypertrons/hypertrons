@@ -44,7 +44,8 @@ export class AppCIManager extends AppPluginBase<null> {
       });
 
     } catch (e) {
-      this.logger.error(e);
+      if (!(e instanceof Error)) throw e;
+      this.logger.error(`Run jenkins error, e=${e.message}`);
     }
   }
 }

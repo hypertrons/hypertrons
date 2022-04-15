@@ -232,7 +232,8 @@ export class ComponentService {
       this.componentLoaded = true;
       return this.components;
     } catch (e) {
-      this.logger.error(`Error while load components, e=${JSON.stringify(e)}`);
+      if (!(e instanceof Error)) throw e;
+      this.logger.error(`Error while load components, e=${e.message}`);
     }
   }
 
@@ -283,7 +284,8 @@ export class ComponentService {
           }
         }
       } catch (e) {
-        if (e.code === 'MODULE_NOT_FOUND') return;
+        if (!(e instanceof Error)) throw e;
+        if (e.message === 'MODULE_NOT_FOUND') return;
         this.logger.warn(`Error loading config of ${name}, e=${JSON.stringify(e)}`);
       }
 
@@ -294,7 +296,8 @@ export class ComponentService {
           componentBody.luaScript = readFileSync(luaScriptPath, 'utf8');
         }
       } catch (e) {
-        this.logger.warn(`Error loading lua of ${name}, e=${JSON.stringify(e)}`);
+        if (!(e instanceof Error)) throw e;
+        this.logger.warn(`Error loading lua of ${name}, e=${e.message}`);
       }
 
       // save
@@ -305,7 +308,8 @@ export class ComponentService {
       this.components[name][version.version] = componentBody;
       this.configStructure[name][version.version] = componentBody.configStructure;
     } catch (e) {
-      this.logger.error(`Error while load component ${name}, e=${JSON.stringify(e)}`);
+      if (!(e instanceof Error)) throw e;
+      this.logger.error(`Error while load component ${name}, e=${e.message}`);
     }
   }
 
@@ -337,6 +341,8 @@ export class ComponentService {
           try {
             commit.content = JSON.parse(await getContent(repo, commit.sha, join(path, remoteConfig.versionPath), remoteConfig.token));
           } catch (e) {
+            if (!(e instanceof Error)) throw e;
+            this.logger.error(`Error on version json map, e=${e.message}`);
             commit.content = undefined;
           }
         }),
@@ -381,7 +387,8 @@ export class ComponentService {
         }),
       );
     } catch (e) {
-      this.logger.error(`Error while save component ${name} local files, e=${JSON.stringify(e)}`);
+      if (!(e instanceof Error)) throw e;
+      this.logger.error(`Error while save component ${name} local files, e=${e.message}`);
     }
 
     // get file content by github api
@@ -480,7 +487,8 @@ export class ComponentService {
         }),
       );
     } catch (e) {
-      this.logger.error(`Error while extract component ${name} local files from git, e=${e}`);
+      if (!(e instanceof Error)) throw e;
+      this.logger.error(`Error while extract component ${name} local files from git, e=${e.message}`);
     }
 
     /**
@@ -497,6 +505,7 @@ export class ComponentService {
         );
         return stdout;
       } catch (e) {
+        if (!(e instanceof Error)) throw e;
         return '';
       }
     }

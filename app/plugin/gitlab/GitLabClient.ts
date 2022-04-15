@@ -164,7 +164,8 @@ export class GitLabClient extends HostingClientBase<GitLabConfig, Gitlab> {
         });
       }
     } catch (e) {
-      this.logger.error(e);
+      if (!(e instanceof Error)) throw e;
+      this.logger.error(e.message);
     }
   }
 

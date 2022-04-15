@@ -19,7 +19,7 @@ import { Gitlab } from 'gitlab';
 import { Application, Context } from 'egg';
 import SmeeClient from 'smee-client';
 import { resolve } from 'url';
-import { IssueEvent, PushEvent, CommentUpdateEvent, PullRequestEvent } from '../event-manager/events';
+import { IssueEvent, PushEvent, IssueCommentEvent, PullRequestEvent } from '../event-manager/events';
 import { GitlabGraphqlClient } from './client/GitlabGraphqlClient';
 
 export class GitLabApp extends HostingBase<GitLabConfig, GitLabClient, Gitlab> {
@@ -143,10 +143,10 @@ export class GitLabApp extends HostingBase<GitLabConfig, GitLabClient, Gitlab> {
               return undefined;
           }
         };
-        const e = {
+        const e: IssueEvent = {
           installationId: this.id,
           fullName,
-          action: parseAction(issue.action),
+          action: parseAction(issue.action)!,
           issue: {
             id: issue.id,
             author: issue.author_id,
@@ -160,7 +160,8 @@ export class GitLabApp extends HostingBase<GitLabConfig, GitLabClient, Gitlab> {
             comments: [],
           },
           changes: {},
-        } as any;
+          rawPayload: payload,
+        };
         this.app.event.publish('all', IssueEvent, e);
         break;
       case 'Push Hook':
@@ -218,7 +219,7 @@ export class GitLabApp extends HostingBase<GitLabConfig, GitLabClient, Gitlab> {
           },
         } = payload;
 
-        const ce: CommentUpdateEvent = {
+        const ce: IssueCommentEvent = {
           installationId: this.id,
           fullName: note_path,
           issueNumber: pr_issue_id,
@@ -233,8 +234,9 @@ export class GitLabApp extends HostingBase<GitLabConfig, GitLabClient, Gitlab> {
             createdAt: created_at,
           },
           isIssue: noteable_type === 'Issue',
+          rawPayload: payload,
         };
-        this.app.event.publish('all', CommentUpdateEvent, ce);
+        this.app.event.publish('all', IssueCommentEvent, ce);
         break;
       case 'Merge Request Hook':
         const {
@@ -266,12 +268,12 @@ export class GitLabApp extends HostingBase<GitLabConfig, GitLabClient, Gitlab> {
               return undefined;
           }
         };
-        const mre = {
+        const mre: PullRequestEvent = {
           installationId: this.id,
           fullName: mr_path,
-          action: parsePullRequest(mr_action), // least used.
+          action: parsePullRequest(mr_action)!, // least used.
           pullRequest: {
-            id: String(mr_id),
+            id: String(mr_id) as any,
             author: mr_author_id,
             number: 0,
             createdAt: new Date(mr_created_at),
@@ -286,7 +288,8 @@ export class GitLabApp extends HostingBase<GitLabConfig, GitLabClient, Gitlab> {
             additions: 0,
             deletions: 0,
           },
-        } as any;
+          rawPayload: payload,
+        };
         this.app.event.publish('all', PullRequestEvent, mre);
         break;
       default:

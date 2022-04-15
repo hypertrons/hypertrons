@@ -24,7 +24,7 @@ import { existsSync, readFileSync } from 'fs';
 import Webhooks = require('@octokit/webhooks');
 import { GithubWrapper } from '../../basic/DataWrapper';
 import {
-  IssueEvent, CommentUpdateEvent, LabelUpdateEvent, PullRequestEvent, ReviewCommentEvent, PushEvent, ReviewEvent,
+  IssueEvent, IssueCommentEvent, LabelUpdateEvent, PullRequestEvent, ReviewCommentEvent, PushEvent, ReviewEvent,
 } from '../event-manager/events';
 import { DataCat } from 'github-data-cat';
 import EventSource from 'eventsource';
@@ -190,12 +190,13 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
       'issues.unlabeled',
       'issues.unlocked',
       'issues.unpinned' ], e => {
-      const ie = {
+      const ie: IssueEvent = {
         installationId: this.id,
         fullName: e.payload.repository.full_name,
         action: e.payload.action,
         issue: githubWrapper.issueWrapper(e.payload.issue),
         changes: e.payload.changes,
+        rawPayload: e.payload,
       };
       this.app.event.publish('all', IssueEvent, ie);
     });
@@ -210,15 +211,16 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
         isIssue = true;
       }
 
-      const ice = {
+      const ice: IssueCommentEvent = {
         installationId: this.id,
         fullName: e.payload.repository.full_name,
         issueNumber: e.payload.issue.number,
         action: e.payload.action,
         comment: githubWrapper.commentWrapper(e.payload.comment),
         isIssue,
+        rawPayload: e.payload,
       };
-      this.app.event.publish('all', CommentUpdateEvent, ice);
+      this.app.event.publish('all', IssueCommentEvent, ice);
     });
     webhooks.on([ 'label.created', 'label.deleted', 'label.edited' ], e => {
       const le: LabelUpdateEvent = {
@@ -246,11 +248,12 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
       'pull_request.unlabeled',
       'pull_request.unlocked',
       'pull_request.synchronize' ], e => {
-      const pre = {
+      const pre: PullRequestEvent = {
         installationId: this.id,
         fullName: e.payload.repository.full_name,
         action: e.payload.action,
         pullRequest: githubWrapper.pullRequestWrapper(e.payload.pull_request),
+        rawPayload: e.payload,
       };
       this.app.event.publish('all', PullRequestEvent, pre);
     });
@@ -269,12 +272,13 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
     webhooks.on([ 'pull_request_review_comment.created',
       'pull_request_review_comment.edited',
       'pull_request_review_comment.deleted' ], e => {
-      const rce = {
+      const rce: ReviewCommentEvent = {
         installationId: this.id,
         fullName: e.payload.repository.full_name,
         action: e.payload.action,
         prNumber: e.payload.pull_request.number,
         comment: githubWrapper.reviewCommentWrapper(e.payload.comment),
+        rawPayload: e.payload,
       };
       this.app.event.publish('all', ReviewCommentEvent, rce);
     });

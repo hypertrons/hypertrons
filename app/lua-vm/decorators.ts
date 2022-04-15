@@ -29,7 +29,8 @@ export function luaMethod(): MethodDecorator {
         try {
           return fn.apply(this, args);
         } catch (e) {
-          console.log(`Error exec lua-ts function ${key}, e=${e.message ? e.message : e}`);
+          if (!(e instanceof Error)) throw e;
+          console.log(`Error exec lua-ts function ${key}, e=${e.message}`);
         }
       };
       obj.setInjectFunction(key.substring(LuaFunctionPrefix.length), descriptor.value);

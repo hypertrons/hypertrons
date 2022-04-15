@@ -79,7 +79,8 @@ export class AgentEventManager extends AgentPluginBase<null> {
         try {
           await this.handlerMap.exec(className, param);
         } catch (e) {
-          this.logger.error(`Error processing handlers, className=${className}, e=`, e);
+          if (!(e instanceof Error)) throw e;
+          this.logger.error(`Error processing handlers, className=${className}, e=${e.message}`);
         }
         break;
       case 'worker':

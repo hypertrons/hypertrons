@@ -38,6 +38,9 @@ export class IMManager extends AppPluginBase<null> {
   public async sendToDingTalk(message: DingTalkMessageType, config: DingTalkConfig): Promise<void> {
     if (!config || !config.webhook) return;
     const robot = new DingTalkRobot({ webhook: config.webhook });
+    if (message.msgtype === 'markdown') {
+      message.markdown.title = config.secret;
+    }
     await robot.send(message).catch(e => {
       this.logger.error(`DingTalk send error: ${e}`);
     });

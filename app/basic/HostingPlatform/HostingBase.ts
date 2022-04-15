@@ -208,4 +208,10 @@ export abstract class HostingBase<TConfig extends HostingConfigBase,
     return join('installation', p);
   }
 
+  protected get(path: string, middleware: any): string {
+    const p = join(this.id.toString(), path);
+    this.app.installation.get(p, middleware);
+    return join('installation', p);
+  }
+
 }

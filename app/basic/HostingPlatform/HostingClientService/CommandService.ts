@@ -20,7 +20,7 @@ import { ClientServiceBase } from './ClientServiceBase';
 import { Application } from 'egg';
 import {
   IssueEvent, CommandManagerNewCommandEvent,
-  CommentUpdateEvent, ReviewEvent, ReviewCommentEvent,
+  IssueCommentEvent, ReviewEvent, ReviewCommentEvent,
 } from '../../../plugin/event-manager/events';
 
 export class CommandService<TConfig extends HostingConfigBase, TRawClient>
@@ -62,7 +62,7 @@ export class CommandService<TConfig extends HostingConfigBase, TRawClient>
     });
 
     // handle comment event
-    this.client.eventService.subscribeOne(CommentUpdateEvent, async e => {
+    this.client.eventService.subscribeOne(IssueCommentEvent, async e => {
       this.logger.info(`Start to resolve the comment event for ${e.installationId} and repo ${e.fullName}`);
       if (!e.comment) return;
       const issue = this.client.getRepoData().issues.find(issue => issue.number === e.issueNumber);

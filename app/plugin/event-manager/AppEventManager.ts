@@ -98,7 +98,8 @@ export class AppEventManager extends AppPluginBase<null> {
           try {
             await this.oneHandlerMap.exec(className, param);
           } catch (e) {
-            this.logger.error(`Error processing handlers, className=${className}, e=`, e);
+            if (!(e instanceof Error)) throw e;
+            this.logger.error(`Error processing handlers, className=${className}, e=${e.message}`);
           }
           break;
         case 'workers':
@@ -106,7 +107,8 @@ export class AppEventManager extends AppPluginBase<null> {
           try {
             await this.allHandlerMap.exec(className, param);
           } catch (e) {
-            this.logger.error(`Error processing handlers, className=${className}, e=`, e);
+            if (!(e instanceof Error)) throw e;
+            this.logger.error(`Error processing handlers, className=${className}, e=${e.message}`);
           }
           break;
         case 'agent':

@@ -19,7 +19,7 @@ import { GiteeRawClient } from './gitee-raw-client/gitee-raw-client';
 import { Application, Context } from 'egg';
 import SmeeClient from 'smee-client';
 import { resolve } from 'url';
-import { IssueEvent, PushEvent, PullRequestEvent, CommentUpdateEvent, ReviewCommentEvent } from '../event-manager/events';
+import { IssueEvent, PushEvent, PullRequestEvent, IssueCommentEvent, ReviewCommentEvent } from '../event-manager/events';
 import { parseRepoName } from '../../basic/Utils';
 import { convertIssueNumber2Number } from './util';
 
@@ -110,7 +110,7 @@ export class GiteeApp extends HostingBase<GiteeConfig, GiteeClient, GiteeRawClie
               return 'opened';
           }
         };
-        const ie = {
+        const ie: IssueEvent = {
           installationId: this.id,
           fullName: payload.repository.full_name,
           action: parseAction(payload.action),
@@ -127,6 +127,7 @@ export class GiteeApp extends HostingBase<GiteeConfig, GiteeClient, GiteeRawClie
             comments: [],
           },
           changes: {},
+          rawPayload: payload,
         };
         this.app.event.publish('all', IssueEvent, ie);
         // console.log(ie);
@@ -180,7 +181,7 @@ export class GiteeApp extends HostingBase<GiteeConfig, GiteeClient, GiteeRawClie
               return 'opened';
           }
         };
-        const mre = {
+        const mre: PullRequestEvent = {
           installationId: this.id,
           fullName: payload.repository.full_name,
           action: parsePullRequest(payload.action), // least used.
@@ -200,6 +201,7 @@ export class GiteeApp extends HostingBase<GiteeConfig, GiteeClient, GiteeRawClie
             additions: 0,
             deletions: 0,
           },
+          rawPayload: payload,
         };
         this.app.event.publish('all', PullRequestEvent, mre);
         // console.log(mre);
@@ -221,7 +223,7 @@ export class GiteeApp extends HostingBase<GiteeConfig, GiteeClient, GiteeRawClie
               return 'created';
           }
         };
-        const ce: CommentUpdateEvent = {
+        const ce = {
           installationId: this.id,
           fullName: payload.repository.full_name,
           // issue's number is like I192YQ
@@ -236,9 +238,10 @@ export class GiteeApp extends HostingBase<GiteeConfig, GiteeClient, GiteeRawClie
             createdAt: new Date(payload.comment.created_at),
           },
           isIssue: payload.noteable_type === 'Issue',
-        };
+          rawPayload: payload,
+        } as any;
         if (ce.isIssue) {
-          this.app.event.publish('all', CommentUpdateEvent, ce);
+          this.app.event.publish('all', IssueCommentEvent, ce);
         } else {
           this.app.event.publish('all', ReviewCommentEvent, ce);
         }

@@ -158,7 +158,8 @@ export async function getIssues(client: GitlabGraphqlClient, name: string, icoun
       all_issues = all_issues.concat(part_issues);
     } while (pageInfo.hasNextPage);
   } catch (e) {
-    console.log(e);
+    if (!(e instanceof Error)) throw e;
+    console.log(e.message);
   }
   return all_issues;
 }

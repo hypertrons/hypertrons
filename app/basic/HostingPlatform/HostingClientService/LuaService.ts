@@ -182,7 +182,8 @@ export class LuaService<TConfig extends HostingConfigBase, TRawClient> extends C
       const issues = this.client.getRepoData().issues;
       return issues.map(issue => issue.number);
     } catch (e) {
-      this.logger.warn(e.message);
+      if (!(e instanceof Error)) throw e;
+      this.logger.warn(`Lua get issue number error: e=${e.message}`);
       return [];
     }
   }
@@ -219,7 +220,8 @@ export class LuaService<TConfig extends HostingConfigBase, TRawClient> extends C
         return JSON.parse(data[1]);
       }
     } catch (e) {
-      this.logger.warn(e.message);
+      if (!(e instanceof Error)) throw e;
+      this.logger.warn(`Lua get issue metadata error: e=${e.message}`);
     }
     return {};
   }
@@ -247,7 +249,8 @@ export class LuaService<TConfig extends HostingConfigBase, TRawClient> extends C
           IssueMetaDataBegin + metaDataNew + IssueMetaDataEnd,
         );
       } catch (e) {
-        this.logger.warn(e.message);
+        if (!(e instanceof Error)) throw e;
+        this.logger.warn(`Lua update issue metadata error, e=${e.message}`);
       }
     } else {
       issues[index].body = IssueMetaDataBegin + JSON.stringify(data) + IssueMetaDataEnd + issues[index].body;
@@ -495,10 +498,7 @@ export class LuaService<TConfig extends HostingConfigBase, TRawClient> extends C
     configName: string,
     message: DingTalkMessageType,
   ): void {
-    this.logger.info(
-      'Gonna run sendToDingTalk from lua, configName=',
-      configName,
-    );
+    this.logger.info(`Gonna run sendToDingTalk from lua, configName=${configName}`);
     if (!configName || !message) return;
 
     const config = this.client.getCompConfig<IMConfig>('im');

@@ -35,7 +35,8 @@ function doCheck(files: string[], licenseHeaderPaths: string[]) {
       licenseHeaders.push(readFileSync(licenseHeaderPaths[i]).toString());
     }
   } catch (e) {
-    gutil.log('license-check', gutil.colors.red(`load license header from ${licenseHeaderPaths} error, ${e}`));
+    if (!(e instanceof Error)) throw e;
+    gutil.log('license-check', gutil.colors.red(`load license header from ${licenseHeaderPaths} error, ${e.message}`));
     process.exit(-1);
   }
 

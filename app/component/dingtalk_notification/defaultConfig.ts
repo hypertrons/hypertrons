@@ -12,37 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Config, { DingTalkConfig, SlackConfig, MailConfig } from './config';
-
-const mailDefaultConfig: MailConfig = {
-  name: '',
-  connectOptions: {
-    host: '',
-    port: 465,
-    secure: true,
-    auth: {
-      user: '',
-      pass: '',
-    },
-  },
-};
-
-const dingTalkDefaultConfig: DingTalkConfig = {
-  name: '',
-  webhook: '',
-  secret: '',
-};
-
-const slackDefaultConfig: SlackConfig = {
-  name: '',
-  webhook: '',
-};
+import Config from './config';
 
 const defaultConfig: Config = {
-  slack: [ ],
-  dingTalk: [ ],
-  mail: [ ],
+  dingTalkChannel: '',
+  maxBodyLength: 200,
+  types: [ 'open_issue',
+    'close_issue',
+    'create_issue_comment',
+    'update_issue_comment',
+    'issue_assign',
+    'open_pull',
+    'close_pull',
+    'create_review_comment',
+    'update_review_comment',
+    'pull_assign' ],
+  ids: [],
 };
 
-export { dingTalkDefaultConfig, slackDefaultConfig, mailDefaultConfig };
 export default defaultConfig;

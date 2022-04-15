@@ -16,7 +16,7 @@ import { Repo, Issue, PullRequest, Comment } from '../../DataTypes';
 import { HostingConfigBase } from '../HostingConfigBase';
 import { HostingClientBase } from '../HostingClientBase';
 import {
-  PullRequestEvent, LabelUpdateEvent, CommentUpdateEvent, IssueEvent,
+  PullRequestEvent, LabelUpdateEvent, IssueCommentEvent, IssueEvent,
 } from '../../../plugin/event-manager/events';
 import { HostingClientRepoDataInitedEvent } from '../event';
 import { ClientServiceBase } from './ClientServiceBase';
@@ -40,7 +40,7 @@ export class RepoDataService<TConfig extends HostingConfigBase, TRawClient> exte
       if (e.labelName) this.updateLabel(e.action, e.labelName, e.from);
     });
 
-    this.client.eventService.subscribeAll(CommentUpdateEvent, async e => {
+    this.client.eventService.subscribeAll(IssueCommentEvent, async e => {
       if (!e.comment) return;
       if (e.isIssue === true) {
         this.updateIssueComment(e.action, e.issueNumber, e.comment);
