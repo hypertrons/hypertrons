@@ -222,7 +222,7 @@ export class LuaVm {
             }
           });
         } else if (value instanceof Date) {
-          lua.lua_pushstring(L, value.toDateString());
+          lua.lua_pushstring(L, value.toISOString());
           break;
         } else {
           lua.lua_newtable(L);

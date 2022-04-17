@@ -56,6 +56,13 @@ return c
     assert(result[2] === 5);
   });
 
+  it('Should support date', () => {
+    const dateStr = '2022-02-24T08:53:03.000Z';
+    luaVm.set('date', new Date(dateStr));
+    const result = luaVm.run('return date');
+    assert(result === dateStr);
+  });
+
   it('Should exec inject functions with multiple callbacks with return value', () => {
     const a = 2,
       b = 3,
