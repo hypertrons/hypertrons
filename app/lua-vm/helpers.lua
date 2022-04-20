@@ -50,6 +50,14 @@ local arrayContainsItem = function(arr, item)
   end)
 end
 
+local arrayFilter = function(arr, filter)
+  local out = {}
+  for k, v in pairs(arr) do
+    if filter(v, k, t) then table.insert(out, v) end
+  end
+  return out
+end
+
 local splitByComma = function(s)
   local res = {}
   for c in string.gmatch(s, '([^,]+)') do
