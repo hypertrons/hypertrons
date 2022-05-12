@@ -40,7 +40,7 @@
     "dingtalk-robot-sender": "^1.2.0",
     "egg": "^2.33.0",
     "egg-scripts": "^2.16.0",
-    "eventsource": "^1.0.7",
+    "eventsource": "^2.0.2",
     "execa": "^1.0.0",
     "extend2": "^1.0.1",
     "fengari": "^0.1.4",
