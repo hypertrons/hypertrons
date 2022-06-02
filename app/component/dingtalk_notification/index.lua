@@ -46,6 +46,9 @@ local getIssuePullTitle = function (issue)
 end
 
 local getBody = function (body)
+  if (body == nil) then
+    return ''
+  end
   local subBody = subStringUTF8(body, 1, compConfig.maxBodyLength)
   if (string.len(subBody) ~= string.len(body)) then
     subBody = subBody .. '...'
