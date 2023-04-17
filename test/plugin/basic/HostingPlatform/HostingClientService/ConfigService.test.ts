@@ -56,7 +56,7 @@ describe('ConfigService', () => {
 
     before(async () => {
       ({ app, agent } = await prepareTestApplication());
-      client = new GitHubClient('wsl/test', 0, app, null as any, new MockHostingBase() as any);
+      client = new GitHubClient('wsl/test', 0, app, 0, 0, new MockHostingBase() as any);
       await waitUntil(() => client.getStarted(), { interval: 5 });
       client.eventService.publish = ((_: 'worker' | 'workers' | 'agent' | 'all',
         __: new (...args: any) => any, param: Partial<any>) => {
@@ -81,6 +81,7 @@ describe('ConfigService', () => {
       await client.eventService.consume('PushEvent', 'worker', {
         push: { commits: [{ added: [], removed: [], modified: [] }] },
       } as any);
+      await waitFor(20);
       deepEqual(configInitedEvent, undefined);
     });
 
@@ -88,12 +89,14 @@ describe('ConfigService', () => {
       await client.eventService.consume('PushEvent', 'all', {
         push: { commits: [{ added: [ 'filePath' ], removed: [], modified: [] }] },
       } as any);
+      await waitFor(20);
       deepEqual(configInitedEvent.rawData, { config: { remote: {} } });
 
       configInitedEvent = undefined as any;
       await client.eventService.consume('PushEvent', 'all', {
         push: { commits: [{ added: [], removed: [ 'filePath' ], modified: [] }] },
       } as any);
+      await waitFor(20);
       deepEqual(configInitedEvent.rawData, { config: { remote: {} } });
     });
 
@@ -101,12 +104,14 @@ describe('ConfigService', () => {
       await client.eventService.consume('PushEvent', 'all', {
         push: { commits: [{ added: [ './github/lua/a.lua' ], removed: [], modified: [] }] },
       } as any);
+      await waitFor(20);
       deepEqual(configInitedEvent.rawData, { luaScript: { remote: {} } });
 
       configInitedEvent = undefined as any;
       await client.eventService.consume('PushEvent', 'all', {
         push: { commits: [{ added: [], removed: [ './github/lua/b.lua' ], modified: [] }] },
       } as any);
+      await waitFor(20);
       deepEqual(configInitedEvent.rawData, { luaScript: { remote: {} } });
     });
 
@@ -114,12 +119,14 @@ describe('ConfigService', () => {
       await client.eventService.consume('PushEvent', 'all', {
         push: { commits: [{ added: [ './github/lua/a.lua' ], removed: [], modified: [] }] },
       } as any);
+      await waitFor(20);
       deepEqual(configInitedEvent.rawData, { luaScript: { remote: {} } });
 
       configInitedEvent = undefined as any;
       await client.eventService.consume('PushEvent', 'all', {
         push: { commits: [{ added: [], removed: [], modified: [ './github/lua/b.lua' ] }] },
       } as any);
+      await waitFor(20);
       deepEqual(configInitedEvent.rawData, { luaScript: { remote: {} } });
     });
 
@@ -135,6 +142,7 @@ describe('ConfigService', () => {
         push: { commits: [{ added: [], removed: [ './github/lua/a.lua' ], modified: [] }] },
       } as any);
 
+      await waitFor(20);
       deepEqual(configInitedEvent, undefined);
     });
 
@@ -144,7 +152,7 @@ describe('ConfigService', () => {
 
     before(async () => {
       ({ app, agent } = await prepareTestApplication());
-      client = new GitHubClient('wsl/test', 0, app, null as any, new MockHostingBase() as any);
+      client = new GitHubClient('wsl/test', 0, app, 0, 0, new MockHostingBase() as any);
       await waitUntil(() => client.getStarted(), { interval: 5 });
       client.onConfigLoaded = () => callOnConfigLoaded++;
     });
@@ -238,7 +246,7 @@ describe('ConfigService', () => {
   describe('onStart HostingClientOnConfigFileChangedEvent', () => {
     before(async () => {
       ({ app, agent } = await prepareTestApplication());
-      client = new GitHubClient('wsl/test', 0, app, null as any, new MockHostingBase() as any);
+      client = new GitHubClient('wsl/test', 0, app, 0, 0, new MockHostingBase() as any);
       await waitUntil(() => client.getStarted(), { interval: 5 });
       (client.configService as any).loadConfigFromFile = async () => ({ auto_merge: { version: 1 } });
       client.eventService.publish = (_: 'worker' | 'workers' | 'agent' | 'all',
@@ -277,7 +285,7 @@ describe('ConfigService', () => {
   describe('onStart HostingClientSyncConfigEvent', () => {
     before(async () => {
       ({ app, agent } = await prepareTestApplication());
-      client = new GitHubClient('wsl/test', 0, app, null as any, new MockHostingBase() as any);
+      client = new GitHubClient('wsl/test', 0, app, 0, 0, new MockHostingBase() as any);
       await waitUntil(() => client.getStarted(), { interval: 5 });
       (client.configService as any).loadConfigFromFile = async () => ({ auto_label: {} });
       (client.configService as any).loadConfigFromMysql = async () => ({ auto_merge: {} });
@@ -325,7 +333,7 @@ describe('ConfigService', () => {
   describe('loadConfigFromFile()', () => {
     before(async () => {
       ({ app, agent } = await prepareTestApplication());
-      client = new GitHubClient('owner/repo2', 0, app, null as any, new MockHostingBase() as any);
+      client = new GitHubClient('owner/repo2', 0, app, 0, 0, new MockHostingBase() as any);
       await waitUntil(() => client.getStarted(), { interval: 5 });
     });
     after(() => {
@@ -359,7 +367,7 @@ describe('ConfigService', () => {
   describe('loadConfigFromRemote()', () => {
     before(async () => {
       ({ app, agent } = await prepareTestApplication());
-      client = new GitHubClient('wsl/test', 0, app, null as any, new MockHostingBase() as any);
+      client = new GitHubClient('wsl/test', 0, app, 0, 0, new MockHostingBase() as any);
       await waitUntil(() => client.getStarted(), { interval: 5 });
     });
     after(() => {
@@ -391,7 +399,7 @@ describe('ConfigService', () => {
   describe('loadLuaScriptFromRemote()', () => {
     before(async () => {
       ({ app, agent } = await prepareTestApplication());
-      client = new GitHubClient('wsl/test', 0, app, null as any, new MockHostingBase() as any);
+      client = new GitHubClient('wsl/test', 0, app, 0, 0, new MockHostingBase() as any);
       await waitUntil(() => client.getStarted(), { interval: 5 });
       (client.configService as any).config = { comp1: {}, comp2: {} };
       client.getFileContent = async (path: string): Promise<RepoFile | undefined> => {
@@ -429,7 +437,7 @@ describe('ConfigService', () => {
   describe('loadConfigFromMysql()', () => {
     before(async () => {
       ({ app, agent } = await prepareTestApplication());
-      client = new GitHubClient('wsl/test', 0, app, null as any, new MockHostingBase() as any);
+      client = new GitHubClient('wsl/test', 0, app, 0, 0, new MockHostingBase() as any);
       await waitUntil(() => client.getStarted(), { interval: 5 });
     });
     after(() => {
@@ -445,7 +453,7 @@ describe('ConfigService', () => {
   describe('others', () => {
     before(async () => {
       ({ app, agent } = await prepareTestApplication());
-      client = new GitHubClient('wsl/test', 0, app, null as any, new MockHostingBase() as any);
+      client = new GitHubClient('wsl/test', 0, app, 0, 0, new MockHostingBase() as any);
       await waitUntil(() => client.getStarted(), { interval: 5 });
     });
     after(() => {

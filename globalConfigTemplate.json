@@ -38,9 +38,6 @@
               "secret": "test",
               "proxyUrl": "https://smee.io/YOUR_PROXY"
             },
-            "fetcher": {
-              "tokens": ["YOUR TOKEN"]
-            },
             "config": {
               "remote": {
                 "filePath": ".github/hypertrons.json"

@@ -38,7 +38,7 @@ On the client layer, [fengari](https://github.com/fengari-lua/fengari/) is used 
 
 The components are all written in Lua to provide hot fix/reload and logic customization.
 
-For more details, please refer to [architecture](./docs/ARCHITECTURE.md).
+For more details, please refer to [architecture](./docs/architecture.md).
 
 ## Community
 

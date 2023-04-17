@@ -173,8 +173,6 @@ export class RepoDataService<TConfig extends HostingConfigBase, TRawClient> exte
   }
 
   private formatRepoData(): void {
-    this.repoData.ownerInfo.createdAt = ParseDate(this.repoData.ownerInfo.createdAt as any);
-
     this.repoData.createdAt = ParseDate(this.repoData.createdAt as any) as any;
     this.repoData.updatedAt = ParseDate(this.repoData.updatedAt as any);
     this.repoData.pushedAt = ParseDate(this.repoData.pushedAt as any);

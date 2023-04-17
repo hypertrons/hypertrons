@@ -99,13 +99,13 @@ export class MockRawClient {
   testResult: any[] = [];
   // mock origin API
   issues: any = {
-    create: issue => this.testResult.push([ 'issues.create', issue ]),
-    update: issue => this.testResult.push([ 'issues.update', issue ]),
-    createComment: issue => this.testResult.push([ 'issues.createComment', issue ]),
-    addAssignees: issue => this.testResult.push([ 'issues.addAssignees', issue ]),
-    addLabels: issue => this.testResult.push([ 'issues.addLabels', issue ]),
-    createLabel: issue => this.testResult.push([ 'issues.createLabel', issue ]),
-    updateLabel: issue => this.testResult.push([ 'issues.updateLabel', issue ]),
+    create: issue => this.testResult.push(['issues.create', issue]),
+    update: issue => this.testResult.push(['issues.update', issue]),
+    createComment: issue => this.testResult.push(['issues.createComment', issue]),
+    addAssignees: issue => this.testResult.push(['issues.addAssignees', issue]),
+    addLabels: issue => this.testResult.push(['issues.addLabels', issue]),
+    createLabel: issue => this.testResult.push(['issues.createLabel', issue]),
+    updateLabel: issue => this.testResult.push(['issues.updateLabel', issue]),
     listLabelsForRepo: () => ({
       data: [
         {
@@ -117,10 +117,10 @@ export class MockRawClient {
     }),
   };
   checks: any = {
-    create: check => this.testResult.push([ 'check.create', check ]),
+    create: check => this.testResult.push(['check.create', check]),
   };
   repos: any = {
-    getContents: () => ({ data: { content: 'content' } }),
+    getContent: () => ({ data: { content: 'content' } }),
   };
 }
 
@@ -129,20 +129,16 @@ export class MockRawClient {
  * Only replace some methods that need to connect to Internet
  */
 export class MockGitHubApp extends GitHubApp {
-  constructor(id: number, config: GitHubConfig, app: Application) {
-    super(id, config, app);
-    // Can not stop create real DataCat in super.
-    // Therefore logger will print out some error.
-    // But it does not matter.
-    this.dataCat = new MockDataCat() as any;
-  }
 
   public async getInstalledRepos(): Promise<Array<{ fullName: string, payload: any }>> {
     const ret: Array<{ fullName: string, payload: any }> = [];
     ret.push(
       {
         fullName: 'owner/repo',
-        payload: 0,
+        payload: {
+          installationId: 0,
+          id: 0,
+        },
       },
     );
     return ret;
@@ -150,8 +146,8 @@ export class MockGitHubApp extends GitHubApp {
 
   public async addRepo(name: string): Promise<void> {
     // set token before any request
-    const githubClient = new GitHubClient(name, this.id, this.app, this.dataCat, this);
-    githubClient.setRawClient(new MockRawClient() as any);
+    const githubClient = new GitHubClient(name, this.id, this.app, 0, 0, this);
+    (githubClient as any).rawClient = new MockRawClient();
     this.clientMap.set(name, async () => githubClient);
   }
 }
@@ -171,9 +167,6 @@ export async function initWebhooks(app: Application): Promise<any[]> {
         path: '/',
         secret: 'test',
         proxyUrl: 'https://smee.io/YOUR_PROXY',
-      },
-      fetcher: {
-        tokens: [ 'YOUR TOKEN' ],
       },
       config: {
         remote: {

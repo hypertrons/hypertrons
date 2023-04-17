@@ -1,6 +1,6 @@
 # Auto Label
 
-When a PR or issue containing a specific keyword is created or modified, the PR or issue will be tagged with a specific label.
+When a PR or issue with specific keywords in title is created or modified, the PR or issue will be labeled with a specific label.
 
 ## Configuration parameters
 
@@ -10,8 +10,8 @@ String array type. Will trigger the automatic labeling action, the default is `[
 
 - events
 
-String array type. The webhook event that will trigger adding a tag . The default is `['IssueEvent', 'PullRequestEvent']`.
+String array type. The webhook event that will trigger adding a label . The default is `['IssueEvent', 'PullRequestEvent']`.
 
 ## Related components
 
--label_setup
+- [label_setup](/component/label_setup.md)

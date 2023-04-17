@@ -34,8 +34,6 @@ jobs:
         run: npm run cov
       - name: Run tsc
         run: npm run tsc
-      - name: Markdown check
-        uses: docker://openxlab/open-md-checker:latest
       - name: Run license-check
         uses: docker://openxlab/open-license-check:latest
 

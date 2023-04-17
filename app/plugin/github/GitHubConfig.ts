@@ -39,18 +39,6 @@ class WebhookConfig {
 }
 
 @configClass({
-  description: 'The data fetcher config for the app',
-})
-class FetcherConfig {
-  @configProp({
-    description: 'Tokens to use for fetching data',
-    defaultValue: [],
-    arrayType: 'string',
-  })
-  tokens: string[];
-}
-
-@configClass({
   description: 'The config for GitHub App',
 })
 export class GitHubConfig extends HostingConfigBase {
@@ -84,11 +72,4 @@ export class GitHubConfig extends HostingConfigBase {
     classType: WebhookConfig,
   })
   webhook: WebhookConfig;
-
-  @configProp({
-    description: 'The data fetcher config for the app',
-    defaultValue: new FetcherConfig(),
-    classType: FetcherConfig,
-  })
-  fetcher: FetcherConfig;
 }
