@@ -174,12 +174,6 @@ export abstract class HostingClientBase<TConfig extends HostingConfigBase, TRawC
   public getLuaScript(): string {
     return this.configService.getLuaScript();
   }
-  public setRawClient(rawClient: TRawClient) {
-    this.rawClient = rawClient;
-  }
-  public getRawClient(): TRawClient {
-    return this.rawClient;
-  }
   public getHostingConfig(): HostingConfigBase {
     return this.hostBase.getConfig();
   }

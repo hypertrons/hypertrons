@@ -45,23 +45,6 @@ export class GithubWrapper implements DataWrapper {
         // basic
         id: repo.id,
         owner: repo.owner.login,
-        ownerInfo: {
-          login: repo.owner.login,
-          __typename: repo.owner.type,
-          name: (!repo.owner.name) ? '' : repo.owner.name,
-          bio: '',
-          description: '',
-          createdAt: null,
-          company: '',
-          location: '',
-          websiteUrl: null,
-          repositories: {
-            totalCount: 0,
-          },
-          membersWithRole: {
-            totalCount: 0,
-          },
-        },
         name: repo.name,
         license: repo.license,
         codeOfConduct: null,

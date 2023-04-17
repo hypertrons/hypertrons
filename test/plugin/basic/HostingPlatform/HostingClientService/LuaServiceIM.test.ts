@@ -85,14 +85,14 @@ describe('LuaServiceIM', () => {
       imMessage = null;
       imConfig = null;
 
-      const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
+      const client = new GitHubClient('owner/repo', 1, app, 0, 0, new MockHostingBase() as any) as any;
       client.getCompConfig = (<T>(): T => undefined as any) as any;
       client.luaService.lua_sendToSlack(null as any, null as any);
       assert(imNumber === 0);
     });
 
     it('should not trigger if compConfig is empty', async () => {
-      const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
+      const client = new GitHubClient('owner/repo', 1, app, 0, 0, new MockHostingBase() as any) as any;
       client.getCompConfig = (<T>(): T => undefined as any) as any;
       client.luaService.lua_sendToSlack('test', 1);
       assert(imNumber === 0);
@@ -105,7 +105,7 @@ describe('LuaServiceIM', () => {
     });
 
     it('should not trigger if enable is false', async () => {
-      const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
+      const client = new GitHubClient('owner/repo', 1, app, 0, 0, new MockHostingBase() as any) as any;
       const config = { enable: false };
       client.getCompConfig = (<T>(): T => config as any) as any;
       client.luaService.lua_sendToSlack('test', {});
@@ -113,7 +113,7 @@ describe('LuaServiceIM', () => {
     });
 
     it('should not trigger if configName not exist', async () => {
-      const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
+      const client = new GitHubClient('owner/repo', 1, app, 0, 0, new MockHostingBase() as any) as any;
       const config = {
         enable: true,
         slack: [],
@@ -124,7 +124,7 @@ describe('LuaServiceIM', () => {
     });
 
     it('right case', async () => {
-      const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
+      const client = new GitHubClient('owner/repo', 1, app, 0, 0, new MockHostingBase() as any) as any;
       const config = {
         enable: true,
         slack: [{ name: 'test' }],
@@ -143,14 +143,14 @@ describe('LuaServiceIM', () => {
       imMessage = null;
       imConfig = null;
 
-      const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
+      const client = new GitHubClient('owner/repo', 1, app, 0, 0, new MockHostingBase() as any) as any;
       client.getCompConfig = (<T>(): T => undefined as any) as any;
       client.luaService.lua_sendToMail(null as any, null as any);
       assert(imNumber === 0);
     });
 
     it('should not trigger if compConfig is empty', async () => {
-      const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
+      const client = new GitHubClient('owner/repo', 1, app, 0, 0, new MockHostingBase() as any) as any;
       client.getCompConfig = (<T>(): T => undefined as any) as any;
       client.luaService.lua_sendToMail('test', {});
       assert(imNumber === 0);
@@ -163,7 +163,7 @@ describe('LuaServiceIM', () => {
     });
 
     it('should not trigger if enable is false', async () => {
-      const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
+      const client = new GitHubClient('owner/repo', 1, app, 0, 0, new MockHostingBase() as any) as any;
       const config = { enable: false };
       client.getCompConfig = (<T>(): T => config as any) as any;
       client.luaService.lua_sendToMail('test', {});
@@ -171,7 +171,7 @@ describe('LuaServiceIM', () => {
     });
 
     it('should not trigger if configName not exist', async () => {
-      const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
+      const client = new GitHubClient('owner/repo', 1, app, 0, 0, new MockHostingBase() as any) as any;
       const config = {
         enable: true,
         mail: [],
@@ -182,7 +182,7 @@ describe('LuaServiceIM', () => {
     });
 
     it('right case', async () => {
-      const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
+      const client = new GitHubClient('owner/repo', 1, app, 0, 0, new MockHostingBase() as any) as any;
       const config = {
         enable: true,
         mail: [{ name: 'test' }],
@@ -201,14 +201,14 @@ describe('LuaServiceIM', () => {
       imMessage = null;
       imConfig = null;
 
-      const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
+      const client = new GitHubClient('owner/repo', 1, app, 0, 0, new MockHostingBase() as any) as any;
       client.getCompConfig = (<T>(): T => undefined as any) as any;
       client.luaService.lua_sendToDingTalk(null as any, null as any);
       assert(imNumber === 0);
     });
 
     it('should not trigger if compConfig is empty', async () => {
-      const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
+      const client = new GitHubClient('owner/repo', 1, app, 0, 0, new MockHostingBase() as any) as any;
       client.getCompConfig = (<T>(): T => undefined as any) as any;
       client.luaService.lua_sendToDingTalk('test', {});
       assert(imNumber === 0);
@@ -221,7 +221,7 @@ describe('LuaServiceIM', () => {
     });
 
     it('should not trigger if enable is false', async () => {
-      const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
+      const client = new GitHubClient('owner/repo', 1, app, 0, 0, new MockHostingBase() as any) as any;
       const config = { enable: false };
       client.getCompConfig = (<T>(): T => config as any) as any;
       client.luaService.lua_sendToDingTalk('test', {});
@@ -229,7 +229,7 @@ describe('LuaServiceIM', () => {
     });
 
     it('should not trigger if configName not exist', async () => {
-      const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
+      const client = new GitHubClient('owner/repo', 1, app, 0, 0, new MockHostingBase() as any) as any;
       const config = {
         enable: true,
         dingTalk: [],
@@ -240,7 +240,7 @@ describe('LuaServiceIM', () => {
     });
 
     it('right case', async () => {
-      const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
+      const client = new GitHubClient('owner/repo', 1, app, 0, 0, new MockHostingBase() as any) as any;
       const config = {
         enable: true,
         dingTalk: [{ name: 'test1' }],
@@ -255,14 +255,14 @@ describe('LuaServiceIM', () => {
 
   describe('lua_runCI', () => {
     it('should not trigger if configName or pullNumber is empty', async () => {
-      const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
+      const client = new GitHubClient('owner/repo', 1, app, 0, 0, new MockHostingBase() as any) as any;
       client.getCompConfig = (<T>(): T => undefined as any) as any;
       client.luaService.lua_runCI(null as any, null as any);
       assert(ciNumber === 0);
     });
 
     it('should not trigger if compConfig is empty', async () => {
-      const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
+      const client = new GitHubClient('owner/repo', 1, app, 0, 0, new MockHostingBase() as any) as any;
       client.getCompConfig = (<T>(): T => undefined as any) as any;
       client.luaService.lua_runCI('test', 1);
       assert(ciNumber === 0);
@@ -275,7 +275,7 @@ describe('LuaServiceIM', () => {
     });
 
     it('should not trigger if compConfig.enable is false', async () => {
-      const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
+      const client = new GitHubClient('owner/repo', 1, app, 0, 0, new MockHostingBase() as any) as any;
       client.getCompConfig = (<T>(): T => {
         return { enable: false } as any;
       }) as any;
@@ -284,7 +284,7 @@ describe('LuaServiceIM', () => {
     });
 
     it('should not trigger if compConfig.configs is empty', async () => {
-      const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
+      const client = new GitHubClient('owner/repo', 1, app, 0, 0, new MockHostingBase() as any) as any;
       client.getCompConfig = (<T>(): T => {
         return { enable: true, configs: [] } as any;
       }) as any;
@@ -293,7 +293,7 @@ describe('LuaServiceIM', () => {
     });
 
     it('should not trigger if configName is not in compConfig.configs', async () => {
-      const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
+      const client = new GitHubClient('owner/repo', 1, app, 0, 0, new MockHostingBase() as any) as any;
       client.getCompConfig = (<T>(): T => {
         return {
           enable: true,
@@ -314,7 +314,7 @@ describe('LuaServiceIM', () => {
     });
 
     it('should not trigger if fullName.repo is not in compConfig.configs.repoToJobMap', async () => {
-      const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
+      const client = new GitHubClient('owner/repo', 1, app, 0, 0, new MockHostingBase() as any) as any;
       client.getCompConfig = (<T>(): T => {
         return {
           enable: true,
@@ -335,7 +335,7 @@ describe('LuaServiceIM', () => {
     });
 
     it('should not trigger if platform not exist', async () => {
-      const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
+      const client = new GitHubClient('owner/repo', 1, app, 0, 0, new MockHostingBase() as any) as any;
       client.getCompConfig = (<T>(): T => {
         return {
           enable: true, configs: [
@@ -355,7 +355,7 @@ describe('LuaServiceIM', () => {
     });
 
     it('right case', async () => {
-      const client = new GitHubClient('owner/repo', 1, app, null as any, new MockHostingBase() as any) as any;
+      const client = new GitHubClient('owner/repo', 1, app, 0, 0, new MockHostingBase() as any) as any;
       const config = {
         enable: true,
         configs: [

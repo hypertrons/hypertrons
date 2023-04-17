@@ -2,7 +2,7 @@
 
 Plugins are singletons in the framework, which only have one instance for one app process. Compare with services, plugins are created with app process and share the life cycle with app process which makes plugins can have their own states rather than stateless services.
 
-We have two kinds of plugins in the framework, core plugins and external plugins.
+Hypertrons have two kinds of plugins in the framework, core plugins and external plugins.
 
 ## Core plugins
 

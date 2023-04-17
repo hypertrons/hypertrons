@@ -46,7 +46,7 @@ describe('RepoDataService', () => {
   describe('onStart()', () => {
     before(async () => {
       ({ app, agent } = await prepareTestApplication());
-      client = new GitHubClient('wsl/test', 0, app, null as any, new MockHostingBase() as any);
+      client = new GitHubClient('wsl/test', 0, app, 0, 0, new MockHostingBase() as any);
       await waitUntil(() => client.getStarted(), { interval: 10 });
       client.repoDataService.updatePull = () => count++;
       client.repoDataService.updateLabel = () => count++;
@@ -102,14 +102,14 @@ describe('RepoDataService', () => {
     it('should update data if receive HostingClientRepoDataInitedEvent', async () => {
       client.repoDataService.setRepoData(undefined as any);
       await client.eventService.consume('HostingClientRepoDataInitedEvent', 'all', { repoData: { foo: 'bar' } } as any);
-      deepEqual(client.repoDataService.getRepoData(), { foo: 'bar' });
+      deepEqual((client.repoDataService.getRepoData() as any).foo, 'bar');
     });
   });
 
   describe('syncData()', () => {
     before(async () => {
       ({ app, agent } = await prepareTestApplication());
-      client = new GitHubClient('wsl/test', 0, app, null as any, new MockHostingBase() as any);
+      client = new GitHubClient('wsl/test', 0, app, 0, 0, new MockHostingBase() as any);
       await waitUntil(() => client.getStarted(), { interval: 10 });
     });
     after(() => {
@@ -134,7 +134,7 @@ describe('RepoDataService', () => {
   describe('get() and set()', () => {
     before(async () => {
       ({ app, agent } = await prepareTestApplication());
-      client = new GitHubClient('wsl/test', 0, app, null as any, new MockHostingBase() as any);
+      client = new GitHubClient('wsl/test', 0, app, 0, 0, new MockHostingBase() as any);
       await waitUntil(() => client.getStarted(), { interval: 10 });
     });
     after(() => {
@@ -154,7 +154,7 @@ describe('RepoDataService', () => {
   describe('updateLabel()', () => {
     before(async () => {
       ({ app, agent } = await prepareTestApplication());
-      client = new GitHubClient('wsl/test', 0, app, null as any, new MockHostingBase() as any);
+      client = new GitHubClient('wsl/test', 0, app, 0, 0, new MockHostingBase() as any);
       await waitUntil(() => client.getStarted(), { interval: 10 });
     });
     after(() => {
@@ -216,7 +216,7 @@ describe('RepoDataService', () => {
   describe('updateIssueComment()', () => {
     before(async () => {
       ({ app, agent } = await prepareTestApplication());
-      client = new GitHubClient('wsl/test', 0, app, null as any, new MockHostingBase() as any);
+      client = new GitHubClient('wsl/test', 0, app, 0, 0, new MockHostingBase() as any);
       await waitUntil(() => client.getStarted(), { interval: 10 });
     });
     after(() => {
@@ -277,7 +277,7 @@ describe('RepoDataService', () => {
   describe('updatePullComment()', () => {
     before(async () => {
       ({ app, agent } = await prepareTestApplication());
-      client = new GitHubClient('wsl/test', 0, app, null as any, new MockHostingBase() as any);
+      client = new GitHubClient('wsl/test', 0, app, 0, 0, new MockHostingBase() as any);
       await waitUntil(() => client.getStarted(), { interval: 10 });
     });
     after(() => {
@@ -338,7 +338,7 @@ describe('RepoDataService', () => {
   describe('updatePull()', () => {
     before(async () => {
       ({ app, agent } = await prepareTestApplication());
-      client = new GitHubClient('wsl/test', 0, app, null as any, new MockHostingBase() as any);
+      client = new GitHubClient('wsl/test', 0, app, 0, 0, new MockHostingBase() as any);
       await waitUntil(() => client.getStarted(), { interval: 10 });
     });
     after(() => {
@@ -378,7 +378,7 @@ describe('RepoDataService', () => {
   describe('updateIssue()', () => {
     before(async () => {
       ({ app, agent } = await prepareTestApplication());
-      client = new GitHubClient('wsl/test', 0, app, null as any, new MockHostingBase() as any);
+      client = new GitHubClient('wsl/test', 0, app, 0, 0, new MockHostingBase() as any);
       await waitUntil(() => client.getStarted(), { interval: 10 });
     });
     after(() => {

@@ -54,23 +54,6 @@ export async function getRepo(client: GitlabGraphqlClient, fullPath: string): Pr
     defaultBranchCommitCount: 1,
     releaseCount: 0,
     issues: [],
-    ownerInfo: {
-      login: '',
-      __typename: '',
-      name: '',
-      bio: '',
-      description: '',
-      createdAt: null,
-      company: '',
-      location: '',
-      websiteUrl: null,
-      repositories: {
-        totalCount: 0,
-      },
-      membersWithRole: {
-        totalCount: 0,
-      },
-    },
     stars: [],
     forks: [],
     pulls: [],

@@ -13,35 +13,57 @@
 // limitations under the License.
 
 import { HostingClientBase } from '../../basic/HostingPlatform/HostingClientBase';
-import { parseRepoName, ParseDate, waitUntil } from '../../basic/Utils';
+import { parseRepoName, ParseDate } from '../../basic/Utils';
 import { Octokit } from '@octokit/rest';
 import { CheckRun, CreatePullRequestOption, RepoDir, RepoFile } from '../../basic/DataTypes';
 import { Application } from 'egg';
 import { DataCat } from 'github-data-cat';
 import { RepoDataService } from '../../basic/HostingPlatform/HostingClientService/RepoDataService';
 import { GitHubConfig } from './GitHubConfig';
+import { GitHubApp } from './GitHubApp';
 import { HostingBase } from '../../basic/HostingPlatform/HostingBase';
 
 export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
 
   private owner: string;
   private repo: string;
-  private repoName: {owner: string, repo: string};
-  private dataCat: DataCat;
+  private repoName: { owner: string, repo: string };
+  private githubApp: GitHubApp;
+  private id: number;
+  private installationId: number;
 
-  constructor(name: string, hostId: number, app: Application, dataCat: DataCat,
+  constructor(name: string, hostId: number, app: Application, installationId: number, id: number,
     hostBase: HostingBase<GitHubConfig, HostingClientBase<GitHubConfig, Octokit>, Octokit>) {
     super(name, hostId, app, hostBase);
+    this.githubApp = hostBase as unknown as GitHubApp;
+    this.id = id;
+    this.installationId = installationId;
     this.repoName = parseRepoName(name);
+    // setup client and reset token before every request
+    this.rawClient = new Octokit();
+    this.rawClient.hook.before('request', async () => {
+      const token = await this.githubApp.getAccessToken(this.installationId, this.id);
+      this.rawClient.auth({
+        type: 'token',
+        token,
+      });
+    });
     ({ owner: this.owner, repo: this.repo } = this.repoName);
-    this.dataCat = dataCat;
   }
 
   protected async updateData(): Promise<void> {
     this.logger.info(`Start to update data for ${this.fullName}`);
 
-    const dataCat = this.dataCat;
-    await waitUntil(() => dataCat.inited);
+    // generate 2 tokens to get data in case insufficient rate limit
+    const tokens = [
+      await this.githubApp.getAccessToken(this.installationId, this.id),
+      await this.githubApp.getAccessToken(this.installationId, this.id),
+    ];
+    const dataCat = new DataCat({
+      tokens,
+      maxConcurrentReqNumber: 1, // use a minimal concurrent request to avoid API abuse
+    });
+    await dataCat.init();
 
     const full = await dataCat.repo.full(this.owner, this.repo, {
       contributors: true,
@@ -49,10 +71,12 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
       stars: true,
       forks: true,
       pulls: true,
+      withOwner: false,
     });
 
     this.repoDataService.setRepoData({
       ...full,
+      id: parseInt(full.id),
       stars: full.stars.map(star => {
         return {
           ...star,
@@ -68,12 +92,14 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
       issues: full.issues.map(issue => {
         return {
           ...issue,
+          id: parseInt(issue.id),
           createdAt: new Date(issue.createdAt),
           updatedAt: new Date(issue.updatedAt),
           closedAt: ParseDate(issue.closedAt),
           comments: issue.comments.map(comment => {
             return {
               ...comment,
+              id: parseInt(comment.id),
               createdAt: new Date(comment.createdAt),
             };
           }),
@@ -82,6 +108,7 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
       pulls: full.pulls.map(pull => {
         return {
           ...pull,
+          id: parseInt(pull.id),
           createdAt: new Date(pull.createdAt),
           updatedAt: new Date(pull.updatedAt),
           closedAt: ParseDate(pull.closedAt),
@@ -89,12 +116,14 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
           comments: pull.comments.map(c => {
             return {
               ...c,
+              id: parseInt(c.id),
               createdAt: new Date(c.createdAt),
             };
           }),
           reviewComments: pull.reviewComments.map(rc => {
             return {
               ...rc,
+              id: parseInt(rc.id),
               createdAt: new Date(rc.createdAt),
             };
           }),
@@ -113,13 +142,13 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
     try {
       let res;
       if (ref) {
-        res = await this.rawClient.repos.getContents({
+        res = await this.rawClient.repos.getContent({
           ...this.repoName,
           path,
           ref,
         });
       } else {
-        res = await this.rawClient.repos.getContents({
+        res = await this.rawClient.repos.getContent({
           ...this.repoName,
           path,
         });
@@ -139,13 +168,13 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
     try {
       let res;
       if (ref) {
-        res = await this.rawClient.repos.getContents({
+        res = await this.rawClient.repos.getContent({
           ...this.repoName,
           path,
           ref,
         });
       } else {
-        res = await this.rawClient.repos.getContents({
+        res = await this.rawClient.repos.getContent({
           ...this.repoName,
           path,
         });
@@ -165,7 +194,7 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
     });
   }
 
-  public async listLabels(): Promise<Array<{name: string, description: string, color: string}>> {
+  public async listLabels(): Promise<Array<{ name: string, description: string, color: string }>> {
     const res = await this.rawClient.issues.listLabelsForRepo({
       ...this.repoName,
       per_page: 100,
@@ -173,13 +202,13 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
     return res.data.map(r => {
       return {
         name: r.name,
-        description: r.description,
+        description: r.description ?? '',
         color: r.color,
       };
     });
   }
 
-  public async updateIssue(number: number, update: {title?: string, body?: string, state?: 'open' | 'closed'}): Promise<void> {
+  public async updateIssue(number: number, update: { title?: string, body?: string, state?: 'open' | 'closed' }): Promise<void> {
     await this.rawClient.issues.update({
       ...this.repoName,
       issue_number: number,
@@ -187,7 +216,8 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
     });
   }
 
-  public async updatePull(number: number, update: { title?: string;
+  public async updatePull(number: number, update: {
+    title?: string;
     body?: string;
     state?: 'open' | 'closed'
   }): Promise<void> {
@@ -239,7 +269,7 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
     });
   }
 
-  public async createLabels(labels: Array<{name: string, description: string, color: string}>): Promise<void> {
+  public async createLabels(labels: Array<{ name: string, description: string, color: string }>): Promise<void> {
     await Promise.all(labels.map(label => {
       return this.rawClient.issues.createLabel({
         ...this.repoName,
@@ -254,13 +284,14 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
       return this.rawClient.issues.updateLabel({
         ...this.repoName,
         ...label,
+        name: label.current_name,
       });
     }));
   }
 
   public async createCheckRun(check: CheckRun): Promise<void> {
-    const res = await this.rawClient.checks.create(check);
-    this.logger.info(`new check result ${res.status}`);
+    // const res = await this.rawClient.checks.create(check);
+    this.logger.info(`new check result ${check}`);
   }
 
   public async merge(num: number): Promise<void> {
@@ -275,7 +306,9 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
     await this.rawClient.issues.addAssignees({
       ...this.repoName,
       issue_number: num,
-      assignees: [ login ],
+      assignees: [
+        login,
+      ],
     });
   }
 
@@ -324,7 +357,7 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
     if (originFile) {
       sha = originFile.sha;
     }
-    await this.rawClient.repos.createOrUpdateFile({
+    await this.rawClient.repos.createOrUpdateFileContents({
       repo: this.repo,
       owner: this.owner,
       content: content64,

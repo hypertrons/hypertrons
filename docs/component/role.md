@@ -6,7 +6,7 @@ Define the role type of the members in the warehouse. Different roles have diffe
 
 - name
 
-String type. The name of the role.
+String type. The name of the role. There are two reserved roles: `notauthor`(which means the command can not br triggered by the author of the issue or pull request) and `anyone`(which means the commands can be triggered by anyone).
 
 - description
 
@@ -14,7 +14,7 @@ String type. The description of the role.
 
 - users
 
-String array type. Users who have permissions to this role.
+String array type. Users(GitHub logins) who have permissions to this role.
 
 - commands
 
@@ -22,4 +22,4 @@ String array type. Commands that can be used by permissions of this role. See th
 
 ## Related components
 
-- command
+- [command](/component/command.md)

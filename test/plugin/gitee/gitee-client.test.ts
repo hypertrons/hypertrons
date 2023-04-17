@@ -29,7 +29,7 @@ describe('GiteeClient', () => {
   before(async () => {
     ({ app, agent } = await prepareTestApplication());
     client = new GiteeClient('owner/repo', 42, app, new MockRawClient() as any, new MockHostingBase() as any);
-    testResult = (client.getRawClient() as any).testResult;
+    testResult = (client as any).rawClient.testResult;
   });
   afterEach(() => {
     testResult.length = 0;

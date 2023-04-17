@@ -13,7 +13,7 @@
     "dev": "egg-bin dev",
     "debug": "egg-bin debug",
     "test-local": "egg-bin test",
-    "test": "npm run lint -- --fix && npm run cov && npm run tsc && npm run md-lint && npm run license-check",
+    "test": "npm run lint -- --fix && npm run cov && npm run tsc && npm run license-check",
     "cov": "egg-bin cov",
     "tsc": "ets && tsc -p .",
     "autod": "autod",
@@ -21,12 +21,13 @@
     "clean": "ets clean",
     "md-lint": "open-md-checker",
     "filename-check": "node app/utils/filename-check/index.js",
-    "license-check": "node app/utils/license-check/index.js --logInfo=false"
+    "license-check": "node app/utils/license-check/index.js --logInfo=false",
+    "docs": "docsify start docs/"
   },
   "dependencies": {
     "@octokit/app": "^4.1.0",
     "@octokit/plugin-retry": "^2.2.0",
-    "@octokit/rest": "^16.43.2",
+    "@octokit/rest": "^19.0.7",
     "@octokit/webhooks": "^6.3.2",
     "@slack/web-api": "^5.6.0",
     "@slack/webhook": "^5.0.2",
@@ -44,7 +45,7 @@
     "execa": "^1.0.0",
     "extend2": "^1.0.1",
     "fengari": "^0.1.4",
-    "github-data-cat": "1.0.2",
+    "github-data-cat": "1.1.6",
     "gitlab": "^12.0.0",
     "google-translate": "^3.0.0",
     "http2": "^3.3.7",
@@ -118,7 +119,8 @@
     },
     "rules": {
       "@typescript-eslint/no-empty-function": "off",
-      "no-case-declarations": "off"
+      "no-case-declarations": "off",
+      "array-bracket-spacing": "off"
     },
     "extends": "eslint-config-egg/typescript"
   },

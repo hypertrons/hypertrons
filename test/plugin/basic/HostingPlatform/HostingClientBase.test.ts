@@ -40,7 +40,7 @@ describe('HostingClientBase', () => {
   beforeEach(async () => {
     ({ app, agent } = await prepareTestApplication());
 
-    client = new GitHubClient('hypertrons/test', 0, app, null as any, new MockHostingBase() as any);
+    client = new GitHubClient('hypertrons/test', 0, app, 0, 0, new MockHostingBase() as any);
     (client as any).services.forEach(service => {
       service.onStart = async () => onStartCount++;
     });
@@ -141,10 +141,4 @@ weekly_report()
     });
   });
 
-  describe('get and set RawClient()', () => {
-    it('right case', async () => {
-      client.setRawClient({ foo: 'bar' } as any);
-      deepEqual(client.getRawClient(), { foo: 'bar' });
-    });
-  });
 });

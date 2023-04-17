@@ -1,9 +1,6 @@
 -   [Home](/)
 
--   Events
-
-    - [Summer 2020](/event/summer2020.md)
-    - [Summer 2021](/event/summer2021.md)
+-   [Architecture](/architecture.md)
 
 -   [Plugins](/plugin/index.md)
 
@@ -24,7 +21,12 @@
         - [CI](/plugin/external/ci.md)
 
 -   [Component](/component/index.md)
-  
+
+    -   [Core](/component/core)
+
+        - [API](component/core/API.md)
+        - [event](component/core/event.md)
+        - [schedule](component/core/schedule.md)
     - [approve](/component/approve.md)
     - [auto_label](/component/auto_label.md)
     - [ci](/component/ci.md)
@@ -36,3 +38,8 @@
     - [role](/component/role.md)
     - [self_assign](/component/self_assign.md)
     - [vote](/component/vote.md)
+
+-   Events
+
+    - [Summer 2020](/event/summer2020.md)
+    - [Summer 2021](/event/summer2021.md)

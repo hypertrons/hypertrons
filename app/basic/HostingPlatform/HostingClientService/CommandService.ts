@@ -65,19 +65,27 @@ export class CommandService<TConfig extends HostingConfigBase, TRawClient>
     this.client.eventService.subscribeOne(IssueCommentEvent, async e => {
       this.logger.info(`Start to resolve the comment event for ${e.installationId} and repo ${e.fullName}`);
       if (!e.comment) return;
-      const issue = this.client.getRepoData().issues.find(issue => issue.number === e.issueNumber);
-      const pull = this.client.getRepoData().pulls.find(pull => pull.number === e.issueNumber);
-      if (!issue && !pull) return;
+      let author = e.comment.login;
+      let number = -1;
+      let isIssue = true;
+      if (this.client.getRepoData()) {
+        const issue = this.client.getRepoData().issues.find(issue => issue.number === e.issueNumber);
+        const pull = this.client.getRepoData().pulls.find(pull => pull.number === e.issueNumber);
+        if (issue) {
+          author = issue.author;
+          number = issue.number;
+        }
+        if (pull) {
+          author = pull.author;
+          number = pull.number;
+          isIssue = false;
+        }
+      }
       if (e.action === 'created' || e.action === 'edited') {
         this.logger.info(`the comment's body is ${e.comment.body}`);
         const commands = this.getCommandsFromBody(e.comment.body).filter(c => {
           if (!e.comment) return false;
-          if (issue) {
-            return this.checkCommand(c.exec, e.comment.login, issue.author, 'comment', true, issue.number);
-          } else if (pull) {
-            return this.checkCommand(c.exec, e.comment.login, pull.author, 'pull_comment', false, pull.number);
-          }
-          return false;
+          return this.checkCommand(c.exec, e.comment.login, author, isIssue ? 'comment' : 'pull_comment', false, number);
         });
         commands.forEach(command => {
           this.logger.info(`extract the command is ${command.exec}`);
@@ -86,7 +94,7 @@ export class CommandService<TConfig extends HostingConfigBase, TRawClient>
             installationId: e.installationId,
             fullName: e.fullName,
             login: (e.comment as any).login,
-            from: issue ? 'comment' : 'pull_comment',
+            from: isIssue ? 'comment' : 'pull_comment',
             number: e.issueNumber,
             issue: undefined,
             comment: e.comment,

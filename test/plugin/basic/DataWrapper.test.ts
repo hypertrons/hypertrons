@@ -131,19 +131,6 @@ describe('GithubWrapper', () => {
   const myRepo: Repo = {
     id: 0,
     owner: '',
-    ownerInfo: {
-      login: '',
-      __typename: '',
-      name: 'name',
-      bio: '',
-      description: '',
-      createdAt: null,
-      company: '',
-      location: '',
-      websiteUrl: null,
-      repositories: { totalCount: 0 },
-      membersWithRole: { totalCount: 0 },
-    },
     name: '',
     license: null,
     codeOfConduct: null,
@@ -439,19 +426,6 @@ describe('GithubWrapper', () => {
       };
       const res = githubWrapper.repoWrapper(test);
       assert(res === undefined);
-    });
-
-    it('repo.owner.name="" if repo.owner.name is empty', async () => {
-      const name = githubRepo.owner.name;
-      githubRepo.owner.name = undefined;
-      const res = githubWrapper.repoWrapper(githubRepo);
-
-      if (res) {
-        assert(res.ownerInfo.name === '');
-      } else {
-        assert(false);
-      }
-      githubRepo.owner.name = name;
     });
 
     it('right case', async () => {
