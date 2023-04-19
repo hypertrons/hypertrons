@@ -46,6 +46,9 @@ describe('GitHubClient', () => {
     getConfig(): any {
       return {};
     }
+    getOctokitInstance(): any {
+      return new MockRawClient();
+    }
   }
 
   /**

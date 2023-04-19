@@ -44,6 +44,9 @@ describe('LuaServiceIM', () => {
     getConfig(): any {
       return {};
     }
+    getOctokitInstance(): any {
+      return {};
+    }
   }
 
   beforeEach(async () => {

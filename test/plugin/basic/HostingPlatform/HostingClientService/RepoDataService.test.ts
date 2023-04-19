@@ -33,6 +33,9 @@ describe('RepoDataService', () => {
     getConfig(): any {
       return {};
     }
+    getOctokitInstance(): any {
+      return {};
+    }
   }
 
   beforeEach(async () => {

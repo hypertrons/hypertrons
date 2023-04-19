@@ -76,6 +76,9 @@ describe('CommandService', () => {
     getConfig(): any {
       return {};
     }
+    getOctokitInstance(): any {
+      return {};
+    }
   }
 
   class MockClient {

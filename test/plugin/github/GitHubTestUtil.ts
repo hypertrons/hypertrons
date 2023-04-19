@@ -23,6 +23,7 @@ import { HostingPlatformInitEvent } from '../../../app/basic/HostingPlatform/eve
 import { GitHubConfig } from '../../../app/plugin/github/GitHubConfig';
 import { waitFor } from '../../Util';
 import { waitUntil } from '../../../app/basic/Utils';
+import { Octokit } from '@octokit/rest';
 
 /**
  * Mock GitHub DataCat
@@ -129,6 +130,9 @@ export class MockRawClient {
  * Only replace some methods that need to connect to Internet
  */
 export class MockGitHubApp extends GitHubApp {
+  public getOctokitInstance = (): Octokit => {
+    return new MockRawClient() as any;
+  };
 
   public async getInstalledRepos(): Promise<Array<{ fullName: string, payload: any }>> {
     const ret: Array<{ fullName: string, payload: any }> = [];
@@ -147,7 +151,6 @@ export class MockGitHubApp extends GitHubApp {
   public async addRepo(name: string): Promise<void> {
     // set token before any request
     const githubClient = new GitHubClient(name, this.id, this.app, 0, 0, this);
-    (githubClient as any).rawClient = new MockRawClient();
     this.clientMap.set(name, async () => githubClient);
   }
 }

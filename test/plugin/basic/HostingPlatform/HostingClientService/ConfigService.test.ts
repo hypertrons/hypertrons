@@ -50,6 +50,9 @@ describe('ConfigService', () => {
     getConfig(): any {
       return {};
     }
+    getOctokitInstance(): any {
+      return {};
+    }
   }
 
   describe('onStart PushEvent', () => {

@@ -32,6 +32,9 @@ describe('LuaServiceLabelSetup', () => {
     getConfig(): any {
       return {};
     }
+    getOctokitInstance(): any {
+      return {};
+    }
   }
   class MockClient {
     getHostingBase(): any {

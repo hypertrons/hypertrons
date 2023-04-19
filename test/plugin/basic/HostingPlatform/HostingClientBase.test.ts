@@ -35,6 +35,9 @@ describe('HostingClientBase', () => {
     getConfig(): any {
       return { updateRepoDataSched: '0 0 8 * * *' };
     }
+    getOctokitInstance(): any {
+      return {};
+    }
   }
 
   beforeEach(async () => {

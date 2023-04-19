@@ -29,6 +29,9 @@ describe('EventManager', () => {
     getName() {
       return 'name';
     }
+    getOctokitInstance(): any {
+      return {};
+    }
   }
   class MockClient {
     mockHostingBase: MockHostingBase;
