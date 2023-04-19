@@ -104,6 +104,7 @@ export class LuaService<TConfig extends HostingConfigBase, TRawClient> extends C
     const { luaScript, offset } = this.client.configService.getLuaScriptAndOffset();
     if (!luaScript || luaScript === '') {
       // do not init if no lua script content found
+      this.logger.info('No lua script found.');
       return;
     }
 

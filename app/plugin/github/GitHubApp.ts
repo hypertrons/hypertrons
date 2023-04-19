@@ -17,6 +17,7 @@ import { GitHubConfig } from './GitHubConfig';
 import { GitHubClient } from './GitHubClient';
 import { Octokit } from '@octokit/rest';
 import retry = require('@octokit/plugin-retry');
+import { createAppAuth } from '@octokit/auth-app';
 import { Application, Context } from 'egg';
 import { App } from '@octokit/app';
 import { join } from 'path';
@@ -38,6 +39,7 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
 
   private githubApp: App;
   private webhooks: Webhooks;
+  public getOctokitInstance: (installationId: number) => Octokit;
 
   constructor(id: number, config: GitHubConfig, app: Application) {
     super('github', id, config, app);
@@ -50,6 +52,16 @@ export class GitHubApp extends HostingBase<GitHubConfig, GitHubClient, Octokit> 
     }
     const privateKey = readFileSync(privateKeyFilePath).toString();
     this.githubApp = new App({ id: this.config.appId, privateKey });
+    this.getOctokitInstance = (installationId: number) : Octokit => {
+      return new Octokit({
+        authStrategy: createAppAuth,
+        auth: {
+          appId: this.config.appId,
+          privateKey,
+          installationId,
+        },
+      });
+    };
   }
 
   public async getInstalledRepos(): Promise<Array<{ fullName: string, payload: any }>> {

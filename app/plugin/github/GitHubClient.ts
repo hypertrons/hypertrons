@@ -40,14 +40,7 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
     this.installationId = installationId;
     this.repoName = parseRepoName(name);
     // setup client and reset token before every request
-    this.rawClient = new Octokit();
-    this.rawClient.hook.before('request', async () => {
-      const token = await this.githubApp.getAccessToken(this.installationId, this.id);
-      this.rawClient.auth({
-        type: 'token',
-        token,
-      });
-    });
+    this.rawClient = this.githubApp.getOctokitInstance(this.installationId);
     ({ owner: this.owner, repo: this.repo } = this.repoName);
   }
 
