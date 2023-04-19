@@ -25,7 +25,7 @@
     "docs": "docsify start docs/"
   },
   "dependencies": {
-    "@octokit/app": "^4.1.0",
+    "@octokit/app": "^10.0.0",
     "@octokit/plugin-retry": "^2.2.0",
     "@octokit/rest": "^19.0.7",
     "@octokit/webhooks": "^6.3.2",
