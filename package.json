@@ -45,7 +45,7 @@
     "execa": "^1.0.0",
     "extend2": "^1.0.1",
     "fengari": "^0.1.4",
-    "github-data-cat": "1.1.6",
+    "github-data-cat": "1.1.9",
     "gitlab": "^12.0.0",
     "google-translate": "^3.0.0",
     "http2": "^3.3.7",
