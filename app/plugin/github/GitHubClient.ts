@@ -47,8 +47,10 @@ export class GitHubClient extends HostingClientBase<GitHubConfig, Octokit> {
   protected async updateData(): Promise<void> {
     this.logger.info(`Start to update data for ${this.fullName}`);
 
-    // generate 2 tokens to get data in case insufficient rate limit
+    // generate 4 tokens to get data in case insufficient rate limit
     const tokens = [
+      await this.githubApp.getAccessToken(this.installationId, this.id),
+      await this.githubApp.getAccessToken(this.installationId, this.id),
       await this.githubApp.getAccessToken(this.installationId, this.id),
       await this.githubApp.getAccessToken(this.installationId, this.id),
     ];
