@@ -134,6 +134,12 @@ on('PullRequestEvent', function (e)
       .. getIssuePullTitle(payload.pull_request)
       addAtUser(payload.assignee)
       sendMsg(text, atUsers)
+  elseif (payload.action == 'review_requested' and arrayContainsItem(compConfig.types, 'pull_review_request')) then
+    local text = getRepoText(payload.repository) .. ' Pull request review requested to '
+      .. getUserText(payload.requested_reviewer) .. ' by ' .. getUserText(payload.sender) .. ' '
+      .. getIssuePullTitle(payload.pull_request)
+      addAtUser(payload.requested_reviewer)
+      sendMsg(text, atUsers)
   end
 end)
 on('IssueCommentEvent', function (e)
